@@ -74,7 +74,7 @@ module.exports = function(options) {
 
     };
 
-	return map(function (file, callback) {
+    return map(function (file, callback) {
 
         if (file.isNull()) {
             callback(null, file);

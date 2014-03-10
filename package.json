@@ -1,6 +1,6 @@
 {
 	"name": "gulp-rev-all",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css,  also fixes references to static assets with each file.",
 	"main": "index.js",
 	"dependencies": {
