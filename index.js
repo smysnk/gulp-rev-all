@@ -66,7 +66,6 @@ module.exports = function(options) {
 
             if (!replaceMap[key]) continue;
             contents = contents.replace(key, replaceMap[key]); 
-            console.log(key + ' ' + replaceMap[key]);
 
         }
 
