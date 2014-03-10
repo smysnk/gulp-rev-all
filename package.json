@@ -1,0 +1,45 @@
+{
+	"name": "gulp-rev-all",
+	"version": "0.0.1",
+	"description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css,  also fixes references to static assets with each file.",
+	"main": "index.js",
+	"dependencies": {
+		"gulp-util": "~2.2.14",
+        "event-stream": "~3.0.16"
+	},
+	"devDependencies": {
+        "gulp": "~3.2.0",
+        "mocha": "~1.13.0",
+        "should": "~2.0.2"        
+	},
+	"scripts": {
+		"test": "mocha"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/smysnk/gulp-rev-all.git"
+	},
+	"keywords": [
+        "gulpplugin",
+        "rev",
+        "revision",
+        "hash",
+        "optimize",
+        "version",
+        "versioning",
+        "cache",
+        "expire",
+        "static",
+        "asset",
+        "assets",
+		"revall"
+	],
+	"author": "Joshua Bellamy-Henn <smysnk@gmail.com>",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/smysnk/gulp-rev-all/issues"
+	},
+	"engines": {
+		"node": ">=0.8"
+	}
+}
