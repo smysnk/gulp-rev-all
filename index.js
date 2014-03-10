@@ -5,7 +5,7 @@ var crypto = require('crypto');
 
 module.exports = function(options) {
 
-    var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:\?[^'"]*?|)(?:\'|\").*?/ig;
+    var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
 
     var count = 0;
@@ -78,9 +78,14 @@ module.exports = function(options) {
 
         if (file.isNull()) {
             callback(null, file);
+            return;
         } else if (file.isStream()) {
             this.emit('error', 'Streams are not supported!');
             callback(null, file);
+            return;
+        } else if (file.stat.isDirectory()) {
+            callback(null, file);
+            return;
         }
 
         revReferencesInFile(file);

@@ -1,6 +1,8 @@
 # [gulp](https://github.com/wearefractal/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
 
-> Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css,  also fixes references to static assets with each file.
+> Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css, also re-writes references in each file to new reved name.
+
+This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference re-writing functionality.
 
 Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
 
@@ -19,7 +21,7 @@ var gulp = require('gulp');
 var revall = require('gulp-rev-all');
 
 gulp.task('default', function () {
-    gulp.src('src/**/*.css', 'src/**/*.js', 'src/**/*.html')
+    gulp.src('src/**')
         .pipe(revall())
         .pipe(gulp.dest('dist'));
 });
