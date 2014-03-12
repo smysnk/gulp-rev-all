@@ -13,6 +13,26 @@ require("mocha");
 
 describe("gulp-rev-all", function() {
 
+
+    it("should revision images without corrupting them", function(done) {
+
+        var stream = gulp.src('fixtures/config1/img/image1.jpg')
+            .pipe(revall({rootDir:'fixtures/config1'}))
+            .pipe(es.map(function(file, cb) {
+                
+                file.contents[0].should.equal(255);
+                file.contents[1].should.equal(216);
+                file.contents[2].should.equal(255);
+                file.contents[3].should.equal(224);
+                cb(null, file);
+                
+            }));
+
+        stream.on('end', done);
+
+    });
+
+
     describe("root html", function() {
 
         it("should resolve reference to css", function(done) {
@@ -22,7 +42,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/css/style.css'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -38,7 +58,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/view/main.html'));                    
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -55,7 +75,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/application.js'));                    
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -72,7 +92,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/img/image1.jpg'));                    
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -89,7 +109,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/img/image2.jpg'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -109,7 +129,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/img/image1.jpg'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
                     cb(null, file);
                     
                 }));
@@ -125,7 +145,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/view/core/footer.html'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     cb(null, file);                    
                 }));
@@ -145,16 +165,16 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.eot'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.woff'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.ttf'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.svg'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     cb(null, file);                    
                 }));
@@ -170,7 +190,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/img/image1.jpg'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     cb(null, file);                    
                 }));
@@ -190,7 +210,7 @@ describe("gulp-rev-all", function() {
                 .pipe(es.map(function(file, cb) {
                     
                     var revedReference = path.basename(tools.revFile('fixtures/config1/view/gps.html'));
-                    should(String(file.contents)).containEql(revedReference);
+                    String(file.contents).should.containEql(revedReference);
 
                     cb(null, file);                    
                 }));

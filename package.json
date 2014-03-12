@@ -37,6 +37,7 @@
         "assets",
 		"aws",
         "s3",
+        "cloudfront",
         "cdn"
 	],
 	"author": "Joshua Bellamy-Henn <smysnk@gmail.com>",

@@ -29,6 +29,7 @@ module.exports = function(options) {
             return;
         } 
 
+        // Only process references in these types of files, otherwise we'll corrupt images etc
         switch(path.extname(file.path)) {
             case '.js':
             case '.css':
