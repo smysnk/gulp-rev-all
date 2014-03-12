@@ -24,7 +24,7 @@
 	"keywords": [
         "gulpplugin",
         "rev",
-        "all"
+        "all",
         "revision",
         "hash",
         "optimize",
