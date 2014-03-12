@@ -1,6 +1,6 @@
 {
 	"name": "gulp-rev-all",
-	"version": "0.0.5",
+	"version": "0.0.6",
 	"description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css, also re-writes references in each file to new reved name.",
 	"main": "index.js",
     "dependencies": {
@@ -40,6 +40,7 @@
         "cloudfront",
         "cdn"
 	],
+    "homepage": "https://github.com/smysnk/gulp-rev-all",
 	"author": "Joshua Bellamy-Henn <smysnk@gmail.com>",
 	"license": "MIT",
 	"bugs": {
