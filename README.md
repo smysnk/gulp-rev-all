@@ -7,7 +7,7 @@ When rev'ing an entire project it is important to update all references in html,
 I wasn't able to find any existing plugin that handled this task. 
 
 [Gulp-rev](https://github.com/sindresorhus/gulp-rev) could revision all files but not update references.  
-[Gulp-usemin](https://www.npmjs.org/package/gulp-usemin) could do both but only using specific markup, I needed a solution that would not require me to add specific markup everwhere.
+[Gulp-usemin](https://www.npmjs.org/package/gulp-usemin) could do both but only using special markup, I needed a solution that would not require me to add markup everwhere.
 
 ## Install
 
