@@ -41,6 +41,7 @@ var s3 = require("gulp-s3");
 var revall = require('gulp-rev-all');
 var gzip = require("gulp-gzip");
 
+var options = { gzippedOnly: true };
 var aws = {
   "key": "AKIAI3Z7CUAFHG53DMJA",
   "secret": "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",
