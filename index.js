@@ -8,17 +8,9 @@ var gutil = require('gulp-util');
 
 module.exports = function(options) {
 
-    var first = true;
     options = options || {};
-    options.rootDir = options.rootDir || path.dirname(file.path);
 
     return through.obj(function (file, enc, callback) {
-
-        if (first) {
-            first = false;
-            gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
-            
-        }
 
         if (file.isNull()) {
             callback(null, file);
@@ -29,6 +21,12 @@ module.exports = function(options) {
             return;
         } 
 
+        // Best way currently to detect root directory if not suppliec
+        if (file.path.match('index.html') && options.rootDir === undefined) {
+            options.rootDir = path.dirname(file.path);
+            gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
+        }
+
         // Only process references in these types of files, otherwise we'll corrupt images etc
         switch(path.extname(file.path)) {
             case '.js':
@@ -36,7 +34,6 @@ module.exports = function(options) {
             case '.html':
                 tools.revReferencesInFile(file, options.rootDir);
         }
-
 
         var filenameReved = path.basename(tools.revFile(file.path));
         var base = path.dirname(file.path);        

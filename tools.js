@@ -35,6 +35,7 @@ module.exports = ( function () {
     var revReferencesInFile = function (file, rootDir) {
 
         var replaceMap = {};
+        rootDir = rootDir || path.dirname(file.path);
 
         gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
         // Create a map of file references and their proper revisioned name
@@ -46,14 +47,14 @@ module.exports = ( function () {
             if (replaceMap[result[1]] != undefined) continue;
             replaceMap[result[1]] = false;
 
-            var base = rootDir;
-
             // In the case where the referenced file is relative to the base path
-            var fullpath = path.join(base, result[1]);
-            if (fs.existsSync(fullpath)) {
-                replaceMap[result[1]] = path.dirname(result[1]) + '/' + path.basename(revFile(fullpath));
-                gutil.log('gulp-rev-all:', 'Found root reference [', result[1], '] -> [', replaceMap[result[1]], ']');
-                continue;
+            if (rootDir) {
+                var fullpath = path.join(rootDir, result[1]);
+                if (fs.existsSync(fullpath)) {
+                    replaceMap[result[1]] = path.dirname(result[1]) + '/' + path.basename(revFile(fullpath));
+                    gutil.log('gulp-rev-all:', 'Found root reference [', result[1], '] -> [', replaceMap[result[1]], ']');
+                    continue;
+                }
             }
 
             // In the case where the file referenced is relative to the file being processed
@@ -67,10 +68,8 @@ module.exports = ( function () {
         }
 
         for (var key in replaceMap) {
-
             if (!replaceMap[key]) continue;
             contents = contents.replace(key, replaceMap[key]); 
-
         }
 
         file.contents = new Buffer(contents); // Update file contents with new reved references

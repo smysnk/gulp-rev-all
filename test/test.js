@@ -17,7 +17,7 @@ describe("gulp-rev-all", function() {
     it("should revision images without corrupting them", function(done) {
 
         var stream = gulp.src('fixtures/config1/img/image1.jpg')
-            .pipe(revall({rootDir:'fixtures/config1'}))
+            .pipe(revall())
             .pipe(es.map(function(file, cb) {
                 
                 file.contents[0].should.equal(255);
