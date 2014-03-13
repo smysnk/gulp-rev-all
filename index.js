@@ -9,8 +9,17 @@ var gutil = require('gulp-util');
 module.exports = function(options) {
 
     options = options || {};
+    var first = true;
 
     return through.obj(function (file, enc, callback) {
+
+        if (options.rootDir === undefined) options.rootDir = file.base;
+
+        if (first) {
+            gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
+            first = !first;
+        }
+
 
         if (file.isNull()) {
             callback(null, file);
@@ -20,12 +29,6 @@ module.exports = function(options) {
             callback(null, file);
             return;
         } 
-
-        // Best way currently to detect root directory if not suppliec
-        if (file.path.match('index.html') && options.rootDir === undefined) {
-            options.rootDir = path.dirname(file.path);
-            gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
-        }
 
         // Only process references in these types of files, otherwise we'll corrupt images etc
         switch(path.extname(file.path)) {
