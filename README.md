@@ -45,19 +45,20 @@ gulp.task('default', function () {
 ```
 
 
-Revision, GZip, Upload to AWS S3.
 ```js
 var gulp = require('gulp');
 var s3 = require("gulp-s3");
 var revall = require('gulp-rev-all');
 var gzip = require("gulp-gzip");
+var cloudfront = require("gulp-cloudfront");
 
 var options = { gzippedOnly: true };
 var aws = {
-  "key": "AKIAI3Z7CUAFHG53DMJA",
-  "secret": "acYxWRu5RRa6CwzQuhdXEfTpbQA+1XQJ7Z1bGTCx",
-  "bucket": "dev.example.com",
-  "region": "eu-west-1"
+    "key": "AKIAI3Z7CUAFHG53DMJA",
+    "secret": "acYxWRu5RRa6CwzQuhdXEfTpbQA+1XQJ7Z1bGTCx",
+    "bucket": "bucket-name",
+    "region": "eu-west-1",
+    "distributionId": "E1SYAKGEMSK3OD"
 };
 
 gulp.task('default', function () {
@@ -65,6 +66,7 @@ gulp.task('default', function () {
         .pipe(revall())
         .pipe(gzip())
         .pipe(s3(aws, options));
+        .pipe(cloudfront(aws))
         
 });
 ```
