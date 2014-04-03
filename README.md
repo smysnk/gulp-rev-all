@@ -18,7 +18,7 @@ A solution to this problem is adding a revisioned number to the name your static
 This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference re-writing functionality.
 When rev'ing an entire project it is important to update all references in html, js & css files to add the revision hash.
 
-I wasn't able to find any existing plugins that could hand this task.
+I wasn't able to find any existing plugins that could handle this task.
 [Gulp-rev](https://github.com/sindresorhus/gulp-rev) could revision all files but not update references.
 [Gulp-usemin](https://www.npmjs.org/package/gulp-usemin) could do both but only using special markup, I needed a solution that would not require me to add markup everwhere.
 
