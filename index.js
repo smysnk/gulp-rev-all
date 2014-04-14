@@ -20,14 +20,10 @@ module.exports = function(options) {
             first = !first;
         }
 
-
         if (file.isNull()) {
-            callback(null, file);
-            return;
+            return callback(null, file);
         } else if (file.isStream()) {
             throw new Error('Streams are not supported!');
-            callback(null, file);
-            return;
         } 
 
         // Only process references in these types of files, otherwise we'll corrupt images etc
@@ -38,11 +34,9 @@ module.exports = function(options) {
                 tools.revReferencesInFile(file, options.rootDir);
         }
 
-        if (path.extname(file.path) !== '.html') {
-            var filenameReved = path.basename(tools.revFile(file.path));
-            var base = path.dirname(file.path);
-            file.path = path.join(base, filenameReved);
-        }
+        var filenameReved = path.basename(tools.revFile(file.path));
+        var base = path.dirname(file.path);
+        file.path = path.join(base, filenameReved);
 
         callback(null, file);
 
