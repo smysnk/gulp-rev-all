@@ -38,9 +38,11 @@ module.exports = function(options) {
                 tools.revReferencesInFile(file, options.rootDir);
         }
 
-        var filenameReved = path.basename(tools.revFile(file.path));
-        var base = path.dirname(file.path);        
-        file.path = path.join(base, filenameReved);
+        if (path.extname(file.path) !== '.html') {
+            var filenameReved = path.basename(tools.revFile(file.path));
+            var base = path.dirname(file.path);
+            file.path = path.join(base, filenameReved);
+        }
 
         callback(null, file);
 
