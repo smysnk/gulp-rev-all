@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
-var tools = require('./tools');
+var toolsFactory = require('./tools');
 var through = require('through2');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
@@ -13,7 +13,10 @@ module.exports = function(options) {
 
     return through.obj(function (file, enc, callback) {
 
+        var tools = toolsFactory(options);
+
         if (options.rootDir === undefined) options.rootDir = file.base;
+        if (options.ignoredExtensions === undefined) options.ignoredExtensions = [];
 
         if (first) {
             gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');

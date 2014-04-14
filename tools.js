@@ -3,8 +3,7 @@ var path = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
 
-module.exports = ( function () {
-
+module.exports = function(options) {
 
     var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
@@ -24,7 +23,7 @@ module.exports = ( function () {
             filenameReved,
             ext = path.extname(filePath);
 
-        if (ext !== '.html') {
+        if (options.ignoredExtensions.indexOf(ext) === -1) {
           var contents = fs.readFileSync(filePath).toString();
           var hash = md5(contents).slice(0, 8);
           filename = path.basename(filePath, ext) + '-' + hash + ext;
@@ -87,4 +86,4 @@ module.exports = ( function () {
         revReferencesInFile: revReferencesInFile
     }
 
-}());
+};
