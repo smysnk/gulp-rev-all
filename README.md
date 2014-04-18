@@ -67,10 +67,22 @@ gulp.task('default', function () {
         .pipe(gzip())
         .pipe(s3(aws, options));
         .pipe(cloudfront(aws))
-        
+
 });
 ```
 ** Note: I have submitted a [pull request](https://github.com/nkostelnik/gulp-s3/pull/7) to gulp-s3 as it currently does not support file contents from streams, which makes it incompatible with [gulp-gzip](https://github.com/jstuckey/gulp-gzip).  In the mean time you can use my forked version [here](https://github.com/smysnk/gulp-s3).
+
+## Ignoring Extensions
+
+In some cases, you may not want to rev your `*.html` files:
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ ignoredExtensions: ['.html'] }))
+        .pipe(gulp.dest('dist'))
+});
+```
 
 ## Tips
 

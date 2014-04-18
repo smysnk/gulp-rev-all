@@ -3,8 +3,7 @@ var path = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
 
-module.exports = ( function () {
-
+module.exports = function(options) {
 
     var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
@@ -16,20 +15,26 @@ module.exports = ( function () {
 
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var revFile = function (filePath) {
+        if (fileMap[filePath]) {
+          return fileMap[filePath];
+        }
 
-        if (fileMap[filePath]) 
-            return fileMap[filePath];
+        var filename,
+            filenameReved,
+            ext = path.extname(filePath);
 
-        var contents = fs.readFileSync(filePath).toString();
+        if (options.ignoredExtensions.indexOf(ext) === -1) {
+          var contents = fs.readFileSync(filePath).toString();
+          var hash = md5(contents).slice(0, 8);
+          filename = path.basename(filePath, ext) + '-' + hash + ext;
+        } else {
+          filename = path.basename(filePath);
+        }
 
-        var hash = md5(contents).slice(0, 8);
-        var ext = path.extname(filePath);
-        var filename = path.basename(filePath, ext) + '-' + hash + ext;
-        var filePathReved = path.join(path.dirname(filePath), filename);
+        filePathReved = path.join(path.dirname(filePath), filename);
 
         fileMap[filePath] = filePathReved;
         return fileMap[filePath];
-
     };
 
     var revReferencesInFile = function (file, rootDir) {
@@ -69,7 +74,7 @@ module.exports = ( function () {
 
         for (var key in replaceMap) {
             if (!replaceMap[key]) continue;
-            contents = contents.replace(key, replaceMap[key]); 
+            contents = contents.replace(key, replaceMap[key]);
         }
 
         file.contents = new Buffer(contents); // Update file contents with new reved references
@@ -81,4 +86,4 @@ module.exports = ( function () {
         revReferencesInFile: revReferencesInFile
     }
 
-}());
+};
