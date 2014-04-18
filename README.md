@@ -84,6 +84,18 @@ gulp.task('default', function () {
 });
 ```
 
+## Variable Hash Length
+
+Change the length of the hash appended to the end of each file:
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ hashLength: 4 }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
 ## Tips
 
 Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.

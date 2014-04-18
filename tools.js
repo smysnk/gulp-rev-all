@@ -7,6 +7,7 @@ module.exports = function(options) {
 
     var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
+    var hashLength = options.hashLength || 8;
 
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var md5 = function (str) {
@@ -25,7 +26,7 @@ module.exports = function(options) {
 
         if (typeof options.ignoredExtensions === 'undefined' || options.ignoredExtensions.indexOf(ext) === -1) {
             var contents = fs.readFileSync(filePath).toString();
-            var hash = md5(contents).slice(0, 8);
+            var hash = md5(contents).slice(0, hashLength);
             filename = path.basename(filePath, ext) + '-' + hash + ext;
         } else {
             filename = path.basename(filePath);

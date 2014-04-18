@@ -35,45 +35,68 @@ describe("gulp-rev-all", function() {
 
     describe("options:", function() {
 
+        describe("hash length", function() {
+
+            it("should have proper length when specified", function(done) {
+
+                var stream = gulp.src('fixtures/config1/**')
+                    .pipe(revall({ hashLength: 4 }))
+                    .pipe(es.map(function(file, cb) {
+                        
+                        // Check files only, ignore directories
+                        if (!file.isNull()) { 
+                            path.basename(file.path).should.match(/\-[a-z0-9]{4}\.[a-z]{2,4}$/);
+                        }
+
+                        cb(null, file);
+                        
+                    }));
+
+                stream.on('end', done);
+
+            });
+
+        });
+
+
         describe("ignore extension", function() {
 
-                it("should not rename html files when specified", function(done) {
+            it("should not rename html files when specified", function(done) {
 
-                    var stream = gulp.src('fixtures/config1/**/*')
-                        .pipe(revall({ ignoredExtensions: ['.html'] }))
-                        .pipe(es.map(function(file, cb) {
-                            
-                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.html$/);
+                var stream = gulp.src('fixtures/config1/**')
+                    .pipe(revall({ ignoredExtensions: ['.html'] }))
+                    .pipe(es.map(function(file, cb) {
+                        
+                        path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.html$/);
 
-                            cb(null, file);
-                            
-                        }));
+                        cb(null, file);
+                        
+                    }));
 
-                    var stream = gulp.src('fixtures/config1/**/*')
-                        .pipe(revall({ ignoredExtensions: ['.js'] }))
-                        .pipe(es.map(function(file, cb) {
-                            
-                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.js$/);
+                var stream = gulp.src('fixtures/config1/**')
+                    .pipe(revall({ ignoredExtensions: ['.js'] }))
+                    .pipe(es.map(function(file, cb) {
+                        
+                        path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.js$/);
 
-                            cb(null, file);
-                            
-                        }));
+                        cb(null, file);
+                        
+                    }));
 
-                    var stream = gulp.src('fixtures/config1/**/*')
-                        .pipe(revall({ ignoredExtensions: ['.woff'] }))
-                        .pipe(es.map(function(file, cb) {
-                            
-                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.woff$/);
+                var stream = gulp.src('fixtures/config1/**')
+                    .pipe(revall({ ignoredExtensions: ['.woff'] }))
+                    .pipe(es.map(function(file, cb) {
+                        
+                        path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.woff$/);
 
-                            cb(null, file);
-                            
-                        }));
+                        cb(null, file);
+                        
+                    }));
 
 
-                    stream.on('end', done);
+                stream.on('end', done);
 
-                });
-
+            });
 
         });
 
