@@ -23,12 +23,12 @@ module.exports = function(options) {
             filenameReved,
             ext = path.extname(filePath);
 
-        if (options.ignoredExtensions.indexOf(ext) === -1) {
-          var contents = fs.readFileSync(filePath).toString();
-          var hash = md5(contents).slice(0, 8);
-          filename = path.basename(filePath, ext) + '-' + hash + ext;
+        if (typeof options.ignoredExtensions === 'undefined' || options.ignoredExtensions.indexOf(ext) === -1) {
+            var contents = fs.readFileSync(filePath).toString();
+            var hash = md5(contents).slice(0, 8);
+            filename = path.basename(filePath, ext) + '-' + hash + ext;
         } else {
-          filename = path.basename(filePath);
+            filename = path.basename(filePath);
         }
 
         filePathReved = path.join(path.dirname(filePath), filename);
@@ -49,7 +49,7 @@ module.exports = function(options) {
         while (result = filepathRegex.exec(contents)) {
 
             // Skip if we've already resolved this reference
-            if (replaceMap[result[1]] != undefined) continue;
+            if (typeof replaceMap[result[1]] !== 'undefined') continue;
             replaceMap[result[1]] = false;
 
             // In the case where the referenced file is relative to the base path
@@ -84,6 +84,6 @@ module.exports = function(options) {
     return {
         revFile: revFile,
         revReferencesInFile: revReferencesInFile
-    }
+    };
 
 };

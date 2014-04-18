@@ -1,5 +1,5 @@
 var revall = require("../");
-var tools = require("../tools");
+var toolsFactory = require("../tools");
 var should = require("should");
 var gulp = require("gulp");
 var es = require("event-stream");
@@ -13,6 +13,7 @@ require("mocha");
 
 describe("gulp-rev-all", function() {
 
+    var tools = toolsFactory({});
 
     it("should revision images without corrupting them", function(done) {
 
@@ -32,6 +33,51 @@ describe("gulp-rev-all", function() {
 
     });
 
+    describe("options:", function() {
+
+        describe("ignore extension", function() {
+
+                it("should not rename html files when specified", function(done) {
+
+                    var stream = gulp.src('fixtures/config1/**/*')
+                        .pipe(revall({ ignoredExtensions: ['.html'] }))
+                        .pipe(es.map(function(file, cb) {
+                            
+                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.html$/);
+
+                            cb(null, file);
+                            
+                        }));
+
+                    var stream = gulp.src('fixtures/config1/**/*')
+                        .pipe(revall({ ignoredExtensions: ['.js'] }))
+                        .pipe(es.map(function(file, cb) {
+                            
+                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.js$/);
+
+                            cb(null, file);
+                            
+                        }));
+
+                    var stream = gulp.src('fixtures/config1/**/*')
+                        .pipe(revall({ ignoredExtensions: ['.woff'] }))
+                        .pipe(es.map(function(file, cb) {
+                            
+                            path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.woff$/);
+
+                            cb(null, file);
+                            
+                        }));
+
+
+                    stream.on('end', done);
+
+                });
+
+
+        });
+
+    });
 
     describe("root html", function() {
 
