@@ -193,7 +193,7 @@ describe("gulp-rev-all", function() {
             stream.on('data', function (file) {
                 var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image3.jpg'));
                 var count = String(file.contents).match(RegExp(revedReference, 'g'));
-                count.length.should.containEql(2);
+                count.length.should.eql(2);
                 done();
             });
 

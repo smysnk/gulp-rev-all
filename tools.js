@@ -75,7 +75,7 @@ module.exports = function(options) {
 
         for (var key in replaceMap) {
             if (!replaceMap[key]) continue;
-            contents = contents.replace(key, replaceMap[key]);
+            contents = contents.replace(RegExp(key, 'g'), replaceMap[key]);
         }
 
         file.contents = new Buffer(contents); // Update file contents with new reved references
