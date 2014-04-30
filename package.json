@@ -10,9 +10,11 @@
         "chalk": "~0.4.0"        
     },
     "devDependencies": {
+        "glob": "~3.2.9",
         "gulp": "~3.5.5",
         "gulp-jshint": "~1.5.1",
         "gulp-mocha": "~0.4.1",
+        "gulp-util": "~2.2.0",
         "mocha": "~1.13.0",
         "should": "*"
 	},
