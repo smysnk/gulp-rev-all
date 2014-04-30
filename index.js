@@ -10,6 +10,7 @@ module.exports = function(options) {
 
     options = options || {};
     var first = true;
+    var revIndexHtml = !options.noIndexHtmlRev;
 
     return through.obj(function (file, enc, callback) {
 
@@ -17,6 +18,7 @@ module.exports = function(options) {
 
         if (options.rootDir === undefined) options.rootDir = file.base;
         if (options.ignoredExtensions === undefined) options.ignoredExtensions = [];
+
 
         if (first) {
             gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
@@ -37,13 +39,17 @@ module.exports = function(options) {
                 tools.revReferencesInFile(file, options.rootDir);
         }
 
-        // Rename this file with the revion hash
-        var filenameReved = path.basename(tools.revFile(file.path));
-        var base = path.dirname(file.path);
-        file.path = path.join(base, filenameReved);
+
+        var indexPath = path.join(options.rootDir, 'index.html')
+
+        if (path.normalize(file.path) !== path.normalize(indexPath) || revIndexHtml) {
+            // Rename this file with the revion hash
+            var filenameReved = path.basename(tools.revFile(file.path));
+            var base = path.dirname(file.path);
+            file.path = path.join(base, filenameReved);
+        }
 
         callback(null, file);
-
     });
 
 
