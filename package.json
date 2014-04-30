@@ -19,7 +19,7 @@
         "should": "*"
 	},
 	"scripts": {
-		"test": "cd test/ && mocha"   
+		"test": "mocha test/test.js"   
 	},
 	"repository": {
 		"type": "git",
