@@ -64,7 +64,7 @@ module.exports = function(options) {
             }
 
             // In the case where the file referenced is relative to the file being processed
-            var fullpath = path.join(file.base, result[1]);
+            var fullpath = path.join(path.dirname(file.path), result[1]);
             if (fs.existsSync(fullpath)) {
                 replaceMap[result[1]] = path.dirname(result[1]) + '/' + path.basename(revFile(fullpath));
                 gutil.log('gulp-rev-all:', 'Found relative reference [', result[1], '] -> [', replaceMap[result[1]], ']');
