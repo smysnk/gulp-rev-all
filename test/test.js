@@ -13,7 +13,7 @@ var glob = require("glob");
 
 require("mocha");
 
-describe("gulp-rev-all", function() {
+describe("gulp-rev-all", function () {
 
     var tools = toolsFactory({});
 
@@ -62,6 +62,25 @@ describe("gulp-rev-all", function() {
                 stream.end()
             });
         }
+
+        describe("noIndexHtmlRev", function () {
+            it('should not rename index.html if noIndexHtmlRev is set', function(done) {
+
+                stream = revall({rootDir: 'test/fixtures/config1', noIndexHtmlRev: true});
+                stream.on('data', function (file) {
+                    path.basename(file.path).should.not.match(/\index-[a-z0-9]{8}\.html$/);
+                    if (file.path == 'index.html') {
+                        var revedReference = path.basename(tools.revFile('test/fixtures/config1/css/style.css'));
+                        String(file.contents).should.containEql(revedReference);
+                    }
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
+
+        });
 
         describe("hash length", function() {
 
