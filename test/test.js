@@ -63,7 +63,7 @@ describe("gulp-rev-all", function() {
 
             it("should not rename html files when specified", function(done) {
 
-                var stream = gulp.src('fixtures/config1/**')
+                gulp.src('fixtures/config1/**')
                     .pipe(revall({ ignoredExtensions: ['.html'] }))
                     .pipe(es.map(function(file, cb) {
                         
@@ -73,7 +73,7 @@ describe("gulp-rev-all", function() {
                         
                     }));
 
-                var stream = gulp.src('fixtures/config1/**')
+                gulp.src('fixtures/config1/**')
                     .pipe(revall({ ignoredExtensions: ['.js'] }))
                     .pipe(es.map(function(file, cb) {
                         
@@ -233,17 +233,17 @@ describe("gulp-rev-all", function() {
                 .pipe(revall({rootDir:'fixtures/config1'}))
                 .pipe(es.map(function(file, cb) {
                     
-                    var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.eot'));
-                    String(file.contents).should.containEql(revedReference);
+                    var revedReference1 = path.basename(tools.revFile('fixtures/config1/font/font1.eot'));
+                    String(file.contents).should.containEql(revedReference1);
 
-                    var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.woff'));
-                    String(file.contents).should.containEql(revedReference);
+                    var revedReference2 = path.basename(tools.revFile('fixtures/config1/font/font1.woff'));
+                    String(file.contents).should.containEql(revedReference2);
 
-                    var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.ttf'));
-                    String(file.contents).should.containEql(revedReference);
+                    var revedReference3 = path.basename(tools.revFile('fixtures/config1/font/font1.ttf'));
+                    String(file.contents).should.containEql(revedReference3);
 
-                    var revedReference = path.basename(tools.revFile('fixtures/config1/font/font1.svg'));
-                    String(file.contents).should.containEql(revedReference);
+                    var revedReference4 = path.basename(tools.revFile('fixtures/config1/font/font1.svg'));
+                    String(file.contents).should.containEql(revedReference4);
 
                     cb(null, file);                    
                 }));
