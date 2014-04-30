@@ -6,36 +6,18 @@ var gutil = require('gulp-util');
 module.exports = function(options) {
 
     var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
-    var fileMap = {};
     var hashLength = options.hashLength || 8;
 
-    // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
-    var md5 = function (str) {
-        return crypto.createHash('md5').update(str, 'utf8').digest('hex');
-    };
+    var revFile = function (file) {
+        var ext = path.extname(file.path);
 
-    // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
-    var revFile = function (filePath) {
-        if (fileMap[filePath]) {
-          return fileMap[filePath];
-        }
+        if (options.ignoredExtensions && options.ignoredExtensions.indexOf(ext) !== -1)
+            return;
 
-        var filename,
-            filenameReved,
-            ext = path.extname(filePath);
+        var hash = crypto.createHash('md5').update(file.contents).digest('hex');
+        var filename = path.basename(file.path, ext) + '-' + hash.slice(0, hashLength) + ext;
 
-        if (typeof options.ignoredExtensions === 'undefined' || options.ignoredExtensions.indexOf(ext) === -1) {
-            var contents = fs.readFileSync(filePath).toString();
-            var hash = md5(contents).slice(0, hashLength);
-            filename = path.basename(filePath, ext) + '-' + hash + ext;
-        } else {
-            filename = path.basename(filePath);
-        }
-
-        filePathReved = path.join(path.dirname(filePath), filename);
-
-        fileMap[filePath] = filePathReved;
-        return fileMap[filePath];
+        file.path = path.join(path.dirname(file.path), filename);
     };
 
     var revReferencesInFile = function (file, rootDir) {

@@ -37,10 +37,8 @@ module.exports = function(options) {
                 tools.revReferencesInFile(file, options.rootDir);
         }
 
-        // Rename this file with the revion hash
-        var filenameReved = path.basename(tools.revFile(file.path));
-        var base = path.dirname(file.path);
-        file.path = path.join(base, filenameReved);
+        // Rename this file with the revision hash
+        tools.revFile(file);
 
         callback(null, file);
 
