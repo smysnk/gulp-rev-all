@@ -47,10 +47,10 @@ gulp.task('default', function () {
 
 ```js
 var gulp = require('gulp');
-var s3 = require("[gulp-s3](https://www.npmjs.org/package/gulp-s3)");
+var s3 = require("gulp-s3");
 var revall = require('gulp-rev-all');
-var gzip = require("[gulp-gzip](https://www.npmjs.org/package/gulp-gzip)");
-var cloudfront = require("[gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)");
+var gzip = require("gulp-gzip");
+var cloudfront = require("gulp-cloudfront");
 
 var options = { gzippedOnly: true };
 var aws = {
@@ -70,6 +70,11 @@ gulp.task('default', function () {
 
 });
 ```
+  
+  * [gulp-s3](https://www.npmjs.org/package/gulp-s3)
+  * [gulp-gzip](https://www.npmjs.org/package/gulp-gzip)
+  * [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
+
 
 ## API
 
