@@ -15,7 +15,7 @@ require("mocha");
 
 describe("gulp-rev-all", function () {
 
-    var tools = toolsFactory({});
+    var tools = toolsFactory({hashLength: 8, ignore: ['favicon.ico'], rootDir: 'test/fixtures/config1'});
 
     describe('should process images', function() {
         var stream;
@@ -63,30 +63,11 @@ describe("gulp-rev-all", function () {
             });
         }
 
-        describe("noIndexHtmlRev", function () {
-            it('should not rename index.html if noIndexHtmlRev is set', function(done) {
-
-                stream = revall({rootDir: 'test/fixtures/config1', noIndexHtmlRev: true});
-                stream.on('data', function (file) {
-                    path.basename(file.path).should.not.match(/\index-[a-z0-9]{8}\.html$/);
-                    if (file.path == 'index.html') {
-                        var revedReference = path.basename(tools.revFile('test/fixtures/config1/css/style.css'));
-                        String(file.contents).should.containEql(revedReference);
-                    }
-                });
-
-                stream.on('end', done);
-
-                writeFile();
-            });
-
-        });
-
         describe("hash length", function() {
 
             it("should have proper length when specified", function(done) {
 
-                stream = revall({rootDir: 'test/fixtures/config1', hashLength: 4});
+                stream = revall({rootDir: 'test/fixtures/config1', hashLength: 4, ignore: []});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.match(/\-[a-z0-9]{4}\.[a-z]{2,4}$/);
                 });
@@ -99,11 +80,34 @@ describe("gulp-rev-all", function () {
         });
 
 
-        describe("ignore extension", function() {
+        describe("ignore", function() {
 
+
+            it("should not rename favicon.ico by default", function (done) {
+                stream = revall({rootDir: 'test/fixtures/config1'});
+                stream.on('data', function (file) {
+                    path.basename(file.path).should.not.match(/favicon\-[a-z0-9]{8}\.ico$/);
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
+
+            it("should rename nested index", function (done) {
+                stream = revall({rootDir: 'test/fixtures/config1', ignore: [ /^\/index.html/g ]});
+                stream.on('data', function (file) {
+                    file.path.should.not.match(/nested\/index\.html$/);
+                    file.path.should.not.match(/config1\/index\-[a-z0-9]{8}\.html$/);
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
 
             it("should not rename html files when specified", function (done) {
-                stream = revall({rootDir: 'test/fixtures/config1', ignoredExtensions: ['.html']});
+                stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.html']});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.html$/);
                 });
@@ -115,7 +119,7 @@ describe("gulp-rev-all", function () {
 
 
             it("should not rename js files when specified", function (done) {
-                stream = revall({rootDir: 'test/fixtures/config1', ignoredExtensions: ['.js']});
+                stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.js']});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.js$/);
                 });
@@ -126,9 +130,20 @@ describe("gulp-rev-all", function () {
 
 
             it("should not rename woff files when specified", function (done) {
-                stream = revall({rootDir: 'test/fixtures/config1', ignoredExtensions: ['.woff']});
+                stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.woff']});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.woff$/);
+                });
+                stream.on('end', done);
+
+                writeFile();
+            });
+
+
+            it("should rename all files when ignore not specified", function (done) {
+                stream = revall({rootDir: 'test/fixtures/config1'});
+                stream.on('data', function (file) {
+                    path.basename(file.path).should.match(/(\-[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
                 });
                 stream.on('end', done);
 
@@ -152,6 +167,16 @@ describe("gulp-rev-all", function () {
                 contents: fs.readFileSync('test/fixtures/config1/index.html')
             }));
         }
+
+        it("should resolve absolute path reference", function(done) {
+            stream.on('data', function (file) {
+                var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
+                String(file.contents).should.containEql("'/" + revedReference);
+                done();
+            });
+
+            writeFile();
+        });
 
         it("should resolve reference to css", function(done) {
             stream.on('data', function (file) {

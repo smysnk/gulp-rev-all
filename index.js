@@ -8,19 +8,17 @@ var gutil = require('gulp-util');
 
 module.exports = function(options) {
 
+    var first = true;    
     options = options || {};
-    var first = true;
-    var revIndexHtml = !options.noIndexHtmlRev;
+    options.hashLength = options.hashLength || 8;
+    options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
 
     return through.obj(function (file, enc, callback) {
 
         var tools = toolsFactory(options);
 
-        if (options.rootDir === undefined) options.rootDir = file.base;
-        if (options.ignoredExtensions === undefined) options.ignoredExtensions = [];
-
-
         if (first) {
+            options.rootDir = options.rootDir || file.base;
             gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
             first = !first;
         }
@@ -36,14 +34,11 @@ module.exports = function(options) {
             case '.js':
             case '.css':
             case '.html':
-                tools.revReferencesInFile(file, options.rootDir);
+                tools.revReferencesInFile(file);
         }
 
-
-        var indexPath = path.join(options.rootDir, 'index.html')
-
-        if (path.normalize(file.path) !== path.normalize(indexPath) || revIndexHtml) {
-            // Rename this file with the revion hash
+        // Rename this file with the revion hash if doesn't match ignore list
+        if (!tools.isFileIgnored(file)) {            
             var filenameReved = path.basename(tools.revFile(file.path));
             var base = path.dirname(file.path);
             file.path = path.join(base, filenameReved);

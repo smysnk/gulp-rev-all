@@ -70,21 +70,38 @@ gulp.task('default', function () {
 
 });
 ```
-** Note: I have submitted a [pull request](https://github.com/nkostelnik/gulp-s3/pull/7) to gulp-s3 as it currently does not support file contents from streams, which makes it incompatible with [gulp-gzip](https://github.com/jstuckey/gulp-gzip).  In the mean time you can use my forked version [here](https://github.com/smysnk/gulp-s3).
 
-## Ignoring Extensions
+## API
+
+#### options.ignore
+
+Type: `Array of RegEx or String`
+Default: `[ /^\/favicon.ico$/ ]`
 
 In some cases, you may not want to rev your `*.html` files:
 
 ```js
 gulp.task('default', function () {
     gulp.src('dist/**')
-        .pipe(revall({ ignoredExtensions: ['.html'] }))
+        .pipe(revall({ ignore: [/^\/favicon.ico$/g, '.html'] }))
         .pipe(gulp.dest('dist'))
 });
 ```
 
-## Variable Hash Length
+Every html file except the root `/index.html` file:
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ ignore: [/^\/favicon.ico$/g, /^\/index.html/g] }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
+#### options.hashLength
+
+Type: `hashLength`          
+Default: `8`
 
 Change the length of the hash appended to the end of each file:
 

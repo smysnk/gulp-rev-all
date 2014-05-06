@@ -7,11 +7,22 @@ module.exports = function(options) {
 
     var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
-    var hashLength = options.hashLength || 8;
-
+    
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var md5 = function (str) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
+    };
+
+    var isFileIgnored = function (file) {
+
+        var filename = (typeof file === 'string') ? file : file.path;
+        filename = filename.substr(options.rootDir.length);
+
+        for (var i = options.ignore.length; i--;) {
+            var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
+            if (filename.match(regex)) return true;
+        }
+        return false;
     };
 
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
@@ -24,13 +35,13 @@ module.exports = function(options) {
             filenameReved,
             ext = path.extname(filePath);
 
-        if (typeof options.ignoredExtensions === 'undefined' || options.ignoredExtensions.indexOf(ext) === -1) {
-            var contents = fs.readFileSync(filePath).toString();
-            var hash = md5(contents).slice(0, hashLength);
-            filename = path.basename(filePath, ext) + '-' + hash + ext;
-        } else {
+        if (isFileIgnored(filePath)) {
             filename = path.basename(filePath);
-        }
+        } else {
+            var contents = fs.readFileSync(filePath).toString();
+            var hash = md5(contents).slice(0, options.hashLength);
+            filename = path.basename(filePath, ext) + '-' + hash + ext;
+        } 
 
         filePathReved = path.join(path.dirname(filePath), filename);
 
@@ -38,10 +49,9 @@ module.exports = function(options) {
         return fileMap[filePath];
     };
 
-    var revReferencesInFile = function (file, rootDir) {
+    var revReferencesInFile = function (file) {
 
         var replaceMap = {};
-        rootDir = rootDir || path.dirname(file.path);
 
         gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
         // Create a map of file references and their proper revisioned name
@@ -54,19 +64,17 @@ module.exports = function(options) {
             replaceMap[result[1]] = false;
 
             // In the case where the referenced file is relative to the base path
-            if (rootDir) {
-                var fullpath = path.join(rootDir, result[1]);
-                if (fs.existsSync(fullpath)) {
-                    replaceMap[result[1]] = path.dirname(result[1]) + '/' + path.basename(revFile(fullpath));
-                    gutil.log('gulp-rev-all:', 'Found root reference [', result[1], '] -> [', replaceMap[result[1]], ']');
-                    continue;
-                }
+            var fullpath = path.join(options.rootDir, result[1]);
+            if (fs.existsSync(fullpath)) {
+                replaceMap[result[1]] = path.join(path.dirname(result[1]), path.basename(revFile(fullpath)));
+                gutil.log('gulp-rev-all:', 'Found root reference [', result[1], '] -> [', replaceMap[result[1]], ']');
+                continue;
             }
 
             // In the case where the file referenced is relative to the file being processed
             var fullpath = path.join(path.dirname(file.path), result[1]);
             if (fs.existsSync(fullpath)) {
-                replaceMap[result[1]] = path.dirname(result[1]) + '/' + path.basename(revFile(fullpath));
+                replaceMap[result[1]] = path.join(path.dirname(result[1]), path.basename(revFile(fullpath)));
                 gutil.log('gulp-rev-all:', 'Found relative reference [', result[1], '] -> [', replaceMap[result[1]], ']');
                 continue;
             }
@@ -82,9 +90,11 @@ module.exports = function(options) {
 
     };
 
+
     return {
         revFile: revFile,
-        revReferencesInFile: revReferencesInFile
+        revReferencesInFile: revReferencesInFile,
+        isFileIgnored: isFileIgnored
     };
 
 };
