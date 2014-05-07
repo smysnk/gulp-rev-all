@@ -65,8 +65,8 @@ gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall())
         .pipe(gzip())
-        .pipe(s3(aws, options));
-        .pipe(cloudfront(aws))
+        .pipe(s3(aws, options))
+        .pipe(cloudfront(aws));
 
 });
 ```
