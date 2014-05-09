@@ -69,7 +69,7 @@ describe("gulp-rev-all", function () {
 
                 stream = revall({rootDir: 'test/fixtures/config1', hashLength: 4, ignore: []});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.match(/\-[a-z0-9]{4}\.[a-z]{2,4}$/);
+                    path.basename(file.path).should.match(/\.[a-z0-9]{4}\.[a-z]{2,4}$/);
                 });
 
                 stream.on('end', done);
@@ -86,7 +86,7 @@ describe("gulp-rev-all", function () {
             it("should not rename favicon.ico by default", function (done) {
                 stream = revall({rootDir: 'test/fixtures/config1'});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.not.match(/favicon\-[a-z0-9]{8}\.ico$/);
+                    path.basename(file.path).should.not.match(/favicon\.[a-z0-9]{8}\.ico$/);
                 });
 
                 stream.on('end', done);
@@ -98,7 +98,7 @@ describe("gulp-rev-all", function () {
                 stream = revall({rootDir: 'test/fixtures/config1', ignore: [ /^\/index.html/g ]});
                 stream.on('data', function (file) {
                     file.path.should.not.match(/nested\/index\.html$/);
-                    file.path.should.not.match(/config1\/index\-[a-z0-9]{8}\.html$/);
+                    file.path.should.not.match(/config1\/index\.[a-z0-9]{8}\.html$/);
                 });
 
                 stream.on('end', done);
@@ -109,7 +109,7 @@ describe("gulp-rev-all", function () {
             it("should not rename html files when specified", function (done) {
                 stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.html']});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.html$/);
+                    path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.html$/);
                 });
 
                 stream.on('end', done);
@@ -121,7 +121,7 @@ describe("gulp-rev-all", function () {
             it("should not rename js files when specified", function (done) {
                 stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.js']});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.js$/);
+                    path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.js$/);
                 });
                 stream.on('end', done);
 
@@ -132,7 +132,7 @@ describe("gulp-rev-all", function () {
             it("should not rename woff files when specified", function (done) {
                 stream = revall({rootDir: 'test/fixtures/config1', ignore: ['.woff']});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.not.match(/\-[a-z0-9]{8}\.woff$/);
+                    path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.woff$/);
                 });
                 stream.on('end', done);
 
@@ -143,7 +143,7 @@ describe("gulp-rev-all", function () {
             it("should rename all files when ignore not specified", function (done) {
                 stream = revall({rootDir: 'test/fixtures/config1'});
                 stream.on('data', function (file) {
-                    path.basename(file.path).should.match(/(\-[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
+                    path.basename(file.path).should.match(/(\.[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
                 });
                 stream.on('end', done);
 
