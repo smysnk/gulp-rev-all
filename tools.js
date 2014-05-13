@@ -5,7 +5,7 @@ var gutil = require('gulp-util');
 
 module.exports = function(options) {
 
-    var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
+    var filepathRegex = /.*?(?:\'|\")([a-z0-9_\-\/\.]+?\.[a-z]{2,})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
     var fileMap = {};
     
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
