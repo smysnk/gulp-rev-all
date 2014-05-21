@@ -40,7 +40,7 @@ module.exports = function(options) {
         } else {
             var contents = fs.readFileSync(filePath).toString();
             var hash = md5(contents).slice(0, options.hashLength);
-            filename = path.basename(filePath, ext) + '-' + hash + ext;
+            filename = path.basename(filePath, ext) + '.rev.' + hash + ext;
         } 
 
         filePathReved = path.join(path.dirname(filePath), filename);
@@ -66,7 +66,11 @@ module.exports = function(options) {
             // In the case where the referenced file is relative to the base path
             var fullpath = path.join(options.rootDir, result[1]);
             if (fs.existsSync(fullpath)) {
-                replaceMap[result[1]] = path.join(path.dirname(result[1]), path.basename(revFile(fullpath)));
+                newPath = path.join(path.dirname(result[1]), path.basename(revFile(fullpath)));
+                if (options.prefix) {
+                  newPath = options.prefix + newPath;
+                }
+                replaceMap[result[1]] = newPath;
                 gutil.log('gulp-rev-all:', 'Found root reference [', result[1], '] -> [', replaceMap[result[1]], ']');
                 continue;
             }
