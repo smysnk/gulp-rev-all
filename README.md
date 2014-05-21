@@ -119,7 +119,7 @@ gulp.task('default', function () {
 #### options.prefix
 
 Type: `prefix`
-Default: ``
+Default: `none`
 
 Prefixes matched files with a string. Useful for adding a full url path to files. 
 
