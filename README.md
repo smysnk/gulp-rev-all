@@ -116,6 +116,20 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.hashLength
+
+Type: `prefix`          
+
+Prefixes the matched files with a string. Useful for adding a full url path to files. 
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ prefix: 'http://1234.cloudfront.net/' }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
 ## Tips
 
 Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
