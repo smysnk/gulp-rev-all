@@ -178,6 +178,17 @@ describe("gulp-rev-all", function () {
             writeFile();
         });
 
+        it ("should prefix replaced references if a prefix is supplied", function(done) {
+          stream = revall({rootDir:'test/fixtures/config1', prefix: 'http://example.com'})
+          stream.on('data', function (file) {
+              var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
+              String(file.contents).should.containEql("http://example.com/" + revedReference);
+              done();
+          });
+
+          writeFile();
+        });
+
         it("should resolve reference to css", function(done) {
             stream.on('data', function (file) {
                 var revedReference = path.basename(tools.revFile('test/fixtures/config1/css/style.css'));
