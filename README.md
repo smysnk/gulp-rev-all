@@ -116,11 +116,12 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.hashLength
+#### options.prefix
 
-Type: `prefix`          
+Type: `prefix`
+Default: ``
 
-Prefixes the matched files with a string. Useful for adding a full url path to files. 
+Prefixes matched files with a string. Useful for adding a full url path to files. 
 
 ```js
 gulp.task('default', function () {
