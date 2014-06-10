@@ -179,14 +179,33 @@ describe("gulp-rev-all", function () {
         });
 
         it ("should prefix replaced references if a prefix is supplied", function(done) {
-          stream = revall({rootDir:'test/fixtures/config1', prefix: 'http://example.com'})
-          stream.on('data', function (file) {
-              var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
-              String(file.contents).should.containEql("http://example.com/" + revedReference);
-              done();
-          });
+            stream = revall({
+                rootDir:'test/fixtures/config1',
+                prefix: 'http://example.com/'
+            })
+            stream.on('data', function (file) {
+                var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
+                String(file.contents).should.containEql("http://example.com/" + revedReference);
+                done();
+            });
 
-          writeFile();
+            writeFile();
+        });
+
+        it ("should prefix replaced references if a prefix is supplied", function(done) {
+            stream = revall({
+                rootDir:'test/fixtures/config1',
+                transform: function (reved, source, path) {
+                    return this.joinUrlPath('//images.example.com/', reved.replace('img/', ''));
+                }
+            })
+            stream.on('data', function (file) {
+                var revedImage = path.basename(tools.revFile('test/fixtures/config1/img/image1.jpg'));
+                String(file.contents).should.containEql("//images.example.com/" + revedImage.replace('img/', ''));
+                done();
+            });
+
+            writeFile();
         });
 
         it("should resolve reference to css", function(done) {

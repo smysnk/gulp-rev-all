@@ -70,7 +70,7 @@ gulp.task('default', function () {
 
 });
 ```
-  
+
   * See [gulp-s3](https://www.npmjs.org/package/gulp-s3), [gulp-gzip](https://www.npmjs.org/package/gulp-gzip), [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
 
 
@@ -103,7 +103,7 @@ gulp.task('default', function () {
 
 #### options.hashLength
 
-Type: `hashLength`          
+Type: `hashLength`
 Default: `8`
 
 Change the length of the hash appended to the end of each file:
@@ -116,12 +116,38 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.prefix
+#### options.transform
 
-Type: `prefix`          
+Type: `function (rev, source, path)`
 Default: `none`
 
-Prefixes matched files with a string. Useful for adding a full url path to files. 
+Specify a function to transform the reference path. Useful in instances where the local file structure does not reflect what the remote file structure will be.
+
+The function takes three arguments:
+  - `rev` - revisioned reference path
+  - `source` - original reference path
+  - `path` - path to the file
+
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({
+            transform: function (rev, source, path) {
+                // on the remote server, image files are served from `/images`
+                return rev.replace('/img', '/images');
+            }
+        }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
+#### options.prefix
+
+Type: `prefix`
+Default: `none`
+
+Prefixes matched files with a string (use `options.transform` for more complicated scenarios). Useful for adding a full url path to files.
 
 ```js
 gulp.task('default', function () {
