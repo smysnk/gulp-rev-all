@@ -116,6 +116,21 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.prefix
+
+Type: `prefix`
+Default: `none`
+
+Prefixes matched files with a string (use `options.transform` for more complicated scenarios). Useful for adding a full url path to files.
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ prefix: 'http://1234.cloudfront.net/' }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
 #### options.transform
 
 Type: `function (rev, source, path)`
@@ -138,21 +153,6 @@ gulp.task('default', function () {
                 return rev.replace('/img', '/images');
             }
         }))
-        .pipe(gulp.dest('dist'))
-});
-```
-
-#### options.prefix
-
-Type: `prefix`
-Default: `none`
-
-Prefixes matched files with a string (use `options.transform` for more complicated scenarios). Useful for adding a full url path to files.
-
-```js
-gulp.task('default', function () {
-    gulp.src('dist/**')
-        .pipe(revall({ prefix: 'http://1234.cloudfront.net/' }))
         .pipe(gulp.dest('dist'))
 });
 ```

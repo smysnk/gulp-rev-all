@@ -192,7 +192,7 @@ describe("gulp-rev-all", function () {
             writeFile();
         });
 
-        it ("should prefix replaced references if a prefix is supplied", function(done) {
+        it ("should replaced references using transform if it is supplied", function(done) {
             stream = revall({
                 rootDir:'test/fixtures/config1',
                 transform: function (reved, source, path) {

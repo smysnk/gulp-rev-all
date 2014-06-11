@@ -33,6 +33,7 @@ module.exports = function(options) {
 
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var revFile = function (filePath) {
+        
         if (fileMap[filePath]) {
           return fileMap[filePath];
         }
@@ -61,12 +62,12 @@ module.exports = function(options) {
         var replaceMap = {};
 
         var getReplacement = function (source, fullpath, relative) {
+
             if (fs.existsSync(fullpath)) {
                 var newPath = path.join(path.dirname(source), path.basename(self.revFile(fullpath)));
                 if (options.transform) {
                     newPath = options.transform.call(self, newPath, source, fullpath);
-                }
-                else if (!relative && options.prefix) {
+                } else if (!relative && options.prefix) {
                     newPath = self.joinUrlPath(options.prefix, newPath);
                 }
 
