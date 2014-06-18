@@ -47,7 +47,7 @@ module.exports = function(options) {
         } else {
             var contents = fs.readFileSync(filePath).toString();
             var hash = md5(contents).slice(0, options.hashLength);
-            filename = path.basename(filePath, ext) + '.rev.' + hash + ext;
+            filename = path.basename(filePath, ext) + (options.suffix || '.rev.') + hash + ext;
         }
 
         filePathReved = path.join(path.dirname(filePath), filename);

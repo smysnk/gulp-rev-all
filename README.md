@@ -76,6 +76,20 @@ gulp.task('default', function () {
 
 ## API
 
+#### options.suffix
+
+Type: `String`
+Default: `null`
+
+Changes the suffix used to distinguish revved files from the
+original ones.
+
+``` javascript
+revall({ suffix: '-revved-' })
+```
+
+If you do not specify a suffix, `.rev.` will be used as a fallback.
+
 #### options.ignore
 
 Type: `Array of RegEx or String`
