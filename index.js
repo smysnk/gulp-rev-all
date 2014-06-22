@@ -41,7 +41,7 @@ module.exports = function(options) {
         if (!tools.isFileIgnored(file)) {            
             var filenameReved = path.basename(tools.revFile(file.path));
             var base = path.dirname(file.path);
-            file.path = path.join(base, filenameReved);
+            file.path = tools.joinPath(base, filenameReved);
         }
 
         callback(null, file);

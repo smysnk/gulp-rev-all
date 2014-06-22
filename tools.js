@@ -14,6 +14,11 @@ module.exports = function(options) {
         return [ prefix, path ].join('/');
     }
 
+    // Fix slash style for our poor windows brothern
+    var joinPath = function (directory, filename) {
+        return path.join(directory, filename).replace('\\', '/');
+    }
+
     // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var md5 = function (str) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
@@ -55,7 +60,7 @@ module.exports = function(options) {
             }
         }
 
-        filePathReved = path.join(path.dirname(filePath), filename);
+        filePathReved = joinPath(path.dirname(filePath), filename);
 
         fileMap[filePath] = filePathReved;
         return fileMap[filePath];
@@ -69,7 +74,7 @@ module.exports = function(options) {
         var getReplacement = function (source, fullpath, relative) {
 
             if (fs.existsSync(fullpath)) {
-                var newPath = path.join(path.dirname(source), path.basename(self.revFile(fullpath)));
+                var newPath = joinPath(path.dirname(source), path.basename(self.revFile(fullpath)));
                 if (options.transformPath) {
                     newPath = options.transformPath.call(self, newPath, source, fullpath);
                 } else if (!relative && options.prefix) {
@@ -97,11 +102,11 @@ module.exports = function(options) {
             replaceMap[source] = false;
 
             // In the case where the referenced file is relative to the base path
-            var fullpath = path.join(options.rootDir, source);
+            var fullpath = joinPath(options.rootDir, source);
             if (replaceMap[source] = getReplacement(source, fullpath)) continue;
 
             // In the case where the file referenced is relative to the file being processed
-            fullpath = path.join(path.dirname(file.path), source);
+            fullpath = joinPath(path.dirname(file.path), source);
             replaceMap[source] = getReplacement(source, fullpath, true);
 
         }
@@ -119,6 +124,7 @@ module.exports = function(options) {
     return {
         md5: md5,
         joinUrlPath: joinUrlPath,
+        joinPath: joinPath,
         revFile: revFile,
         revReferencesInFile: revReferencesInFile,
         isFileIgnored: isFileIgnored
