@@ -121,7 +121,7 @@ gulp.task('default', function () {
 Type: `prefix`
 Default: `none`
 
-Prefixes matched files with a string (use `options.transformReference` for more complicated scenarios). Useful for adding a full url path to files.
+Prefixes matched files with a string (use `options.transformPath` for more complicated scenarios). Useful for adding a full url path to files.
 
 ```js
 gulp.task('default', function () {
