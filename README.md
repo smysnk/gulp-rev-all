@@ -1,6 +1,6 @@
 # [gulp](https://github.com/wearefractal/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
 
-> Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn-098f6bcd.css, also re-writes references in each file to new reved name.
+> Static asset revisioning by appending content hash to each filename (eg. unicorn.css => unicorn-098f6bcd.css) and re-writes references to the file.
 
 
 ## Purpose
