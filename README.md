@@ -169,6 +169,7 @@ The function takes one argument:
 
 ```js
 var path = require('path');
+var fs = require('fs');
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({
