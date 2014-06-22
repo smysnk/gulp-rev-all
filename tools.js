@@ -40,14 +40,19 @@ module.exports = function(options) {
 
         var filename,
             filenameReved,
-            ext = path.extname(filePath);
+            ext = path.extname(filePath),
+            self = this;
 
         if (isFileIgnored(filePath)) {
             filename = path.basename(filePath);
         } else {
-            var contents = fs.readFileSync(filePath).toString();
-            var hash = md5(contents).slice(0, options.hashLength);
-            filename = path.basename(filePath, ext) + '.rev.' + hash + ext;
+            if (options.transformFilename) {
+                filename = options.transformFilename.call(self, filePath);
+            } else {
+                var contents = fs.readFileSync(filePath).toString();
+                var hash = md5(contents).slice(0, options.hashLength);                
+                filename = path.basename(filePath, ext) + '.' + hash + ext;
+            }
         }
 
         filePathReved = path.join(path.dirname(filePath), filename);
@@ -65,8 +70,8 @@ module.exports = function(options) {
 
             if (fs.existsSync(fullpath)) {
                 var newPath = path.join(path.dirname(source), path.basename(self.revFile(fullpath)));
-                if (options.transform) {
-                    newPath = options.transform.call(self, newPath, source, fullpath);
+                if (options.transformPath) {
+                    newPath = options.transformPath.call(self, newPath, source, fullpath);
                 } else if (!relative && options.prefix) {
                     newPath = self.joinUrlPath(options.prefix, newPath);
                 }
@@ -112,6 +117,7 @@ module.exports = function(options) {
 
 
     return {
+        md5: md5,
         joinUrlPath: joinUrlPath,
         revFile: revFile,
         revReferencesInFile: revReferencesInFile,

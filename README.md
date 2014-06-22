@@ -106,7 +106,7 @@ gulp.task('default', function () {
 Type: `hashLength`
 Default: `8`
 
-Change the length of the hash appended to the end of each file:
+Change the length of the hash appended to the end of each revisioned file (use `options.transformFilename` for more complicated scenarios).
 
 ```js
 gulp.task('default', function () {
@@ -121,7 +121,7 @@ gulp.task('default', function () {
 Type: `prefix`
 Default: `none`
 
-Prefixes matched files with a string (use `options.transform` for more complicated scenarios). Useful for adding a full url path to files.
+Prefixes matched files with a string (use `options.transformReference` for more complicated scenarios). Useful for adding a full url path to files.
 
 ```js
 gulp.task('default', function () {
@@ -131,7 +131,7 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.transform
+#### options.transformPath
 
 Type: `function (rev, source, path)`
 Default: `none`
@@ -148,9 +148,35 @@ The function takes three arguments:
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({
-            transform: function (rev, source, path) {
+            transformPath: function (rev, source, path) {
                 // on the remote server, image files are served from `/images`
                 return rev.replace('/img', '/images');
+            }
+        }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
+#### options.transformFilename
+
+Type: `function (filePath)`
+Default: `none`
+
+If the default naming convention does not suite your needs, you can specify a custom filename transform. 
+
+The function takes one argument:
+  - `filePath` - path to file to be revisioned
+
+```js
+var path = require('path');
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({
+            transformFilename: function (filePath) {
+                var contents = fs.readFileSync(filePath).toString();
+                var hash = this.md5(contents).slice(0, 5);  
+                var ext = path.extname(filePath);
+                return hash + '.'  + path.basename(filePath, ext) + ext; // 3410c.filename.ext
             }
         }))
         .pipe(gulp.dest('dist'))

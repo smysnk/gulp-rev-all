@@ -63,13 +63,34 @@ describe("gulp-rev-all", function () {
             });
         }
 
-        describe("hash length", function() {
+        describe("filename", function() {
 
-            it("should have proper length when specified", function(done) {
+            it("should have proper hash length when specified", function(done) {
 
                 stream = revall({rootDir: 'test/fixtures/config1', hashLength: 4, ignore: []});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.match(/\.[a-z0-9]{4}\.[a-z]{2,4}$/);
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
+
+            it("should be transformed when transform function is specified", function(done) {
+
+                stream = revall({
+                    rootDir: 'test/fixtures/config1', 
+                    ignore: [],
+                    transformFilename: function (filePath) {
+                        var contents = fs.readFileSync(filePath).toString();
+                        var hash = this.md5(contents).slice(0, 5);  
+                        var ext = path.extname(filePath);
+                        return hash + '.'  + path.basename(filePath, ext) + ext; // 3410c.filename.ext
+                    }
+                });
+                stream.on('data', function (file) {
+                    path.basename(file.path).should.match(/[a-z0-9]{5}\..*\.[a-z]{2,4}$/);
                 });
 
                 stream.on('end', done);
@@ -195,7 +216,7 @@ describe("gulp-rev-all", function () {
         it ("should replaced references using transform if it is supplied", function(done) {
             stream = revall({
                 rootDir:'test/fixtures/config1',
-                transform: function (reved, source, path) {
+                transformPath: function (reved, source, path) {
                     return this.joinUrlPath('//images.example.com/', reved.replace('img/', ''));
                 }
             })
