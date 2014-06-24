@@ -184,6 +184,23 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.fileExt
+
+Type: `array`
+Default: `['.js', '.css', '.html', '.jade']`
+
+Specify the types of files to re-write references in.
+
+```js
+var path = require('path');
+var fs = require('fs');
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ fileExt: ['.js', '.css', '.html', '.jade', '.php'] }))
+        .pipe(gulp.dest('dist'))
+});
+```
+
 ## Tips
 
 Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
