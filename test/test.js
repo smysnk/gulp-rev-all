@@ -172,6 +172,34 @@ describe("gulp-rev-all", function () {
             });
         });
 
+        describe("fileExt", function() {
+            it("should not rename files with certain extensions when specified", function (done) {
+                stream = revall({rootDir: 'test/fixtures/config1', fileExt: ['.html']});
+                stream.on('data', function (file) {
+                    if (file.path.match(/jade/)) {
+                        String(file.contents).should.match(/css\/style\.css/);
+                    }
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
+
+            it("should rename files with default extensions, like .html or .jade", function (done) {
+                stream = revall({rootDir: 'test/fixtures/config1'});
+                stream.on('data', function (file) {
+                    if (file.path.match(/jade/)) {
+                        String(file.contents).should.match(/css\/style\.(.*)\.css/);
+                    }
+                });
+
+                stream.on('end', done);
+
+                writeFile();
+            });
+        });
+
     });
 
     describe("root html", function() {

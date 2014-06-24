@@ -10,7 +10,8 @@ module.exports = function(options) {
 
     var first = true;    
     options = options || {};
-    options.hashLength = options.hashLength || 8;
+    options.hashLength  = options.hashLength || 8;
+    options.fileExt     = options.fileExt || ['.js', '.css', '.html', '.jade'];
     options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
 
     return through.obj(function (file, enc, callback) {
@@ -29,12 +30,10 @@ module.exports = function(options) {
             throw new Error('Streams are not supported!');
         } 
 
-        // Only process references in these types of files, otherwise we'll corrupt images etc
-        switch(path.extname(file.path)) {
-            case '.js':
-            case '.css':
-            case '.html':
-                tools.revReferencesInFile(file);
+        var ext = path.extname(file.path);
+
+        if (options.fileExt.indexOf(ext) !== -1) {
+            tools.revReferencesInFile(file);
         }
 
         // Rename this file with the revion hash if doesn't match ignore list
