@@ -14,9 +14,9 @@ module.exports = function(options) {
     options.fileExt     = options.fileExt || ['.js', '.css', '.html', '.jade'];
     options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
 
-    return through.obj(function (file, enc, callback) {
+    var tools = toolsFactory(options);
 
-        var tools = toolsFactory(options);
+    return through.obj(function (file, enc, callback) {
 
         if (first) {
             options.rootDir = options.rootDir || file.base;
