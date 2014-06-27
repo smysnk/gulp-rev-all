@@ -19,8 +19,8 @@ module.exports = function(options) {
     return through.obj(function (file, enc, callback) {
 
         if (first) {
-            options.rootDir = options.rootDir || file.base;
-            gutil.log('gulp-rev-all:', 'Root directory [', options.rootDir, ']');
+            options.dirRoot = options.dirRoot || file.base;
+            gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
             first = !first;
         }
 

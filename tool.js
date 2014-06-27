@@ -27,7 +27,7 @@ module.exports = function(options) {
     var isFileIgnored = function (file) {
 
         var filename = (typeof file === 'string') ? file : file.path;
-        filename = filename.substr(options.rootDir.length);
+        filename = filename.substr(options.dirRoot.length);
 
         for (var i = options.ignore.length; i--;) {
             var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
@@ -102,7 +102,7 @@ module.exports = function(options) {
             replaceMap[source] = false;
 
             // In the case where the referenced file is relative to the base path
-            var fullpath = joinPath(options.rootDir, source);
+            var fullpath = joinPath(options.dirRoot, source);
             if (replaceMap[source] = getReplacement(source, fullpath)) continue;
 
             // In the case where the file referenced is relative to the file being processed
