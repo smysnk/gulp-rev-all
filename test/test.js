@@ -1,5 +1,5 @@
 var revall = require("../index");
-var toolsFactory = require("../tools");
+var toolFactory = require("../tool");
 var should = require("should");
 var gulp = require("gulp");
 var es = require("event-stream");
@@ -15,7 +15,7 @@ require("mocha");
 
 describe("gulp-rev-all", function () {
 
-    var tools = toolsFactory({hashLength: 8, ignore: ['favicon.ico'], rootDir: 'test/fixtures/config1'});
+    var tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], rootDir: 'test/fixtures/config1'});
 
     describe('should process images', function() {
         var stream;
@@ -219,7 +219,7 @@ describe("gulp-rev-all", function () {
 
         it("should resolve absolute path reference", function(done) {
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/index.html'));
                 String(file.contents).should.containEql("'/" + revedReference);
                 done();
             });
@@ -233,7 +233,7 @@ describe("gulp-rev-all", function () {
                 prefix: 'http://example.com/'
             })
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/index.html'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/index.html'));
                 String(file.contents).should.containEql("http://example.com/" + revedReference);
                 done();
             });
@@ -249,7 +249,7 @@ describe("gulp-rev-all", function () {
                 }
             })
             stream.on('data', function (file) {
-                var revedImage = path.basename(tools.revFile('test/fixtures/config1/img/image1.jpg'));
+                var revedImage = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
                 String(file.contents).should.containEql("//images.example.com/" + revedImage.replace('img/', ''));
                 done();
             });
@@ -259,7 +259,7 @@ describe("gulp-rev-all", function () {
 
         it("should resolve reference to css", function(done) {
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/css/style.css'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/css/style.css'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -269,7 +269,7 @@ describe("gulp-rev-all", function () {
 
         it("should resolve reference reference to angularjs view", function(done) {
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/view/main.html'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/view/main.html'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -280,7 +280,7 @@ describe("gulp-rev-all", function () {
 
         it("should resolve reference reference to javascript include", function(done) {
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/application.js'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/application.js'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -292,7 +292,7 @@ describe("gulp-rev-all", function () {
         it("should resolve reference in double quotes ", function(done) {
 
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image1.jpg'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -303,7 +303,7 @@ describe("gulp-rev-all", function () {
         it("should resolve reference in single quotes", function(done) {
 
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image2.jpg'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image2.jpg'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -314,7 +314,7 @@ describe("gulp-rev-all", function () {
         it("should replace all references", function(done) {
 
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image3.jpg'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image3.jpg'));
                 var count = String(file.contents).match(RegExp(revedReference, 'g'));
                 count.length.should.eql(2);
                 done();
@@ -343,7 +343,7 @@ describe("gulp-rev-all", function () {
         it("should resolve references to images", function(done) {
 
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image1.jpg'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -354,7 +354,7 @@ describe("gulp-rev-all", function () {
         it("should resolve references to angular includes", function(done) {
 
             stream.on('data', function (file) {
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/view/core/footer.html'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/view/core/footer.html'));
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
@@ -380,16 +380,16 @@ describe("gulp-rev-all", function () {
 
         it("should resolve references to fonts", function (done) {
             stream.on('data', function (file) {
-                var revedReference1 = path.basename(tools.revFile('test/fixtures/config1/font/font1.eot'));
+                var revedReference1 = path.basename(tool.revFile('test/fixtures/config1/font/font1.eot'));
                 String(file.contents).should.containEql(revedReference1);
 
-                var revedReference2 = path.basename(tools.revFile('test/fixtures/config1/font/font1.woff'));
+                var revedReference2 = path.basename(tool.revFile('test/fixtures/config1/font/font1.woff'));
                 String(file.contents).should.containEql(revedReference2);
 
-                var revedReference3 = path.basename(tools.revFile('test/fixtures/config1/font/font1.ttf'));
+                var revedReference3 = path.basename(tool.revFile('test/fixtures/config1/font/font1.ttf'));
                 String(file.contents).should.containEql(revedReference3);
 
-                var revedReference4 = path.basename(tools.revFile('test/fixtures/config1/font/font1.svg'));
+                var revedReference4 = path.basename(tool.revFile('test/fixtures/config1/font/font1.svg'));
                 String(file.contents).should.containEql(revedReference4);
 
                 done();
@@ -403,7 +403,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/img/image1.jpg'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
                 String(file.contents).should.containEql(revedReference);
 
                 done();
@@ -435,7 +435,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tools.revFile('test/fixtures/config1/view/gps.html'));
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/view/gps.html'));
                 String(file.contents).should.containEql(revedReference);
 
                 done()
