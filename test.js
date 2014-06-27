@@ -1,5 +1,5 @@
-var revall = require("../index");
-var toolFactory = require("../tool");
+var revall = require("./index");
+var toolFactory = require("./tool");
 var should = require("should");
 var gulp = require("gulp");
 var es = require("event-stream");
@@ -15,20 +15,23 @@ require("mocha");
 
 describe("gulp-rev-all", function () {
 
-    var tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: 'test/fixtures/config1'});
+    var tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
 
     describe('should process images', function() {
         var stream;
 
         beforeEach(function (done) {
-            stream = revall({dirRoot:'test/fixtures/config1'})
-            done()
+            stream = revall();
+            done();
         });
 
+        var base = path.join(__dirname, 'test/fixtures/config1');
+        var filename = path.join(base, 'img/image1.jpg');
         var writeFile = function() {
             stream.write(new gutil.File({
-                path: 'test/fixtures/config1/img/image1.jpg',
-                contents: fs.readFileSync('test/fixtures/config1/img/image1.jpg')
+                path: filename,
+                contents: fs.readFileSync(filename),
+                base: base
             }));
         }
 
@@ -51,11 +54,13 @@ describe("gulp-rev-all", function () {
 
         var writeFile = function() {
             //write all files to stream
+            var base = path.join(__dirname, 'test/fixtures/config1');
             glob("test/fixtures/config1/**/*.*", {}, function (er, fileNames) {
                 fileNames.forEach(function (fileName) {
                     stream.write(new gutil.File({
-                        path: fileName,
-                        contents: fs.readFileSync(fileName)
+                        path: path.join(__dirname, fileName),
+                        contents: fs.readFileSync(fileName),
+                        base: base
                     }));
                 });
 
@@ -67,7 +72,7 @@ describe("gulp-rev-all", function () {
 
             it("should have proper hash length when specified", function(done) {
 
-                stream = revall({dirRoot: 'test/fixtures/config1', hashLength: 4, ignore: []});
+                stream = revall({hashLength: 4, ignore: []});
                 stream.on('data', function (file) {
                     path.basename(file.path).should.match(/\.[a-z0-9]{4}\.[a-z]{2,4}$/);
                 });
@@ -80,7 +85,6 @@ describe("gulp-rev-all", function () {
             it("should be transformed when transform function is specified", function(done) {
 
                 stream = revall({
-                    dirRoot: 'test/fixtures/config1', 
                     ignore: [],
                     transformFilename: function (filePath) {
                         var contents = fs.readFileSync(filePath).toString();
@@ -105,7 +109,7 @@ describe("gulp-rev-all", function () {
 
 
             it("should not rename favicon.ico by default", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1'});
+                stream = revall();
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/favicon\.[a-z0-9]{8}\.ico$/);
                 });
@@ -116,7 +120,7 @@ describe("gulp-rev-all", function () {
             });
 
             it("should rename nested index", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1', ignore: [ /^\/index.html/g ]});
+                stream = revall({ ignore: [ /^\/index.html/g ] });
                 stream.on('data', function (file) {
                     file.path.should.not.match(/nested\/index\.html$/);
                     file.path.should.not.match(/config1\/index\.[a-z0-9]{8}\.html$/);
@@ -128,7 +132,7 @@ describe("gulp-rev-all", function () {
             });
 
             it("should not rename html files when specified", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1', ignore: ['.html']});
+                stream = revall({ ignore: ['.html'] });
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.html$/);
                 });
@@ -140,7 +144,7 @@ describe("gulp-rev-all", function () {
 
 
             it("should not rename js files when specified", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1', ignore: ['.js']});
+                stream = revall({ ignore: ['.js'] });
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.js$/);
                 });
@@ -151,7 +155,7 @@ describe("gulp-rev-all", function () {
 
 
             it("should not rename woff files when specified", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1', ignore: ['.woff']});
+                stream = revall({ ignore: ['.woff'] });
                 stream.on('data', function (file) {
                     path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.woff$/);
                 });
@@ -162,7 +166,7 @@ describe("gulp-rev-all", function () {
 
 
             it("should rename all files when ignore not specified", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1'});
+                stream = revall();
                 stream.on('data', function (file) {
                     path.basename(file.path).should.match(/(\.[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
                 });
@@ -174,7 +178,7 @@ describe("gulp-rev-all", function () {
 
         describe("fileExt", function() {
             it("should not rename files with certain extensions when specified", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1', fileExt: ['.html']});
+                stream = revall({ fileExt: ['.html'] });
                 stream.on('data', function (file) {
                     if (file.path.match(/jade/)) {
                         String(file.contents).should.match(/css\/style\.css/);
@@ -187,7 +191,7 @@ describe("gulp-rev-all", function () {
             });
 
             it("should rename files with default extensions, like .html or .jade", function (done) {
-                stream = revall({dirRoot: 'test/fixtures/config1'});
+                stream = revall();
                 stream.on('data', function (file) {
                     if (file.path.match(/jade/)) {
                         String(file.contents).should.match(/css\/style\.(.*)\.css/);
@@ -206,14 +210,17 @@ describe("gulp-rev-all", function () {
         var stream;
 
         beforeEach(function (done) {
-            stream = revall({dirRoot:'test/fixtures/config1'})
+            stream = revall()
             done()
         });
 
+        var base = path.join(__dirname, 'test/fixtures/config1');
+        var filename = path.join(base, 'index.html');
         var writeFile = function() {
             stream.write(new gutil.File({
-                path: 'test/fixtures/config1/index.html',
-                contents: fs.readFileSync('test/fixtures/config1/index.html')
+                path: filename,
+                contents: fs.readFileSync(filename),
+                base: base
             }));
         }
 
@@ -229,7 +236,6 @@ describe("gulp-rev-all", function () {
 
         it ("should prefix replaced references if a prefix is supplied", function(done) {
             stream = revall({
-                dirRoot:'test/fixtures/config1',
                 prefix: 'http://example.com/'
             })
             stream.on('data', function (file) {
@@ -243,7 +249,6 @@ describe("gulp-rev-all", function () {
 
         it ("should replaced references using transform if it is supplied", function(done) {
             stream = revall({
-                dirRoot:'test/fixtures/config1',
                 transformPath: function (reved, source, path) {
                     return this.joinUrlPath('//images.example.com/', reved.replace('img/', ''));
                 }
@@ -329,14 +334,17 @@ describe("gulp-rev-all", function () {
         var stream;
 
         beforeEach(function (done) {
-            stream = revall({dirRoot:'test/fixtures/config1'})
+            stream = revall()
             done()
         });
 
+        var base = path.join(__dirname, 'test/fixtures/config1');
+        var filename = path.join(base, 'view/main.html');
         var writeFile = function() {
             stream.write(new gutil.File({
-                path: 'test/fixtures/config1/view/main.html',
-                contents: fs.readFileSync('test/fixtures/config1/view/main.html')
+                path: filename,
+                contents: fs.readFileSync(filename),
+                base: base
             }));
         }
 
@@ -367,14 +375,17 @@ describe("gulp-rev-all", function () {
     describe("css", function() { var stream;
 
         beforeEach(function (done) {
-            stream = revall({dirRoot:'test/fixtures/config1'})
+            stream = revall()
             done()
         });
 
+        var base = path.join(__dirname, 'test/fixtures/config1');
+        var filename = path.join(base, 'css/style.css');
         var writeFile = function() {
             stream.write(new gutil.File({
-                path: 'test/fixtures/config1/css/style.css',
-                contents: fs.readFileSync('test/fixtures/config1/css/style.css')
+                path: filename,
+                contents: fs.readFileSync(filename),
+                base: base
             }));
         }
 
@@ -420,14 +431,16 @@ describe("gulp-rev-all", function () {
         var stream;
 
         beforeEach(function (done) {
-            stream = revall({dirRoot:'test/fixtures/config1'})
+            stream = revall()
             done()
         });
-
+    
+        var base = path.join(__dirname, 'test/fixtures/config1');
+        var filename = path.join(base, 'application.js');
         var writeFile = function() {
             stream.write(new gutil.File({
-                path: 'test/fixtures/config1/application.js',
-                contents: fs.readFileSync('test/fixtures/config1/application.js')
+                path: filename,
+                contents: fs.readFileSync(filename)
             }));
         }
 
