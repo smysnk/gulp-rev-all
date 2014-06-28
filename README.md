@@ -73,7 +73,7 @@ gulp.task('default', function () {
 });
 ```
 
-  * See [gulp-s3](https://www.npmjs.org/package/gulp-s3), [gulp-gzip](https://www.npmjs.org/package/gulp-gzip), [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
+  * See [gulp-awspublish](https://www.npmjs.org/package/gulp-awspublish), [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
 
 
 ## API
