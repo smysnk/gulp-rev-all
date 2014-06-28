@@ -40,34 +40,36 @@ var revall = require('gulp-rev-all');
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall())
-        .pipe(gulp.dest('s3'));
+        .pipe(gulp.dest('cdn'));
 });
 ```
 
 
 ```js
 var gulp = require('gulp');
-var s3 = require("gulp-s3");
 var revall = require('gulp-rev-all');
-var gzip = require("gulp-gzip");
+var awspublish = require('gulp-awspublish');
 var cloudfront = require("gulp-cloudfront");
 
-var options = { gzippedOnly: true };
 var aws = {
     "key": "AKIAI3Z7CUAFHG53DMJA",
     "secret": "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",
     "bucket": "bucket-name",
-    "region": "eu-west-1",
+    "region": "us-standard",
     "distributionId": "E1SYAKGEMSK3OD"
 };
+
+var publisher = awspublish.create(aws);
+var headers = {'Cache-Control': 'max-age=315360000, no-transform, public'};
 
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall())
-        .pipe(gzip())
-        .pipe(s3(aws, options))
+        .pipe(awspublish.gzip())
+        .pipe(publisher.publish(headers))
+        .pipe(publisher.cache())
+        .pipe(awspublish.reporter())
         .pipe(cloudfront(aws));
-
 });
 ```
 
@@ -87,7 +89,7 @@ In some cases, you may not want to rev your `*.html` files:
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({ ignore: [/^\/favicon.ico$/g, '.html'] }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -97,7 +99,7 @@ Every html file except the root `/index.html` file:
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({ ignore: [/^\/favicon.ico$/g, /^\/index.html/g] }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -112,7 +114,7 @@ Change the length of the hash appended to the end of each revisioned file (use `
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({ hashLength: 4 }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -127,7 +129,7 @@ Prefixes matched files with a string (use `options.transformPath` for more compl
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({ prefix: 'http://1234.cloudfront.net/' }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -153,7 +155,7 @@ gulp.task('default', function () {
                 return rev.replace('/img', '/images');
             }
         }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -180,7 +182,7 @@ gulp.task('default', function () {
                 return hash + '.'  + path.basename(filePath, ext) + ext; // 3410c.filename.ext
             }
         }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
@@ -197,7 +199,7 @@ var fs = require('fs');
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({ fileExt: ['.js', '.css', '.html', '.jade', '.php'] }))
-        .pipe(gulp.dest('dist'))
+        .pipe(gulp.dest('cdn'))
 });
 ```
 
