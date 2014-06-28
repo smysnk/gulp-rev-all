@@ -5,7 +5,7 @@ var gutil = require('gulp-util');
 
 module.exports = function(options) {
 
-    var filepathRegex = /.*?(?:\'|\")([a-z0-9_@\-\/\.]+?\.[a-z]{2,})(?:(?:\?|\#)[^'"]*?|)(?:\'|\").*?/ig;
+    var filepathRegex = /.*?(?:\'|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\"|\)).*?/ig;
     var fileMap = {};
 
     var joinUrlPath = function (prefix, path) {

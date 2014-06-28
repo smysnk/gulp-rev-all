@@ -417,6 +417,9 @@ describe("gulp-rev-all", function () {
                 var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
                 String(file.contents).should.containEql(revedReference);
 
+                var revedReference = path.basename(tool.revFile('test/fixtures/config1/img/image2.jpg'));
+                String(file.contents).should.containEql(revedReference);
+
                 done();
             });
 

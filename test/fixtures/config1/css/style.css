@@ -5,3 +5,7 @@
 .cat {
     background-image:url('img/image1.jpg');
 }
+
+.cat {
+    background-image:url(img/image2.jpg);
+}
