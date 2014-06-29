@@ -11,7 +11,6 @@ module.exports = function(options) {
     var first = true;    
     options = options || {};
     options.hashLength  = options.hashLength || 8;
-    options.fileExt     = options.fileExt || ['.js', '.css', '.html', '.jade'];
     options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
 
     var tool = toolFactory(options);
@@ -30,18 +29,7 @@ module.exports = function(options) {
             throw new Error('Streams are not supported!');
         } 
 
-        var ext = path.extname(file.path);
-
-        if (options.fileExt.indexOf(ext) !== -1) {
-            tool.revReferencesInFile(file);
-        }
-
-        // Rename this file with the revion hash if doesn't match ignore list
-        if (!tool.isFileIgnored(file)) {            
-            var filenameReved = path.basename(tool.revFile(file.path));
-            var base = path.dirname(file.path);
-            file.path = tool.joinPath(base, filenameReved);
-        }
+        tool.revisionFile(file);
 
         callback(null, file);
     });

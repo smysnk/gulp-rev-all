@@ -17,7 +17,44 @@ describe("gulp-rev-all", function () {
 
     var tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
 
-    describe('should process images', function() {
+
+
+    describe('should process imagess', function() {
+        var stream;
+
+        beforeEach(function (done) {
+            stream = revall();
+            done();
+        });
+
+        var writeFile = function() {
+            //write all files to stream
+            var base = path.join(__dirname, 'test/fixtures/config1');
+            glob("test/fixtures/config1/**/*.*", {}, function (er, fileNames) {
+                fileNames.forEach(function (fileName) {
+                    stream.write(new gutil.File({
+                        path: path.join(__dirname, fileName),
+                        contents: fs.readFileSync(fileName),
+                        base: base
+                    }));
+                });
+
+                stream.end()
+            });
+        };
+
+        it("should revision images without corrupting them", function(done) {
+            stream.on('data', function (file) {
+            });
+            stream.on('end', function () {
+                done();
+            })
+
+            writeFile();
+        });
+    })
+
+    xdescribe('should process images', function() {
         var stream;
 
         beforeEach(function (done) {
@@ -48,7 +85,7 @@ describe("gulp-rev-all", function () {
         });
     })
 
-    describe("options:", function() {
+    xdescribe("options:", function() {
 
         var stream;
 
@@ -66,7 +103,7 @@ describe("gulp-rev-all", function () {
 
                 stream.end()
             });
-        }
+        };
 
         describe("filename", function() {
 
@@ -206,7 +243,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("root html", function() {
+    xdescribe("root html", function() {
         var stream;
 
         beforeEach(function (done) {
@@ -330,7 +367,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("angularjs view", function() {
+    xdescribe("angularjs view", function() {
         var stream;
 
         beforeEach(function (done) {
@@ -372,7 +409,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("css", function() { var stream;
+    xdescribe("css", function() { var stream;
 
         beforeEach(function (done) {
             stream = revall()
@@ -429,7 +466,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("main js", function() {
+    xdescribe("main js", function() {
 
         var stream;
 

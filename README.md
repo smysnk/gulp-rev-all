@@ -1,6 +1,6 @@
 # [gulp](https://github.com/wearefractal/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
 
-> Static asset revisioning by appending content hash to each filename (eg. unicorn.css => unicorn-098f6bcd.css) and re-writes references to the file.
+> Static asset revisioning with dependency considerations, re-writes references, appends content hash to each filename (eg. unicorn.css => unicorn-098f6bcd.css).
 
 
 ## Purpose
@@ -10,17 +10,19 @@ Also content distribution networks like [CloudFront](http://aws.amazon.com/cloud
 A problem occurs however when you go to release a new version of your website, previous visitors of your website will hit their cache instead.
 In the case of CloudFront, you will need to invalidate items or wait for the cache TTL to expire before vistors of your website will see the vew version.
 
-A solution to this problem is adding a revisioned number to the name your static assets.  In the case of this gulp plugin, the revision number is the first 8 characters of the MD5 hash of the file.  eg. unicorn.css => unicorn-098f6bcd.css
+A solution to this problem is adding a revisioned number to the name your static assets.  In the case of this gulp plugin, the revision number is `md5( md5(file) + md5(reference1) + md5(reference2) + md5(reference..) ).substr(0, 8)`.  eg. unicorn.css => unicorn.098f6bcd.css
 
 
 ## Why fork?
 
-This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference re-writing functionality.
-When rev'ing an entire project it is important to update all references in html, js & css files to add the revision hash.
+This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing + rewriting functionality.  
+It is the philosophy of `gulp-rev` that there should be seperated concerns between revisioning the files AND correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
+`gulp-rev-all` does not agree with this idea for the simple reason that to accurately calculate a file's hash for caching purposes you need to take in to consideration if any of the child references have changed.
 
-I wasn't able to find any existing plugins that could handle this task.
-[Gulp-rev](https://github.com/sindresorhus/gulp-rev) could revision all files but not update references.
-[Gulp-usemin](https://www.npmjs.org/package/gulp-usemin) could do both but only using special markup, I needed a solution that would not require me to add markup everwhere.
+eg. A revisioned css file makes a reference to an image, if the image contents changes but the filename stays the same.  The hash of the css file will remain the same since only a reference has changed, its own hash is based solely on the contents of itself.
+If we take in to consideration the dependency graph while calculating the css file hash, we can update that to correctly identify one of its child references has changed.
+
+So `gulp-rev-all` not only takes child references into consideration when calculating a hash but it also re-writes references.
 
 
 ## Install
@@ -161,44 +163,23 @@ gulp.task('default', function () {
 
 #### options.transformFilename
 
-Type: `function (filePath)`
+Type: `function (file, hash)`
 Default: `none`
 
 If the default naming convention does not suite your needs, you can specify a custom filename transform. 
 
 The function takes one argument:
-  - `filePath` - path to file to be revisioned
+  - `file` - file to be revisioned
 
 ```js
-var path = require('path');
-var fs = require('fs');
 gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revall({
-            transformFilename: function (filePath) {
-                var contents = fs.readFileSync(filePath).toString();
-                var hash = this.md5(contents).slice(0, 5);  
-                var ext = path.extname(filePath);
-                return hash + '.'  + path.basename(filePath, ext) + ext; // 3410c.filename.ext
+            transformFilename: function (file, hash) {
+                var ext = path.extname(file.path);
+                return hash.substr(0, 5) + '.'  + path.basename(file.path, ext) + ext; // 3410c.filename.ext
             }
         }))
-        .pipe(gulp.dest('cdn'))
-});
-```
-
-#### options.fileExt
-
-Type: `array`
-Default: `['.js', '.css', '.html', '.jade']`
-
-Specify the types of files to re-write references in.
-
-```js
-var path = require('path');
-var fs = require('fs');
-gulp.task('default', function () {
-    gulp.src('dist/**')
-        .pipe(revall({ fileExt: ['.js', '.css', '.html', '.jade', '.php'] }))
         .pipe(gulp.dest('cdn'))
 });
 ```
