@@ -19,8 +19,8 @@ This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev
 It is the philosophy of `gulp-rev` that there should be seperated concerns between revisioning the files AND correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
 `gulp-rev-all` does not agree with this idea for the simple reason that to accurately calculate a file's hash for caching purposes you need to take in to consideration child references.
 
-eg. A revisioned css file makes a reference to an image, if the image contents changes but the filename stays the same.  The hash of the css file will remain the same since only a reference has changed, its own hash is based solely on the contents of itself.
-If we take in to consideration the dependency graph while calculating the css file hash, we can update that to correctly identify one of its child references has changed.
+eg. A revisioned css file makes a reference to an image, if the image contents changes but the filename stays the same.  The hash of the css file will remain the same since none of its contents have changed, even though a file that it reference has changed.
+If we take in to consideration the dependency graph while calculating the css file hash, we can have it change if any of it child references have changed.
 
 So `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
 
