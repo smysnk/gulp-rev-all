@@ -16,7 +16,7 @@ A solution to this problem is adding a revisioned number to the name your static
 ## Why fork?
 
 This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.  
-It is the philosophy of `gulp-rev` that there should be seperated concerns between revisioning the files and correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
+It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
 `gulp-rev-all` does not agree with this idea for the simple reason that to accurately calculate a file's hash for caching purposes you need to take child references in to consideration.
 
 eg. A revisioned css file makes a reference to an image.  If the image contents changes, the hash of the css file will remain the same since none of its contents have changed.  Web clients that have previously cached this css file will not correctly resolve the new image file.
