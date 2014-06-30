@@ -170,6 +170,7 @@ If the default naming convention does not suite your needs, you can specify a cu
 
 The function takes one argument:
   - `file` - file to be revisioned
+  - `hash` - calculated hash of the file
 
 ```js
 gulp.task('default', function () {
