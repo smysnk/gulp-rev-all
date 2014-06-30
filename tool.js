@@ -1,4 +1,4 @@
-var fs = require('graceful-fs');
+var gracefulfs = require('graceful-fs');
 var path = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
@@ -8,6 +8,7 @@ module.exports = function(options) {
 
     var self = this;
     var cache = {};
+    var fs = options.fs || gracefulfs;
 
     var joinPathUrl = function (prefix, path) {
         prefix = prefix.replace(/\/$/, '');
@@ -134,7 +135,7 @@ module.exports = function(options) {
                 cache[file.path].rewriteMap[reference] = {
                     reference: cache[referencePath.path],
                     relative: referencePath.isRelative
-                };                      
+                };
 
             }
         }
@@ -162,7 +163,7 @@ module.exports = function(options) {
 
         if (isFileIgnored(file.path)) {
             gutil.log('gulp-rev-all:', 'Ignoring [', file.path, '] due to filter rules.');
-            return;
+            return file;
         }
 
         var hash = md5Dependency(file);
@@ -178,6 +179,7 @@ module.exports = function(options) {
         }
 
         file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
+        return file;
 
     };
 
