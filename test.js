@@ -15,10 +15,6 @@ require("mocha");
 
 describe("gulp-rev-all", function () {
 
-    var tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-
-
-
     describe('should process imagess', function() {
         var stream;
 
@@ -54,7 +50,7 @@ describe("gulp-rev-all", function () {
         });
     })
 
-    xdescribe('should process images', function() {
+    describe('should process images', function() {
         var stream;
 
         beforeEach(function (done) {
@@ -85,7 +81,7 @@ describe("gulp-rev-all", function () {
         });
     })
 
-    xdescribe("options:", function() {
+    describe("options:", function() {
 
         var stream;
 
@@ -123,11 +119,9 @@ describe("gulp-rev-all", function () {
 
                 stream = revall({
                     ignore: [],
-                    transformFilename: function (filePath) {
-                        var contents = fs.readFileSync(filePath).toString();
-                        var hash = this.md5(contents).slice(0, 5);  
-                        var ext = path.extname(filePath);
-                        return hash + '.'  + path.basename(filePath, ext) + ext; // 3410c.filename.ext
+                    transformFilename: function (file, hash) {
+                        var ext = path.extname(file.path);
+                        return hash.slice(0, 5) + '.'  + path.basename(file.path, ext) + ext; // 3410c.filename.ext
                     }
                 });
                 stream.on('data', function (file) {
@@ -213,40 +207,14 @@ describe("gulp-rev-all", function () {
             });
         });
 
-        describe("fileExt", function() {
-            it("should not rename files with certain extensions when specified", function (done) {
-                stream = revall({ fileExt: ['.html'] });
-                stream.on('data', function (file) {
-                    if (file.path.match(/jade/)) {
-                        String(file.contents).should.match(/css\/style\.css/);
-                    }
-                });
-
-                stream.on('end', done);
-
-                writeFile();
-            });
-
-            it("should rename files with default extensions, like .html or .jade", function (done) {
-                stream = revall();
-                stream.on('data', function (file) {
-                    if (file.path.match(/jade/)) {
-                        String(file.contents).should.match(/css\/style\.(.*)\.css/);
-                    }
-                });
-
-                stream.on('end', done);
-
-                writeFile();
-            });
-        });
-
     });
 
-    xdescribe("root html", function() {
+    describe("root html", function() {
         var stream;
+        var tool;
 
         beforeEach(function (done) {
+            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
             stream = revall()
             done()
         });
@@ -263,36 +231,35 @@ describe("gulp-rev-all", function () {
 
         it("should resolve absolute path reference", function(done) {
             stream.on('data', function (file) {
-                var revedReference = path.basename(tool.revFile('test/fixtures/config1/index.html'));
-                String(file.contents).should.containEql("'/" + revedReference);
+
+                String(file.contents).should.match(/'\/index\.[a-z0-9]{8}\.html'/);
                 done();
             });
 
             writeFile();
         });
 
-        it ("should prefix replaced references if a prefix is supplied", function(done) {
+        it("should prefix replaced references if a prefix is supplied", function(done) {
             stream = revall({
                 prefix: 'http://example.com/'
-            })
+            });
             stream.on('data', function (file) {
-                var revedReference = path.basename(tool.revFile('test/fixtures/config1/index.html'));
-                String(file.contents).should.containEql("http://example.com/" + revedReference);
+                String(file.contents).should.match(/'http:\/\/example\.com\/index\.[a-z0-9]{8}\.html'/);
                 done();
             });
 
             writeFile();
         });
 
-        it ("should replaced references using transform if it is supplied", function(done) {
+        it("should replaced references using transform if it is supplied", function(done) {
             stream = revall({
                 transformPath: function (reved, source, path) {
-                    return this.joinUrlPath('//images.example.com/', reved.replace('img/', ''));
+                    return this.joinPathUrl('//images.example.com/', reved.replace('img/', ''));
                 }
-            })
+            });
             stream.on('data', function (file) {
-                var revedImage = path.basename(tool.revFile('test/fixtures/config1/img/image1.jpg'));
-                String(file.contents).should.containEql("//images.example.com/" + revedImage.replace('img/', ''));
+                //String(file.contents).should.containEql("//images.example.com/" + revedImage.replace('img/', ''));
+                String(file.contents).should.match(/'\/\/images\.example\.com\/image\.[a-z0-9]{8}\.jpg'/);
                 done();
             });
 

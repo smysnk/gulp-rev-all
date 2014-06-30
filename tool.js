@@ -2,52 +2,54 @@ var fs = require('graceful-fs');
 var path = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
+var _ = require('underscore');
 
 module.exports = function(options) {
 
-    var filepathRegex = /.*?(?:\'|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\"|\)).*?/ig;
+    var self = this;
     var cache = {};
 
-    var joinUrlPath = function (prefix, path) {
+    var joinPathUrl = function (prefix, path) {
         prefix = prefix.replace(/\/$/, '');
         path = path.replace(/^\//, '');
         return [ prefix, path ].join('/');
-    }
+    };
+    this.joinPathUrl = joinPathUrl;
 
     // Fix slash style for our poor windows brothern
     var joinPath = function (directory, filename) {
         return path.join(directory, filename).replace('\\', '/');
-    }
+    };
+    this.joinPath = joinPath;
 
     var getRevisionFilename = function (file) {
 
-        // Resolve revisioned filename
         var hash = cache[file.path].hash;
-        var ext =  path.extname(file.path);
+        var ext = path.extname(file.path);
         var filename;
+
         if (options.transformFilename) {
-            filename = options.transformFilename.call(this, file, hash);
+            filename = options.transformFilename.call(self, file, hash);
         } else {
             filename = path.basename(file.path, ext) + '.' + hash.substr(0, options.hashLength) + ext;
         }
 
         return filename;
 
-    }
+    };
 
-    // Taken from gulp-rev: https://github.com/sindresorhus/gulp-rev
     var md5 = function (str) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
     };
 
     var getReplacement = function (reference, file, isRelative) {
 
-        var newPath = joinPath(path.dirname(reference), getRevisionFilename(file, cache[file.path].hash));
+        var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
         if (options.transformPath) {
-            newPath = options.transformPath.call(this, newPath, reference, file, isRelative);
+            newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
         } else if (!isRelative && options.prefix) {
-            newPath = this.joinUrlPath(options.prefix, newPath);
+            newPath = joinPathUrl(options.prefix, newPath);
         }
 
         var msg = isRelative ? 'relative' : 'root';
@@ -57,52 +59,83 @@ module.exports = function(options) {
 
     };
 
-    var md5Dependency = function (file) {
+    var md5Dependency = function (file, stack) {
+
+        // Don't calculate again if we've already done it once before
+        if (cache[file.path]) return cache[file.path].hash;
+
+        // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
+        if (_.indexOf(stack, cache[file.path]) > -1) return '';
+
+        var filepathRegex = /.*?(?:\'|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\"|\)).*?/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
                 file: file,
-                referenceMap: {}
+                fileOriginal: {
+                    path: file.path
+                },
+                rewriteMap: {},
+                hash: null
             };
+        }
+
+        // Push on to the stack
+        if (!stack) {
+            stack = [ cache[file.path] ];
+        } else {
+            stack.push(cache[file.path]);
         }
 
         gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
         
         // Create a map of file references and their proper revisioned name
         var contents = String(file.contents);
-        var hash = md5(file.contents);
+        var hash = md5(contents);
         var result;
 
         while (result = filepathRegex.exec(contents)) {
+
             var reference = result[1];
 
             // Don't do any work if we've already resolved this reference
-            if (cache[file.path].referenceMap[reference]) {
-                hash += cache[file.path].referenceMap[reference].hash;
-                continue;
-            }
+            if (cache[file.path].rewriteMap[reference]) continue;
 
-            var referencePaths = [joinPath(options.dirRoot, reference), joinPath(path.dirname(file.path), reference)];
+            var referencePaths = [
+                {
+                    path: joinPath(options.dirRoot, reference),
+                    isRelative: false
+                },
+                {
+                    path: joinPath(path.dirname(file.path), reference),
+                    isRelative: true
+                }
+            ];
+
+            // If it starts with slash, assume it's absolute
+            if (reference.substr(0,1) === '/') referencePaths.reverse();
+
             for (var i = referencePaths.length; i--;) {
                 var referencePath = referencePaths[i];
 
                 // Stop if we've already resolved this reference
-                if (cache[file.path].referenceMap[reference]) break;
+                if (cache[file.path].rewriteMap[reference]) break;
 
                 // Continue if this file doesn't exist
-                if (!fs.existsSync(referencePath)) continue;
+                if (!fs.existsSync(referencePath.path)) continue;          
 
                 hash += md5Dependency(new gutil.File({
-                    path: referencePath,
-                    contents: fs.readFileSync(referencePath),
-                    base: file.base
-                }));
+                        path: referencePath.path,
+                        contents: fs.readFileSync(referencePath.path),
+                        base: file.base
+                    }), stack);
 
                 // Create reference map to help with replacement later on
-                cache[file.path].referenceMap[reference] = {
-                    reference: cache[referencePath],
-                    relative: i
-                };
+                cache[file.path].rewriteMap[reference] = {
+                    reference: cache[referencePath.path],
+                    relative: referencePath.isRelative
+                };                      
+
             }
         }
 
@@ -127,15 +160,17 @@ module.exports = function(options) {
 
     var revisionFile = function (file) {
 
-        if (isFileIgnored(file.path))
+        if (isFileIgnored(file.path)) {
+            gutil.log('gulp-rev-all:', 'Ignoring [', file.path, '] due to filter rules.');
             return;
+        }
 
         var hash = md5Dependency(file);
 
         // Replace references with revisioned names
-        for (var reference in cache[file.path].referenceMap) {
-            var fileReference = cache[file.path].referenceMap[reference].reference.file;
-            var isRelative = cache[file.path].referenceMap[reference].relative;
+        for (var reference in cache[file.path].rewriteMap) {
+            var fileReference = cache[file.path].rewriteMap[reference].reference.fileOriginal;
+            var isRelative = cache[file.path].rewriteMap[reference].relative;
             
             var contents = String(file.contents);
             contents = contents.replace(RegExp(reference, 'g'), getReplacement(reference, fileReference, isRelative));
@@ -148,10 +183,11 @@ module.exports = function(options) {
 
     return {
         md5: md5,
-        joinUrlPath: joinUrlPath,
+        joinPathUrl: joinPathUrl,
         joinPath: joinPath,
         revisionFile: revisionFile,
-        isFileIgnored: isFileIgnored
+        isFileIgnored: isFileIgnored,
+        getReplacement: getReplacement
     };
 
 };
