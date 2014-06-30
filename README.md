@@ -27,7 +27,7 @@ So to recap, `gulp-rev-all` not only handles reference re-writing but it also ta
 
 ## Install
 
-Install with [npm](https://npmjs.org/package/gulp-rev-all)
+Install with [npm](https://npmjs.org/)
 
 ```
 npm install --save-dev gulp-rev-all
