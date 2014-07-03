@@ -176,9 +176,10 @@ module.exports = function(options) {
             file.contents = new Buffer(contents);
         }
 
-        if (!isFileIgnored(file.path)) {
-            gutil.log('gulp-rev-all:', 'Not renaming [', file.path, '] due to filter rules.');
+        if (!isFileIgnored(file.path)) {            
             file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
+        } else {
+            gutil.log('gulp-rev-all:', 'Not renaming [', file.path, '] due to filter rules.');
         }
         
         return file;
