@@ -171,6 +171,34 @@ describe("gulp-rev-all", function () {
                 writeFile('test/fixtures/config1/**/*.*');
             });
 
+            it('should still process and re-write references in a ignored file', function (done) {
+
+                stream = revall({ ignore: ['.html'] });
+                stream.on('data', function (file) {
+                    var contents = new String(file.contents);
+                    contents.should.match(/\"[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}\"/);
+                });
+
+                stream.on('end', done);
+
+                writeFile('test/fixtures/config1/index.html');
+            });
+
+            it('should not rename reference if that reference is ignored', function (done) {
+
+                stream = revall({ ignore: ['.js'] });
+                stream.on('data', function (file) {
+                    var contents = new String(file.contents);
+                    contents.should.match(/\"[a-z0-9]*\.js\"/);
+                });
+
+                stream.on('end', done);
+
+                writeFile('test/fixtures/config1/index.html');
+            });
+
+
+
 
             it('should not rename js files when specified', function (done) {
 

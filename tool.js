@@ -23,6 +23,18 @@ module.exports = function(options) {
     };
     this.joinPath = joinPath;
 
+    var isFileIgnored = function (file) {
+
+        var filename = (typeof file === 'string') ? file : file.path;
+        filename = filename.substr(options.dirRoot.length);
+
+        for (var i = options.ignore.length; i--;) {
+            var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
+            if (filename.match(regex)) return true;
+        }
+        return false;
+    };
+
     var getRevisionFilename = function (file) {
 
         var hash = cache[file.path].hash;
@@ -125,6 +137,9 @@ module.exports = function(options) {
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path)) continue;          
 
+                // Don't resolve reference of ignored files
+                if (isFileIgnored(referencePath.path)) continue;
+
                 hash += md5Dependency(new gutil.File({
                         path: referencePath.path,
                         contents: fs.readFileSync(referencePath.path),
@@ -147,24 +162,7 @@ module.exports = function(options) {
 
     };
 
-    var isFileIgnored = function (file) {
-
-        var filename = (typeof file === 'string') ? file : file.path;
-        filename = filename.substr(options.dirRoot.length);
-
-        for (var i = options.ignore.length; i--;) {
-            var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
-            if (filename.match(regex)) return true;
-        }
-        return false;
-    };
-
     var revisionFile = function (file) {
-
-        if (isFileIgnored(file.path)) {
-            gutil.log('gulp-rev-all:', 'Ignoring [', file.path, '] due to filter rules.');
-            return file;
-        }
 
         var hash = md5Dependency(file);
 
@@ -178,7 +176,11 @@ module.exports = function(options) {
             file.contents = new Buffer(contents);
         }
 
-        file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
+        if (!isFileIgnored(file.path)) {
+            gutil.log('gulp-rev-all:', 'Not renaming [', file.path, '] due to filter rules.');
+            file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
+        }
+        
         return file;
 
     };
