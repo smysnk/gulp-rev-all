@@ -19,7 +19,7 @@ module.exports = function(options) {
 
     // Fix slash style for our poor windows brothern
     var joinPath = function (directory, filename) {
-        return path.join(directory, filename).replace('\\', '/');
+        return path.join(directory, filename).replace(/\\/g, '/');
     };
     this.joinPath = joinPath;
 
