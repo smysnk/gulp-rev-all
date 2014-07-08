@@ -80,7 +80,7 @@ module.exports = function(options) {
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
         if (_.indexOf(stack, cache[file.path]) > -1) return '';
 
-        var filepathRegex = /.*?(?:\'|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\"|\)).*?/ig;
+        var filepathRegex = /.*?(?:\'|\\\"|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\\\"|\"|\)).*?/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
