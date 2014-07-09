@@ -158,22 +158,28 @@ module.exports = function(options) {
                 if (cache[file.path].rewriteMap[reference]) break;
 
                 // Continue if this file doesn't exist
-                if (!(fs.existsSync(referencePath.path) && fs.statSync(referencePath.path).isFile())) continue;          
+                if (!fs.existsSync(referencePath.path)) continue;          
 
                 // Don't resolve reference of ignored files
                 if (isFileIgnored(referencePath.path)) continue;
 
-                hash += md5Dependency(new gutil.File({
-                        path: referencePath.path,
-                        contents: fs.readFileSync(referencePath.path),
-                        base: file.base
-                    }), stack);
+                try {
 
-                // Create reference map to help with replacement later on
-                cache[file.path].rewriteMap[reference] = {
-                    reference: cache[referencePath.path],
-                    relative: referencePath.isRelative
-                };
+                    hash += md5Dependency(new gutil.File({
+                            path: referencePath.path,
+                            contents: fs.readFileSync(referencePath.path),
+                            base: file.base
+                        }), stack);
+
+                    // Create reference map to help with replacement later on
+                    cache[file.path].rewriteMap[reference] = {
+                        reference: cache[referencePath.path],
+                        relative: referencePath.isRelative
+                    };
+
+                } catch (e) {
+                    // Don't die if it's a directory
+                }
 
             }
         }
