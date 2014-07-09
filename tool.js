@@ -1,5 +1,5 @@
 var gracefulfs = require('graceful-fs');
-var path = require('path');
+var patho = require('path');
 var crypto = require('crypto');
 var gutil = require('gulp-util');
 var _ = require('underscore');
@@ -9,19 +9,20 @@ module.exports = function(options) {
     var self = this;
     var cache = {};
     var fs = options.fs || gracefulfs;
+    var path = options.path || patho;
 
     var joinPathUrl = function (prefix, path) {
         prefix = prefix.replace(/\/$/, '');
         path = path.replace(/^\//, '');
         return [ prefix, path ].join('/');
     };
-    this.joinPathUrl = joinPathUrl;
+    this.joinPathUrl = joinPathUrl; // Make it available to transformPath callback
 
     // Fix slash style for our poor windows brothern
     var joinPath = function (directory, filename) {
         return path.join(directory, filename).replace(/\\/g, '/');
     };
-    this.joinPath = joinPath;
+    this.joinPath = joinPath; // Make it available to transformPath callback
 
     var isFileIgnored = function (file) {
 

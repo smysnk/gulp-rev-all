@@ -16,6 +16,7 @@ require("mocha");
 
 describe("gulp-rev-all", function () {
 
+    var tool;
     var stream;
     var base = path.join(__dirname, 'test/fixtures/config1');
     var writeFile = function(globPath) {
@@ -477,6 +478,28 @@ describe("gulp-rev-all", function () {
             });
 
             writeFile(path.join(base, 'application.js'));
+
+        });
+
+    });
+
+
+    describe('tool', function() {
+
+        describe('joinPath', function() {
+
+            it("should correct windows style slashes", function() {
+
+                var pathMock = {
+                    join: function() {}
+                };
+                var joinStub = sinon.stub(pathMock, "join");
+                joinStub.returns('\\long\\widows\\path\\images.png');
+
+                var tool = toolFactory({ dirRoot: path.join(__dirname, 'test/fixtures/config1'), path: pathMock });
+                tool.joinPath().should.equal('/long/widows/path/images.png');
+
+            });
 
         });
 
