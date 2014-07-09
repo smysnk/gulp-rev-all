@@ -158,7 +158,7 @@ module.exports = function(options) {
                 if (cache[file.path].rewriteMap[reference]) break;
 
                 // Continue if this file doesn't exist
-                if (!(fs.existsSync(referencePath.path) && fs.lstatSync(referencePath.path).isFile())) continue;          
+                if (!(fs.existsSync(referencePath.path) && fs.statSync(referencePath.path).isFile())) continue;          
 
                 // Don't resolve reference of ignored files
                 if (isFileIgnored(referencePath.path)) continue;
