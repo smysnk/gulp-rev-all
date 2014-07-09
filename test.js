@@ -23,7 +23,7 @@ describe("gulp-rev-all", function () {
         glob(globPath, {}, function (er, fileNames) {
             fileNames.forEach(function (fileName) {
                 stream.write(new gutil.File({
-                    path: path.join(__dirname, fileName),
+                    path: path.resolve(fileName),
                     contents: fs.readFileSync(fileName),
                     base: base
                 }));
@@ -62,7 +62,6 @@ describe("gulp-rev-all", function () {
             stream.on('data', function (file) {
 
                 file.path.should.not.equal(fileStyleBaseline.path);
-                console.log(file.path, fileStyleBaseline.path);
 
             });
 
@@ -462,16 +461,61 @@ describe("gulp-rev-all", function () {
     describe("main js", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = toolFactory({ hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
             stream = revall();
             done();
         });
+
+        it("should resolve references to regular commonjs include", function(done) {
+
+            stream.on('data', function (file) {
+
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/layout.js')).path);
+                String(file.contents).should.containEql(revedReference);
+                String(file.contents).should.containEql('./');
+
+                done();
+            });
+
+            writeFile(path.join(base, 'application.js'));
+
+        });
+
+        it("should resolve references to short style commonjs include", function(done) {
+
+            stream.on('data', function (file) {
+
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path);
+                String(file.contents).should.containEql(revedReference);
+                String(file.contents).should.containEql('./');
+
+                done();
+            });
+
+            writeFile(path.join(base, 'application.js'));
+
+        });
+
     
         it("should resolve references to angularjs views", function(done) {
 
             stream.on('data', function (file) {
 
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/view/gps.html')).path);
+                String(file.contents).should.containEql(revedReference);
+
+                done();
+            });
+
+            writeFile(path.join(base, 'application.js'));
+
+        });
+
+        it("should resolve references to compiled templates", function(done) {
+
+            stream.on('data', function (file) {
+
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
 
                 done();

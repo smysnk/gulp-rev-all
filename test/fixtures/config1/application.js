@@ -1,5 +1,8 @@
 'use strict';
 
+var Layout = require('./layout.js');
+var Short = require('/short.js');
+
 define(['app'], function (app) {
 
 
@@ -9,6 +12,22 @@ define(['app'], function (app) {
             restrict: "E",
             replace: true,
             templateUrl: 'view/gps.html',
+            link: function (scope, element, attrs, interfacePanel) {
+
+                
+            },
+            controller: function ($scope, $snapshot) {
+
+
+            }
+        };
+    };
+
+    directives.logo = function () {
+        return {
+            restrict: "E",
+            replace: true,
+            template: "<img src=\"img/image1.jpg\" />test</h1>",
             link: function (scope, element, attrs, interfacePanel) {
 
                 

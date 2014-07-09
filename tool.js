@@ -66,6 +66,11 @@ module.exports = function(options) {
             newPath = joinPathUrl(options.prefix, newPath);
         }
 
+        // Add back the relative reference so we don't break commonjs style includes
+        if (reference.indexOf('./') === 0) {
+            newPath = './' + newPath;
+        } 
+
         var msg = isRelative ? 'relative' : 'root';
         gutil.log('gulp-rev-all:', 'Found', msg, 'reference [', reference, '] -> [', newPath, ']');
 
@@ -81,7 +86,7 @@ module.exports = function(options) {
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
         if (_.indexOf(stack, cache[file.path]) > -1) return '';
 
-        var filepathRegex = /.*?(?:\'|\\\"|\"|\()([a-z0-9_@\-\/\.]+?\.[a-z]{2,4})(?:(?:\?|\#)[^'")]*?|)(?:\'|\\\"|\"|\)).*?/ig;
+        var filepathRegex = /(?:\'|\\\"|\"|\()([a-z0-9_@\-\/\.]{2,})/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
@@ -101,14 +106,27 @@ module.exports = function(options) {
             stack.push(cache[file.path]);
         }
 
-        gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
+        var isBinary = false;
+        var length = (file.contents.length > 50) ? 50 : file.contents.length;
+        for (var i = 0; i < length; i++) {
+            if (file.contents[i] === 0) {
+                isBinary = true;
+                break;
+            }
+        }
+
+        if (isBinary) {
+            gutil.log('gulp-rev-all:', 'Skipping binary file [', file.path, ']');
+        } else {
+            gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
+        }
         
         // Create a map of file references and their proper revisioned name
         var contents = String(file.contents);
         var hash = md5(contents);
         var result;
 
-        while (result = filepathRegex.exec(contents)) {
+        while ((result = filepathRegex.exec(contents)) && !isBinary) {
 
             var reference = result[1];
 
@@ -123,10 +141,14 @@ module.exports = function(options) {
                 {
                     path: joinPath(path.dirname(file.path), reference),
                     isRelative: true
+                },
+                {   // Cover common.js short form edge case (find better way for this in the future)
+                    path: joinPath(path.dirname(file.path), reference + '.js'),
+                    isRelative: true
                 }
             ];
 
-            // If it starts with slash, assume it's absolute
+            // If it starts with slash, try absolute first
             if (reference.substr(0,1) === '/') referencePaths.reverse();
 
             for (var i = referencePaths.length; i--;) {
