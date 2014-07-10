@@ -24,10 +24,15 @@ module.exports = function(options) {
     };
     this.joinPath = joinPath; // Make it available to transformPath callback
 
+
+    var getRelativeFilename = function (file) {
+        var filename = (typeof file === 'string') ? file : file.path;
+        return filename.substr(options.dirRoot.length).replace(/\\/g, '/');
+    }
+
     var isFileIgnored = function (file) {
 
-        var filename = (typeof file === 'string') ? file : file.path;
-        filename = filename.substr(options.dirRoot.length).replace(/\\/g, '/');
+        var filename = getRelativeFilename(file);
 
         for (var i = options.ignore.length; i--;) {
             var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
@@ -72,7 +77,7 @@ module.exports = function(options) {
         } 
 
         var msg = isRelative ? 'relative' : 'root';
-        gutil.log('gulp-rev-all:', 'Found', msg, 'reference [', reference, '] -> [', newPath, ']');
+        gutil.log('gulp-rev-all:', 'Found', msg, 'reference [', gutil.colors.magenta(reference), '] -> [', gutil.colors.green(newPath), ']');
 
         return newPath;
 
@@ -116,9 +121,9 @@ module.exports = function(options) {
         }
 
         if (isBinary) {
-            gutil.log('gulp-rev-all:', 'Skipping binary file [', file.path, ']');
+            gutil.log('gulp-rev-all:', 'Skipping binary file [', gutil.colors.grey(getRelativeFilename(file.path)), ']');
         } else {
-            gutil.log('gulp-rev-all:', 'Finding references in [', file.path, ']');
+            gutil.log('gulp-rev-all:', 'Finding references in [', gutil.colors.magenta(getRelativeFilename(file.path)), ']');
         }
         
         // Create a map of file references and their proper revisioned name
@@ -208,7 +213,7 @@ module.exports = function(options) {
         if (!isFileIgnored(file.path)) {            
             file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
         } else {
-            gutil.log('gulp-rev-all:', 'Not renaming [', file.path, '] due to filter rules.');
+            gutil.log('gulp-rev-all:', 'Not renaming [', gutil.colors.red(getRelativeFilename(file.path)), '] due to filter rules.');
         }
         
         return file;
