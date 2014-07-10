@@ -547,6 +547,17 @@ describe("gulp-rev-all", function () {
 
         });
 
+        describe('isFileIgnored', function() {
+
+            it("should correct windows style slashes", function() {
+
+                var tool = toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+                tool.isFileIgnored(path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\')).should.be.true;
+
+            });
+
+        });
+
     });
 
 });

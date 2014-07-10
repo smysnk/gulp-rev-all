@@ -27,7 +27,7 @@ module.exports = function(options) {
     var isFileIgnored = function (file) {
 
         var filename = (typeof file === 'string') ? file : file.path;
-        filename = filename.substr(options.dirRoot.length);
+        filename = filename.substr(options.dirRoot.length).replace(/\\/g, '/');
 
         for (var i = options.ignore.length; i--;) {
             var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', "ig");
