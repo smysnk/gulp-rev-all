@@ -95,7 +95,41 @@ describe("gulp-rev-all", function () {
         });
     })
 
+    describe('Root directory', function() {
+
+        it('should be detected properly', function(done) {
+
+            var options = {hashLength: 4, ignore: []};
+            stream = revall(options);
+            stream.on('data', function (file) {
+            });
+
+            stream.on('end', function () {
+                options.dirRoot.should.match(/test\/fixtures\/config1$/);
+                done();
+            });
+            writeFile('test/fixtures/config1/**/*.*');
+        });
+
+        it('should be trim trailing slash on windows', function(done) {
+
+            var options = {hashLength: 4, ignore: [], dirRoot: 'C:\\web\\project\\'};
+            stream = revall(options);
+            stream.on('data', function (file) {
+            });
+
+            stream.on('end', function () {
+                options.dirRoot.should.match(/C:\\web\\project$/);
+                done();
+            });
+            writeFile('test/fixtures/config1/**/*.*');
+        });
+
+    });        
+
+
     describe('options:', function() {
+
 
         describe('filename', function() {
 

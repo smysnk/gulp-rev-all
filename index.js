@@ -18,7 +18,7 @@ module.exports = function(options) {
     return through.obj(function (file, enc, callback) {
 
         if (first) {
-            options.dirRoot = options.dirRoot || file.base.replace(/[\//]$/, "");
+            options.dirRoot = (options.dirRoot && options.dirRoot.replace(/[\\/]$/, "")) || file.base.replace(/[\\/]$/, "");
             gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
             first = !first;
         }
