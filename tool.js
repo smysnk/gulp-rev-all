@@ -65,15 +65,15 @@ module.exports = function(options) {
 
         var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
+        // Add back the relative reference so we don't break commonjs style includes
+        if (reference.indexOf('./') === 0) {
+            newPath = './' + newPath;
+        }         
+
         if (options.transformPath) {
             newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
         } else if (!isRelative && options.prefix) {
             newPath = joinPathUrl(options.prefix, newPath);
-        }
-
-        // Add back the relative reference so we don't break commonjs style includes
-        if (reference.indexOf('./') === 0) {
-            newPath = './' + newPath;
         } 
 
         var msg = isRelative ? 'relative' : 'root';
@@ -91,7 +91,7 @@ module.exports = function(options) {
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
         if (_.indexOf(stack, cache[file.path]) > -1) return '';
 
-        var filepathRegex = /(?:\'|\\\"|\"|\()([a-z0-9_@\-\/\.]{2,})/ig;
+        var filepathRegex = /(?:\'|\"|\()([a-z0-9_@\-\/\.]{2,})/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
@@ -146,12 +146,16 @@ module.exports = function(options) {
                 {
                     path: joinPath(path.dirname(file.path), reference),
                     isRelative: true
-                },
-                {   // Cover common.js short form edge case (find better way for this in the future)
-                    path: joinPath(path.dirname(file.path), reference + '.js'),
-                    isRelative: true
                 }
             ];
+
+            // Cover common.js short form edge case
+            if (reference.substr(0,2) === './') {
+                referencePaths.push({  
+                    path: joinPath(path.dirname(file.path), reference + '.js'),
+                    isRelative: true
+                });
+            }
 
             // If it starts with slash, try absolute first
             if (reference.substr(0,1) === '/') referencePaths.reverse();

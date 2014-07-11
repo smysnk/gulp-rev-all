@@ -1,10 +1,15 @@
 'use strict';
 
 var Layout = require('./layout.js');
-var Short = require('/short.js');
+var Short = require('./short');
+
+
+var items = ['short'];
+var short = function() {
+
+};
 
 define(['app'], function (app) {
-
 
     var directives = {};
     directives.gps = function () {

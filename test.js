@@ -466,6 +466,20 @@ describe("gulp-rev-all", function () {
             done();
         });
 
+        it("should not resolve arbitrarty text with the same name as a file", function(done) {
+
+            stream.on('data', function (file) {
+
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/Short.js')).path);
+                String(file.contents).should.not.containEql('var ' + revedReference);
+
+                done();
+            });
+
+            writeFile(path.join(base, 'application.js'));
+
+        });
+
         it("should resolve references to regular commonjs include", function(done) {
 
             stream.on('data', function (file) {
