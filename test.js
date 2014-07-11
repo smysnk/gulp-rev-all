@@ -470,7 +470,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/Short.js')).path);
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path);
                 String(file.contents).should.not.containEql('var ' + revedReference);
 
                 done();
