@@ -91,7 +91,7 @@ module.exports = function(options) {
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
         if (_.indexOf(stack, cache[file.path]) > -1) return '';
 
-        var filepathRegex = /(?:\'|\"|\()([a-z0-9_@\-\/\.]{2,})/ig;
+        var filepathRegex = /(?:require\([ ]*)*(?:\'|\"|\()([a-z0-9_@\-\/\.]{2,})/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
@@ -149,8 +149,8 @@ module.exports = function(options) {
                 }
             ];
 
-            // Cover common.js short form edge case
-            if (reference.substr(0,2) === './') {
+            // If we have require in the match, cover common.js short form edge case
+            if (result[0].indexOf('require') != -1) {
                 referencePaths.push({  
                     path: joinPath(path.dirname(file.path), reference + '.js'),
                     isRelative: true
