@@ -6,7 +6,7 @@ var through = require('through2');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
 
-module.exports = function(options) {
+module.exports = function(options, cb) {
 
     var first = true;    
     options = options || {};
@@ -15,24 +15,32 @@ module.exports = function(options) {
 
     var tool = toolFactory(options);
 
-    return through.obj(function (file, enc, callback) {
+    var stream = through.obj(function (file, enc, callback) {
 
-        if (first) {
-            options.dirRoot = (options.dirRoot && options.dirRoot.replace(/[\\/]$/, "")) || file.base.replace(/[\\/]$/, "");
-            gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
-            first = !first;
-        }
+      if (first) {
+        options.dirRoot = (options.dirRoot && options.dirRoot.replace(/[\\/]$/, "")) || file.base.replace(/[\\/]$/, "");
+        gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
+        first = !first;
+      }
 
-        if (file.isNull()) {
-            return callback(null, file);
-        } else if (file.isStream()) {
-            throw new Error('Streams are not supported!');
-        } 
+      if (file.isNull()) {
+        return callback(null, file);
+      } else if (file.isStream()) {
+        throw new Error('Streams are not supported!');
+      }
 
-        tool.revisionFile(file);
+      tool.revisionFile(file);
 
-        callback(null, file);
+      callback(null, file);
     });
+
+    if (cb) {
+      stream.on('end', function() {
+        cb()
+      });
+    }
+
+    return stream;
 
 
 };
