@@ -214,7 +214,8 @@ module.exports = function(options) {
             file.contents = new Buffer(contents);
         }
 
-        if (!isFileIgnored(file.path)) {            
+        if (!isFileIgnored(file.path)) {
+            file.revOrigPath = file.path;
             file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
         } else {
             gutil.log('gulp-rev-all:', 'Not renaming [', gutil.colors.red(getRelativeFilename(file.path)), '] due to filter rules.');

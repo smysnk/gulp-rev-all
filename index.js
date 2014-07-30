@@ -6,7 +6,7 @@ var through = require('through2');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
 
-module.exports = function(options) {
+var plugin = function (options) {
 
     var first = true;    
     options = options || {};
@@ -16,7 +16,6 @@ module.exports = function(options) {
     var tool = toolFactory(options);
 
     return through.obj(function (file, enc, callback) {
-
         if (first) {
             options.dirRoot = (options.dirRoot && options.dirRoot.replace(/[\\/]$/, "")) || file.base.replace(/[\\/]$/, "");
             gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
@@ -30,9 +29,41 @@ module.exports = function(options) {
         } 
 
         tool.revisionFile(file);
-
         callback(null, file);
-    });
 
+    });    
 
 };
+
+
+// Borrowed from: https://github.com/sindresorhus/gulp-rev
+plugin.manifest = function () {
+
+    var manifest  = {};
+    var firstFile = null;
+
+    return through.obj(function (file, enc, cb) {
+        
+        // ignore all non-rev'd files
+        if (file.path && file.revOrigPath) {
+            firstFile = firstFile || file;
+            manifest[relPath(firstFile.revOrigBase, file.revOrigPath)] = relPath(firstFile.base, file.path);
+        }
+        cb();
+
+    }, function (cb) {
+        
+        if (firstFile) {
+            this.push(new gutil.File({
+                cwd: firstFile.cwd,
+                base: firstFile.base,
+                path: path.join(firstFile.base, 'rev-manifest.json'),
+                contents: new Buffer(JSON.stringify(manifest, null, '  '))
+            }));
+        }
+        cb();
+
+    });
+};
+
+module.exports = plugin;
