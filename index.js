@@ -8,7 +8,6 @@ var gutil = require('gulp-util');
 
 var plugin = function (options) {
 
-    var first = true;    
     options = options || {};
     options.hashLength  = options.hashLength || 8;
     options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
@@ -16,11 +15,6 @@ var plugin = function (options) {
     var tool = toolFactory(options);
 
     return through.obj(function (file, enc, callback) {
-        if (first) {
-            options.dirRoot = (options.dirRoot && options.dirRoot.replace(/[\\/]$/, "")) || file.base.replace(/[\\/]$/, "");
-            gutil.log('gulp-rev-all:', 'Root directory [', options.dirRoot, ']');
-            first = !first;
-        }
 
         if (file.isNull()) {
             return callback(null, file);

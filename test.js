@@ -95,41 +95,7 @@ describe("gulp-rev-all", function () {
         });
     })
 
-    describe('Root directory', function() {
-
-        it('should be detected properly', function(done) {
-
-            var options = {hashLength: 4, ignore: []};
-            stream = revall(options);
-            stream.on('data', function (file) {
-            });
-
-            stream.on('end', function () {
-                options.dirRoot.should.match(/test\/fixtures\/config1$/);
-                done();
-            });
-            writeFile('test/fixtures/config1/**/*.*');
-        });
-
-        it('should be trim trailing slash on windows', function(done) {
-
-            var options = {hashLength: 4, ignore: [], dirRoot: 'C:\\web\\project\\'};
-            stream = revall(options);
-            stream.on('data', function (file) {
-            });
-
-            stream.on('end', function () {
-                options.dirRoot.should.match(/C:\\web\\project$/);
-                done();
-            });
-            writeFile('test/fixtures/config1/**/*.*');
-        });
-
-    });        
-
-
     describe('options:', function() {
-
 
         describe('filename', function() {
 
@@ -600,7 +566,12 @@ describe("gulp-rev-all", function () {
             it("should correct windows style slashes", function() {
 
                 var tool = toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-                tool.isFileIgnored(path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\')).should.be.true;
+                var file = new gutil.File({
+                    path: path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\'),
+                    base: base
+                });
+
+                tool.isFileIgnored(file).should.be.true;
 
             });
 
