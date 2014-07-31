@@ -89,7 +89,7 @@ The hash of each rev'd file is stored at `file.revHash`. You can use this for cu
 
 ```js
 var gulp = require('gulp');
-var rev = require('gulp-rev-all');
+var revall = require('gulp-rev-all');
 
 gulp.task('default', function () {
     // by default, gulp would pick `assets/css` as the base,
@@ -98,7 +98,7 @@ gulp.task('default', function () {
         .pipe(gulp.dest('build/assets'))  // copy original assets to build dir
         .pipe(revall())
         .pipe(gulp.dest('build/assets'))  // write rev'd assets to build dir
-        .pipe(rev.manifest())
+        .pipe(revall.manifest())
         .pipe(gulp.dest('build/assets')); // write manifest to build dir
 });
 ```
