@@ -216,6 +216,7 @@ module.exports = function(options) {
 
         if (!isFileIgnored(file.path)) {
             file.revOrigPath = file.path;
+            file.revHash = hash;
             file.path = joinPath(path.dirname(file.path), getRevisionFilename(file));
         } else {
             gutil.log('gulp-rev-all:', 'Not renaming [', gutil.colors.red(getRelativeFilename(file.path)), '] due to filter rules.');
