@@ -35,13 +35,14 @@ plugin.manifest = function () {
 
     var manifest  = {};
     var firstFile = null;
+    var tool = toolFactory();
 
     return through.obj(function (file, enc, cb) {
-        
+
         // ignore all non-rev'd files
         if (file.path && file.revOrigPath) {
             firstFile = firstFile || file;
-            manifest[relPath(firstFile.revOrigBase, file.revOrigPath)] = relPath(firstFile.base, file.path);
+            manifest[tool.getRelativeFilename(file.revOrigBase, file.revOrigPath)] = tool.getRelativeFilename(file.base, file.path);
         }
         cb();
 

@@ -79,7 +79,7 @@ gulp.task('default', function () {
 
 ## Original path
 
-Original file paths are stored at `file.revOrigPath`. This could come in handy for things like rewriting references to the assets.
+Original file paths are stored at `file.revOrigPath`. 
 
 ## Asset hash
 
@@ -112,7 +112,7 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 }
 ```
 
-## API
+## Options
 
 #### options.ignore
 
