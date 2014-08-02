@@ -26,8 +26,8 @@ module.exports = function(options) {
     this.joinPath = joinPath; // Make it available to transformPath callback
 
 
-    var getRelativeFilename = function (base, path) {
-        var dirRoot = base.replace(/[\\/]$/, "");
+    var getRelativeFilename = function (base, path, noStartingSlash) {
+        var dirRoot = noStartingSlash ? base.replace(/[^\\/]$/, "/") : base.replace(/[\\/]$/, "");
         return path.substr(dirRoot.length).replace(/\\/g, '/');
     }
 
