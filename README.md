@@ -219,6 +219,14 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.silent
+#### options.quiet
+
+Type: `Boolean`
+Default: `false`
+
+If you set this options to true gulp will no longer emit `gulp-rev-all` log messages.
+
 ## Tips
 
 Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
