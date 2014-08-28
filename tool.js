@@ -12,6 +12,9 @@ module.exports = function(options) {
     var fs = options.fs || gracefulfs;
     var path = options.path || patho;
 
+    // Disable logging
+    if (options.silent == true || options.quiet == true) gutil.log = function() {}
+
     var joinPathUrl = function (prefix, path) {
         prefix = prefix.replace(/\/$/, '');
         path = path.replace(/^\//, '');
