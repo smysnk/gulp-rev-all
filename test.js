@@ -426,7 +426,7 @@ describe("gulp-rev-all", function () {
                 var revedReference2 = path.basename(tool.revisionFile(getFile('test/fixtures/config1/font/font1.woff')).path);
                 String(file.contents).should.containEql(revedReference2);
 
-                var revedReference3 = path.basename(tool.revisionFile(getFile('test/fixtures/config1/font/font1.ttf')).path);
+                var revedReference3 = path.basename(tool.revisionFile(getFile('test/fixtures/config1/font/font1 space.ttf')).path);
                 String(file.contents).should.containEql(revedReference3);
 
                 var revedReference4 = path.basename(tool.revisionFile(getFile('test/fixtures/config1/font/font1.svg')).path);
