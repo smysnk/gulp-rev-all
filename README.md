@@ -98,7 +98,7 @@ gulp.task('default', function () {
         .pipe(gulp.dest('build/assets'))  // copy original assets to build dir
         .pipe(revall())
         .pipe(gulp.dest('build/assets'))  // write rev'd assets to build dir
-        .pipe(revall.manifest())
+        .pipe(revall.manifest({ fileName: 'manifest.json' })) // create manifest (`fileName` is optional)
         .pipe(gulp.dest('build/assets')); // write manifest to build dir
 });
 ```

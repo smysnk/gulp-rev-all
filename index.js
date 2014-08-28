@@ -31,11 +31,12 @@ var plugin = function (options) {
 
 
 // Borrowed from: https://github.com/sindresorhus/gulp-rev
-plugin.manifest = function () {
+plugin.manifest = function (options) {
 
     var manifest  = {};
     var firstFile = null;
     var tool = toolFactory();
+    var fileName = options.fileName || 'rev-manifest.json';
 
     return through.obj(function (file, enc, cb) {
 
@@ -52,7 +53,7 @@ plugin.manifest = function () {
             this.push(new gutil.File({
                 cwd: firstFile.cwd,
                 base: firstFile.base,
-                path: path.join(firstFile.base, 'rev-manifest.json'),
+                path: path.join(firstFile.base, fileName),
                 contents: new Buffer(JSON.stringify(manifest, null, '  '))
             }));
         }
