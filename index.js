@@ -33,6 +33,7 @@ var plugin = function (options) {
 // Borrowed from: https://github.com/sindresorhus/gulp-rev
 plugin.manifest = function (options) {
 
+    var options = options || {};
     var manifest  = {};
     var firstFile = null;
     var tool = toolFactory();
