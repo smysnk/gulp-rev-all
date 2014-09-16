@@ -38,13 +38,14 @@ plugin.manifest = function (options) {
     var firstFile = null;
     var tool = toolFactory();
     var fileName = options.fileName || 'rev-manifest.json';
+    var prefix = options.prefix || '';
 
     return through.obj(function (file, enc, cb) {
 
         // ignore all non-rev'd files
         if (file.path && file.revOrigPath) {
             firstFile = firstFile || file;
-            manifest[tool.getRelativeFilename(file.revOrigBase, file.revOrigPath, true)] = tool.getRelativeFilename(file.base, file.path, true);
+            manifest[tool.getRelativeFilename(file.revOrigBase, file.revOrigPath, true)] = options.prefix + tool.getRelativeFilename(file.base, file.path, true);
         }
         cb();
 
