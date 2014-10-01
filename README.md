@@ -116,7 +116,7 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 
 #### options.ignore
 
-Type: `Array of RegEx or String`
+Type: `Array of (Regex and/or String)`
 Default: `[ /^\/favicon.ico$/ ]`
 
 In some cases, you may not want to rev your `*.html` files:
