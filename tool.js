@@ -32,7 +32,7 @@ module.exports = function(options) {
     var getRelativeFilename = function (base, path, noStartingSlash) {
         var dirRoot = noStartingSlash ? base.replace(/[^\\/]$/, "/") : base.replace(/[\\/]$/, "");
         return path.substr(dirRoot.length).replace(/\\/g, '/');
-    }
+    };
 
     var isFileIgnored = function (file) {
 
@@ -87,6 +87,43 @@ module.exports = function(options) {
 
     };
 
+    var findRefs = function(file){
+        var amdRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?\[[^\]]*)/g,
+            amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/,
+            filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\()([ a-z0-9_@\-\/\.]{2,})/ig,
+            content = String(file.contents),
+            result,
+            amdContent = '';
+
+        if(result = amdRegex.exec(content)){
+            content = content.replace(result[1]);
+            amdContent = result[1];
+        }
+
+        if(result = amdConfigRegex.exec(content)){
+            content = content.replace(result[1]);
+            amdContent += result[1];
+        }
+
+        var refs = [];
+
+        while ((result = filepathRegex.exec(content))) {
+            refs.push({
+                reference: result[1],
+                isAmd: false
+            });
+        }
+
+        while ((result = filepathRegex.exec(amdContent))) {
+            refs.push({
+                reference: result[1],
+                isAmd: true
+            });
+        }
+
+        return refs;
+    };
+
     var md5Dependency = function (file, stack) {
 
         // Don't calculate again if we've already done it once before
@@ -95,7 +132,7 @@ module.exports = function(options) {
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependcy overflow
         if (_.indexOf(stack, cache[file.path]) > -1) return '';
 
-        var filepathRegex = /(?:[^a-z]require\([ ]*)*(?:\'|\"|\()([ a-z0-9_@\-\/\.]{2,})/ig;
+        //var filepathRegex = /(?:[^a-z]require\([ ]*)*(?:\'|\"|\()([ a-z0-9_@\-\/\.]{2,})/ig;
 
         if (typeof cache[file.path] === 'undefined') {
             cache[file.path] = {
@@ -134,10 +171,12 @@ module.exports = function(options) {
         var contents = String(file.contents);
         var hash = md5(contents);
         var result;
+        var refs = findRefs(file);
 
-        while ((result = filepathRegex.exec(contents)) && !isBinary) {
+        for(var key in refs) {
 
-            var reference = result[1];
+            var reference = refs[key].reference;
+            var isAmd = refs[key].isAmd;
 
             // Don't do any work if we've already resolved this reference
             if (cache[file.path].rewriteMap[reference]) continue;
@@ -157,8 +196,9 @@ module.exports = function(options) {
             ];
 
             // If we have require in the match, cover common.js short form edge case
-            if (result[0].indexOf('require') != -1) {
-                referencePaths.push({  
+            if (isAmd) {
+                //console.log("Require match reference: ", reference);
+                referencePaths.push({
                     base: file.base,
                     path: joinPath(path.dirname(file.path), reference + '.js'),
                     isRelative: true
@@ -209,7 +249,7 @@ module.exports = function(options) {
     };
 
     var revisionFile = function (file) {
-
+        //console.log("processing", file.path);
         var hash = md5Dependency(file);
 
         // Replace references with revisioned names
