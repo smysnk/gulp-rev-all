@@ -26,7 +26,7 @@ var plugin = function (options) {
         callback(null, file);
 
     }, function (cb) {
-        tool.cacheDump();
+        //tool.cacheDump();
         cb();
     });    
 
