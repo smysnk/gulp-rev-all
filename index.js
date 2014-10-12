@@ -45,7 +45,6 @@ plugin.versionFile = function(options){
         if (file.path && file.revOrigPath) {
             firstFile = firstFile || file;
             hash = tool.md5(hash + file.path);
-            //console.log(file.path, hash, file.hash);
         }
         cb();
 

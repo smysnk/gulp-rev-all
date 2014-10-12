@@ -14,25 +14,13 @@ module.exports = function(options) {
 
     options.bases = options.bases || [];
 
-    var amdRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function)))/g,
+    var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\()([ a-z0-9_@\-\/\.]{2,})/ig,
-        amdFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig;
-
-    var rjsPaths = {};
-
-    // Get requirejs config file
-    // if(options.mainConfigFile){
-    //     var content = fs.readFileSync(options.mainConfigFile, 'utf8');
-    //     var config = JSON.parse(/\(([^\)]+)/.exec(content)[1]);
-    //     for(var key in config.paths){
-    //         rjsPaths[key] = config.paths[key]; //fs.join(options.base, config.paths[key])
-    //         options.ignore.push(new RegExp(config.paths[key] + '(\\.js)?$', 'g'));
-    //     }
-    // }
+        amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig;
 
     // Disable logging
-    if (options.silent == true || options.quiet == true){
+    if (options.silent === true || options.quiet === true){
         gutil.log = function() {};
     }
 
@@ -87,7 +75,7 @@ module.exports = function(options) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
     };
 
-    var getReplacement = function (reference, file, isRelative, isAmd) {
+    var getReplacement = function (reference, file, isRelative, isAmdCommonJs) {
         var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
         // Add back the relative reference so we don't break commonjs style includes
@@ -101,7 +89,7 @@ module.exports = function(options) {
             newPath = joinPathUrl(options.prefix, newPath);
         }
 
-        if(isAmd){
+        if(isAmdCommonJs){
             newPath = newPath.replace('.js', '');
         }
 
@@ -114,12 +102,12 @@ module.exports = function(options) {
 
     var findRefs = function(file){
 
-        var content = file.contents.toString(),
+        var content = String(file.contents),
             result,
             amdContent = '',
-            regularContent = file.contents.toString();
+            regularContent = String(file.contents);
 
-        while(result = amdRegex.exec(content)){
+        while(result = amdCommonJsRegex.exec(content)){
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
         }
@@ -135,14 +123,14 @@ module.exports = function(options) {
         while ((result = filepathRegex.exec(regularContent))) {
             refs.push({
                 reference: result[1],
-                isAmd: false
+                isAmdCommonJs: false
             });
         }
 
-        while ((result = amdFilepathRegex.exec(amdContent))) {
+        while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
             refs.push({
                 reference: result[1] || result[2],
-                isAmd: true
+                isAmdCommonJs: true
             });
         }
 
@@ -191,7 +179,9 @@ module.exports = function(options) {
                 gutil.colors.magenta(chain.join(' --> ')),']');
 
             // When a circular reference occurs, the file that starts the cycle
-            // It's hash has to be back propagated down the files in the cycle
+            // needs it's hash has to be back propagated to files in the cycle
+            // Without this, the hash will not take into account that the file
+            // where the cycle is broken, has changed
 
             stack[positionInStack].backpropagate = stack[positionInStack].backpropagate || [];
             for(var i = positionInStack+1; i < stack.length; i++){
@@ -231,14 +221,14 @@ module.exports = function(options) {
         }
         
         // Create a map of file references and their proper revisioned name
-        var contents = file.contents.toString();
+        var contents = String(file.contents);
         var hash = md5(contents);
         var cacheEntry = cache[cachePath(file.path)];
 
         for(var key in refs) {
 
             var reference = refs[key].reference;
-            var isAmd = refs[key].isAmd;
+            var isAmdCommonJs = refs[key].isAmdCommonJs;
 
             // Don't do any work if we've already resolved this reference
             if (cacheEntry.rewriteMap[reference]){
@@ -247,8 +237,8 @@ module.exports = function(options) {
             var dirRoot = file.base.replace(/[\\/]$/, '');
 
             var pathType;
-            if(isAmd){
-                pathType = 'amd';
+            if(isAmdCommonJs){
+                pathType = 'amdCommonJs';
             } else if (reference.substr(0,1) === '/'){
                 pathType = 'absolute';
             } else {
@@ -258,11 +248,8 @@ module.exports = function(options) {
             var referencePaths = [];
             var references = [reference,];
 
-            if(isAmd){
+            if(isAmdCommonJs){
                 references.push(reference + '.js');
-                // if(rjsPaths[reference]){
-                //     references.push(rjsPaths[reference] + '.js');
-                // }
             }
 
             for(var i = 0; i < references.length; i++){
@@ -276,13 +263,11 @@ module.exports = function(options) {
                     });
                 }
 
-                if(options.bases.length > 0) {
-                    referencePaths.push({
-                        base: file.base,
-                        path: joinPath(path.dirname(file.path), reference_),
-                        isRelative: false
-                    });
-                }
+                referencePaths.push({
+                    base: file.base,
+                    path: joinPath(path.dirname(file.path), reference_),
+                    isRelative: false
+                });
 
                 if(pathType === 'relative'){
                     referencePaths.push({
@@ -324,7 +309,7 @@ module.exports = function(options) {
                 cacheEntry.rewriteMap[reference] = {
                     reference: cache[cachePath(referencePath.path)],
                     relative: referencePath.isRelative,
-                    amd: isAmd
+                    amdCommonJs: isAmdCommonJs
                 };
             }
         }
@@ -365,28 +350,29 @@ module.exports = function(options) {
     // Entry point
     var revisionFile = function (file) {
         
+
         var hash = md5Dependency(file);
 
         // Replace references with revisioned names
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmd = cache[cachePath(file.path)].rewriteMap[reference].amd;          
-            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmd);
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;          
+            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
             var contents;
 
-            if(isAmd){
+            if(isAmdCommonJs){
                 reference = '[\'"]' + reference + '[\'"]';
                 replaceWith = '\'' + replaceWith + '\'';
                 var result;
                 var partials = {};
 
                 // Gather partials
-                contents = file.contents.toString();
-                while(result = amdRegex.exec(contents)){
+                contents = String(file.contents);
+                while(result = amdCommonJsRegex.exec(contents)){
                     partials[result[1]] = '';
                 }
-                contents = file.contents.toString();
+                contents = String(file.contents);
                 while(result = amdConfigRegex.exec(contents)){
                     partials[result[1]] = '';
                 }
@@ -401,7 +387,7 @@ module.exports = function(options) {
                 }
                 
             } else {
-                contents = file.contents.toString();
+                contents = String(file.contents);
                 contents = contents.replace(new RegExp(reference, 'g'), replaceWith);
             }
 

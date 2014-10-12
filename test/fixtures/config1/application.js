@@ -1,7 +1,7 @@
 'use strict';
 
-var Layout = require('./layout.js'));
-var Short = require('./short'));
+var Layout = require('./layout.js');
+var Short = require('./short');
 
 
 var items = ['short'];

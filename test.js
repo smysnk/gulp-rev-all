@@ -44,11 +44,12 @@ describe("gulp-rev-all", function () {
 
         it('should change if child reference changes', function(done) {
 
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
                 existsSync: function() {},
+                lstatSync: function() { return {isDirectory: function(){ return false; }}; },
                 readFileSync: function() {}
             };
 
@@ -67,7 +68,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('end', function () {
                 done();
-            })
+            });
 
             writeFile('test/fixtures/config1/css/style.css');
         });
@@ -93,7 +94,7 @@ describe("gulp-rev-all", function () {
 
             writeFile(filename);
         });
-    })
+    });
 
     describe('options:', function() {
 
@@ -241,9 +242,9 @@ describe("gulp-rev-all", function () {
     describe("root html", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-            stream = revall()
-            done()
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            stream = revall();
+            done();
         });
 
         it("should resolve absolute path reference", function(done) {
@@ -361,7 +362,7 @@ describe("gulp-rev-all", function () {
     describe("angularjs view", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
             stream = revall();
             done();
         });
@@ -373,7 +374,7 @@ describe("gulp-rev-all", function () {
                 contents: fs.readFileSync(filename),
                 base: base
             }));
-        }
+        };
 
         it("should resolve references to images", function(done) {
 
@@ -402,8 +403,8 @@ describe("gulp-rev-all", function () {
     describe("css", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-            stream = revall()
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            stream = revall();
             done();
         });
 
@@ -415,7 +416,7 @@ describe("gulp-rev-all", function () {
                 contents: fs.readFileSync(filename),
                 base: base
             }));
-        }
+        };
 
         it("should resolve references to fonts", function (done) {
 
@@ -443,10 +444,11 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
+                var revedReference;
+                revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image2.jpg')).path);
+                revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image2.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
 
                 done();
@@ -461,7 +463,7 @@ describe("gulp-rev-all", function () {
     describe("main js", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({ hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
             stream = revall();
             done();
         });
@@ -484,7 +486,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/layout.js')).path);
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/layout.js')).path).replace('.js', '');
                 String(file.contents).should.containEql(revedReference);
                 String(file.contents).should.containEql('./');
 
@@ -499,7 +501,7 @@ describe("gulp-rev-all", function () {
 
             stream.on('data', function (file) {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path);
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path).replace('.js', '');
                 String(file.contents).should.containEql(revedReference);
                 String(file.contents).should.containEql('./');
 
@@ -554,7 +556,7 @@ describe("gulp-rev-all", function () {
                 var joinStub = sinon.stub(pathMock, "join");
                 joinStub.returns('\\long\\widows\\path\\images.png');
 
-                var tool = toolFactory({ dirRoot: path.join(__dirname, 'test/fixtures/config1'), path: pathMock });
+                var tool = new toolFactory({ dirRoot: path.join(__dirname, 'test/fixtures/config1'), path: pathMock });
                 tool.joinPath().should.equal('/long/widows/path/images.png');
 
             });
@@ -565,7 +567,7 @@ describe("gulp-rev-all", function () {
 
             it("should correct windows style slashes", function() {
 
-                var tool = toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+                var tool = new toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
                 var file = new gutil.File({
                     path: path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\'),
                     base: base
