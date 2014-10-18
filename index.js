@@ -26,7 +26,10 @@ var plugin = function (options) {
         callback(null, file);
 
     }, function (cb) {
-        //tool.cacheDump();
+        if(options.getTool){
+            options.getTool(tool);
+        }
+
         cb();
     });    
 

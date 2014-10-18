@@ -133,7 +133,6 @@ module.exports = function(options) {
                 isAmdCommonJs: true
             });
         }
-
         return refs;
     };
 
@@ -314,7 +313,7 @@ module.exports = function(options) {
             }
         }
 
-        // Consolidate hashes into a single hash
+        // Consolidate into a single hash
         hash = md5(hash);
         cacheEntry.hash = hash;
 
@@ -336,23 +335,9 @@ module.exports = function(options) {
         return hash;
     };
 
-    var cacheDump = function () {
-        console.log("Writing cache!");
-        var log = '';
-        for(var key in cache){
-            log +=
-                'filekey: ' + key + '\n' +
-                'hash ' +  cache[key].hash + '\n';
-        }
-        fs.writeFile("/home/rickert/cachedump.txt", log);
-    };
-
     // Entry point
     var revisionFile = function (file) {
-        
-
         var hash = md5Dependency(file);
-
         // Replace references with revisioned names
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
@@ -365,6 +350,7 @@ module.exports = function(options) {
                 reference = '[\'"]' + reference + '[\'"]';
                 replaceWith = '\'' + replaceWith + '\'';
                 var result;
+                var original;
                 var partials = {};
 
                 // Gather partials
@@ -377,11 +363,11 @@ module.exports = function(options) {
                     partials[result[1]] = '';
                 }
 
-                for(var original in partials){
+                for(original in partials){
                     partials[original] = original.replace(new RegExp(reference, 'g'), replaceWith);
                 }
 
-                for(var original in partials){
+                for(original in partials){
                     var change = partials[original];
                     contents = contents.replace(original, change);
                 }
@@ -414,7 +400,8 @@ module.exports = function(options) {
         isFileIgnored: isFileIgnored,
         getReplacement: getReplacement,
         getRelativeFilename: getRelativeFilename,
-        cacheDump: cacheDump
+        cache: cache,
+        cachePath: cachePath
     };
 
 };
