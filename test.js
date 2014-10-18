@@ -312,7 +312,7 @@ describe("gulp-rev-all", function () {
 
             it('should rename all files when ignore not specified', function (done) {
 
-                stream = revall({'bases': ['test/fixtures/config1']});
+                stream = revall();
                 stream.on('data', function (file) {
                     path.basename(file.path).should.match(/(\.[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
                 });
