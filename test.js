@@ -42,9 +42,9 @@ describe("gulp-rev-all", function () {
 
     describe('resource hash calculation', function() {
 
-        xit('should change if child reference changes', function(done) {
+        it('should change if child reference changes', function(done) {
 
-            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
@@ -160,7 +160,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    xdescribe('should process images', function() {
+    describe('should process images', function() {
 
         beforeEach(function (done) {
             stream = revall();
@@ -181,7 +181,7 @@ describe("gulp-rev-all", function () {
         });
     });
 
-    xdescribe('options:', function() {
+    describe('options:', function() {
 
         describe('filename', function() {
 
@@ -217,7 +217,7 @@ describe("gulp-rev-all", function () {
         });
 
 
-        xdescribe('ignore', function() {
+        describe('ignore', function() {
 
 
             it('should not rename favicon.ico by default', function (done) {
@@ -324,13 +324,13 @@ describe("gulp-rev-all", function () {
 
     });
 
-    xdescribe("root html", function() {
+    describe("root html", function() {
 
         var filename = path.join(base, 'index.html');
 
         beforeEach(function (done) {
             tool = null;
-            stream = revall({'bases': ['test/fixtures/config1'], getTool: function(t){tool = t;}});
+            stream = revall({getTool: function(t){tool = t;}});
             done();
         });
 
@@ -466,10 +466,10 @@ describe("gulp-rev-all", function () {
 
     });
 
-    xdescribe("angularjs view", function() {
+    describe("angularjs view", function() {
 
         beforeEach(function (done) {
-            //tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            //tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
             tool = null;
             stream = revall({getTool: function(t){tool = t;}});
             done();
@@ -513,7 +513,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    xdescribe("css", function() {
+    describe("css", function() {
 
         beforeEach(function (done) {
             tool = null;
@@ -578,10 +578,10 @@ describe("gulp-rev-all", function () {
 
     });
 
-    xdescribe("main js", function() {
+    describe("main js", function() {
 
         beforeEach(function (done) {
-            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico']});
             stream = revall();
             done();
         });
@@ -679,7 +679,7 @@ describe("gulp-rev-all", function () {
     });
 
 
-    xdescribe('tool', function() {
+    describe('tool', function() {
 
         describe('joinPath', function() {
 
@@ -702,7 +702,7 @@ describe("gulp-rev-all", function () {
 
             it("should correct windows style slashes", function() {
 
-                var tool = new toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+                var tool = new toolFactory({ ignore: [ /^\/favicon.ico$/g ]});
                 var file = new gutil.File({
                     path: path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\'),
                     base: base

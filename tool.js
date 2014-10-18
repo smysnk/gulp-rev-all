@@ -11,8 +11,7 @@ module.exports = function(options) {
     var cache = {};
     var fs = options.fs || gracefulfs;
     var path = options.path || patho;
-
-    options.bases = options.bases || [];
+    var bases = (options.base && Array.isArray(options.base) && options.base) || options.base && [options.base] || [];
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
@@ -254,10 +253,10 @@ module.exports = function(options) {
             for(var i = 0; i < references.length; i++){
                 var reference_ = references[i];
 
-                for(var j = 0; j < options.bases.length; j++){
+                for(var j = 0; j < bases.length; j++){
                     referencePaths.push({
-                        base: options.bases[j],
-                        path: joinPath(options.bases[j], reference_),
+                        base: bases[j],
+                        path: joinPath(bases[j], reference_),
                         isRelative: false
                     });
                 }

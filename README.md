@@ -112,6 +112,31 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 }
 ```
 
+## Version file
+
+```js
+var gulp = require('gulp');
+var revall = require('gulp-rev-all');
+
+gulp.task('default', function () {
+    return gulp.src(['assets/css/*.css', 'assets/js/*.js'], { base: 'assets' })
+        .pipe(gulp.dest('build/assets'))  // copy original assets to build dir
+        .pipe(revall())
+        .pipe(gulp.dest('build/assets'))  // write rev'd assets to build dir
+        .pipe(revall.versionFile({ fileName: 'version.json' })) // create version file (`fileName` is optional)
+        .pipe(gulp.dest('build/assets')); // write version file to build dir
+});
+```
+
+The version file will contain the build date and a combined hash of all the revisioned files.
+
+```json
+{
+    "hash": "c969a1154f2a5c0689d8ec4b0eafd584",
+    "timestamp": "2014-10-11T12:13:48.466Z"
+}
+```
+
 ## Options
 
 #### options.ignore
@@ -218,6 +243,13 @@ gulp.task('default', function () {
         .pipe(gulp.dest('cdn'))
 });
 ```
+
+#### options.base
+
+Type: `String` or `[]`
+Default: `none`
+
+This option allows you to set addition search paths `gulp-rev-all` will use to resolve file references.
 
 #### options.silent
 #### options.quiet
