@@ -44,12 +44,13 @@ describe("gulp-rev-all", function () {
 
         it('should change if child reference changes', function(done) {
 
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
                 existsSync: function() {},
-                readFileSync: function() {}
+                lstatSync: function() { return {isDirectory: function(){ return false; }}; },
+                readFileSync: function(path) {}
             };
 
             var existsSyncStub = sinon.stub(fsMock, "existsSync");
@@ -67,9 +68,94 @@ describe("gulp-rev-all", function () {
 
             stream.on('end', function () {
                 done();
-            })
+            });
 
             writeFile('test/fixtures/config1/css/style.css');
+        });
+
+        it('should change if a circular referenced file changes', function(done) {
+            stream = null;
+            var fs1 = {
+                'a.html': '<a href="b.html">Go to B</a>',
+                'b.html': '<a href="a.html">Go to A</a>'
+            };
+
+            var fs2 = {
+                'a.html': '<a href="b.html">Click here ro go to B</a>',
+                'b.html': '<a href="a.html">Go to A</a>'
+            };
+
+            var fakeFs;
+
+            var fsMock = {
+                existsSync: function() {},
+                lstatSync: function() {},
+                readFileSync: function(filepath) {
+                    var parts = filepath.split('/');
+                    var filename = parts[parts.length-1];
+                    return new Buffer(fakeFs[filename]);
+                },
+            };
+
+            var pathMock = {
+                resolve: function(filepath){
+                    return filepath;
+                },
+                join: path.join,
+                extname: path.extname,
+                basename: path.basename,
+                dirname: path.dirname,
+            };
+
+            var existsSyncStub = sinon.stub(fsMock, "existsSync");
+            var lstatSyncStub = sinon.stub(fsMock, "lstatSync");
+            existsSyncStub.returns(true);
+            lstatSyncStub.returns({isDirectory: function(){ return false; }});
+
+
+            var file;
+            var writeFile = function(name, content) {
+                var file = new gutil.File({
+                    path: name,
+                    contents: new Buffer(content),
+                    base: base
+                });
+                stream.write(file);
+            };
+
+
+            var run2 = function(hashA, hashB){
+                fakeFs = fs2;
+                stream = revall({ fs: fsMock, path: pathMock, getTool: function(t){tool = t;}});
+                stream.on('data', function () {});
+
+                stream.on('end', function () {
+                    hashA.should.not.equal(tool.cache['a.html']);
+                    hashB.should.not.equal(tool.cache['b.html']);
+                    done();
+                });
+
+                writeFile('a.html', fakeFs['a.html']);
+                writeFile('b.html', fakeFs['b.html']);
+                stream.end();
+            };
+
+            var run1 = function(){
+                fakeFs = fs1;
+                stream = revall({ fs: fsMock, path: pathMock, getTool: function(t){tool = t;}});
+                stream.on('data', function () {});
+
+                stream.on('end', function () {
+                    run2(tool.cache['a.html'], tool.cache['b.html']);
+                });
+
+                writeFile('a.html', fakeFs['a.html']);
+                writeFile('b.html', fakeFs['b.html']);
+                stream.end();
+            };
+
+            run1();
+            
         });
 
     });
@@ -93,7 +179,7 @@ describe("gulp-rev-all", function () {
 
             writeFile(filename);
         });
-    })
+    });
 
     describe('options:', function() {
 
@@ -175,7 +261,7 @@ describe("gulp-rev-all", function () {
 
                 stream = revall({ ignore: ['.html'] });
                 stream.on('data', function (file) {
-                    var contents = new String(file.contents);
+                    var contents = String(file.contents);
                     contents.should.match(/\"[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}\"/);
                 });
 
@@ -188,7 +274,7 @@ describe("gulp-rev-all", function () {
 
                 stream = revall({ ignore: ['.js'] });
                 stream.on('data', function (file) {
-                    var contents = new String(file.contents);
+                    var contents = String(file.contents);
                     contents.should.match(/\"[a-z0-9]*\.js\"/);
                 });
 
@@ -240,34 +326,41 @@ describe("gulp-rev-all", function () {
 
     describe("root html", function() {
 
+        var filename = path.join(base, 'index.html');
+
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-            stream = revall()
-            done()
+            tool = null;
+            stream = revall({getTool: function(t){tool = t;}});
+            done();
         });
 
         it("should resolve absolute path reference", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 String(file.contents).should.match(/'\/index\.[a-z0-9]{8}\.html'/);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should prefix replaced references if a prefix is supplied", function(done) {
 
             stream = revall({
-                prefix: 'http://example.com/'
+                prefix: 'http://example.com/',
+                getTool: function(t){tool = t;}
             });
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 String(file.contents).should.match(/'http:\/\/example\.com\/index\.[a-z0-9]{8}\.html'/);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should replaced references using transform if it is supplied", function(done) {
@@ -275,85 +368,100 @@ describe("gulp-rev-all", function () {
             stream = revall({
                 transformPath: function (reved, source, path) {
                     return this.joinPathUrl('//images.example.com/', reved.replace('img/', ''));
-                }
+                },
+                getTool: function(t){tool = t;}
             });
 
-            stream.on('data', function (file) { 
+            stream.on('data', function () {});
+            stream.on('end', function () { 
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/css/style.css')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should resolve reference to css", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/css/style.css')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should resolve reference reference to angularjs view", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/view/main.html')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
 
         it("should resolve reference reference to javascript include", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/application.js')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
+            writeFile(filename);
 
-            writeFile( path.join(base, 'index.html') );
         });
 
 
         it("should resolve reference in double quotes", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should resolve reference in single quotes", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image2.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
         it("should replace all references", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image3.jpg')).path);
                 var count = String(file.contents).match(RegExp(revedReference, 'g'));
                 count.length.should.eql(2);
                 done();
             });
 
-            writeFile( path.join(base, 'index.html') );
+            writeFile(filename);
         });
 
     });
@@ -361,23 +469,28 @@ describe("gulp-rev-all", function () {
     describe("angularjs view", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-            stream = revall();
+            //tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
+            tool = null;
+            stream = revall({getTool: function(t){tool = t;}});
             done();
         });
         
         var filename = path.join(base, 'view/main.html');
+        var file;
         var writeFile = function() {
-            stream.write(new gutil.File({
+            file = new gutil.File({
                 path: filename,
                 contents: fs.readFileSync(filename),
                 base: base
-            }));
-        }
+            });
+            stream.write(file);
+            stream.end();
+        };
 
         it("should resolve references to images", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
@@ -388,7 +501,8 @@ describe("gulp-rev-all", function () {
 
         it("should resolve references to angular includes", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/view/core/footer.html')).path);
                 String(file.contents).should.containEql(revedReference);
                 done();
@@ -402,24 +516,28 @@ describe("gulp-rev-all", function () {
     describe("css", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
-            stream = revall()
+            tool = null;
+            stream = revall({getTool: function(t){tool = t;}});
             done();
         });
 
         var base = path.join(__dirname, 'test/fixtures/config1');
         var filename = path.join(base, 'css/style.css');
+        var file;
         var writeFile = function() {
-            stream.write(new gutil.File({
+            file = new gutil.File({
                 path: filename,
                 contents: fs.readFileSync(filename),
                 base: base
-            }));
-        }
+            });
+            stream.write(file);
+            stream.end();
+        };
 
         it("should resolve references to fonts", function (done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
                 var revedReference1 = path.basename(tool.revisionFile(getFile('test/fixtures/config1/font/font1.eot')).path);
                 String(file.contents).should.containEql(revedReference1);
 
@@ -441,12 +559,14 @@ describe("gulp-rev-all", function () {
 
         it("should resolve references to images", function (done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
+                var revedReference;
+                revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image2.jpg')).path);
+                revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image2.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
 
                 done();
@@ -461,14 +581,27 @@ describe("gulp-rev-all", function () {
     describe("main js", function() {
 
         beforeEach(function (done) {
-            tool = toolFactory({ hashLength: 8, ignore: ['favicon.ico'], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico']});
             stream = revall();
             done();
         });
 
+        filename = path.join(base, 'application.js');
+        var file;
+        var writeFile = function() {
+            file = new gutil.File({
+                path: filename,
+                contents: fs.readFileSync(filename),
+                base: base
+            });
+            stream.write(file);
+            stream.end();
+        };
+
         it("should not resolve arbitrarty text with the same name as a file", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path);
                 String(file.contents).should.not.containEql('var ' + revedReference);
@@ -476,44 +609,47 @@ describe("gulp-rev-all", function () {
                 done();
             });
 
-            writeFile(path.join(base, 'application.js'));
+            writeFile();
 
         });
 
         it("should resolve references to regular commonjs include", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/layout.js')).path);
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/layout.js')).path).replace('.js', '');
                 String(file.contents).should.containEql(revedReference);
                 String(file.contents).should.containEql('./');
 
                 done();
             });
 
-            writeFile(path.join(base, 'application.js'));
+            writeFile();
 
         });
 
         it("should resolve references to short style commonjs include", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
-                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path);
+                var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/short.js')).path).replace('.js', '');
                 String(file.contents).should.containEql(revedReference);
                 String(file.contents).should.containEql('./');
 
                 done();
             });
 
-            writeFile(path.join(base, 'application.js'));
+            writeFile();
 
         });
 
     
         it("should resolve references to angularjs views", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/view/gps.html')).path);
                 String(file.contents).should.containEql(revedReference);
@@ -521,13 +657,14 @@ describe("gulp-rev-all", function () {
                 done();
             });
 
-            writeFile(path.join(base, 'application.js'));
+            writeFile();
 
         });
 
         it("should resolve references to compiled templates", function(done) {
 
-            stream.on('data', function (file) {
+            stream.on('data', function () {});
+            stream.on('end', function () {
 
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/img/image1.jpg')).path);
                 String(file.contents).should.containEql(revedReference);
@@ -535,7 +672,7 @@ describe("gulp-rev-all", function () {
                 done();
             });
 
-            writeFile(path.join(base, 'application.js'));
+            writeFile();
 
         });
 
@@ -554,7 +691,7 @@ describe("gulp-rev-all", function () {
                 var joinStub = sinon.stub(pathMock, "join");
                 joinStub.returns('\\long\\widows\\path\\images.png');
 
-                var tool = toolFactory({ dirRoot: path.join(__dirname, 'test/fixtures/config1'), path: pathMock });
+                var tool = new toolFactory({ dirRoot: path.join(__dirname, 'test/fixtures/config1'), path: pathMock });
                 tool.joinPath().should.equal('/long/widows/path/images.png');
 
             });
@@ -565,7 +702,7 @@ describe("gulp-rev-all", function () {
 
             it("should correct windows style slashes", function() {
 
-                var tool = toolFactory({ ignore: [ /^\/favicon.ico$/g ], dirRoot: path.join(__dirname, 'test/fixtures/config1') });
+                var tool = new toolFactory({ ignore: [ /^\/favicon.ico$/g ]});
                 var file = new gutil.File({
                     path: path.join(__dirname, 'test/fixtures/config1/favicon.ico').replace(/\//g, '\\'),
                     base: base
