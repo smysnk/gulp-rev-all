@@ -267,6 +267,12 @@ module.exports = function(options) {
                     isRelative: false
                 });
 
+                referencePaths.push({
+                    base: path.resolve(file.base),
+                    path: joinPath(path.resolve(file.base), reference_),
+                    isRelative: false
+                });
+
                 if(pathType === 'relative'){
                     referencePaths.push({
                         base: file.base,
