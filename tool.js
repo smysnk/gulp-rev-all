@@ -223,6 +223,10 @@ module.exports = function(options) {
         var hash = md5(contents);
         var cacheEntry = cache[cachePath(file.path)];
 
+        //var dirRoot = file.base.replace(/[\\/]$/, '');
+        var fileBasePath = path.resolve(file.base);
+        var fileDir = path.dirname(file.path);
+
         for(var key in refs) {
 
             var reference = refs[key].reference;
@@ -232,8 +236,7 @@ module.exports = function(options) {
             if (cacheEntry.rewriteMap[reference]){
                 continue;
             }
-            var dirRoot = file.base.replace(/[\\/]$/, '');
-
+            
             var pathType;
             if(isAmdCommonJs){
                 pathType = 'amdCommonJs';
@@ -255,22 +258,22 @@ module.exports = function(options) {
 
                 for(var j = 0; j < bases.length; j++){
                     referencePaths.push({
-                        base: bases[j],
-                        path: joinPath(bases[j], reference_),
+                        base: path.resolve(bases[j]),
+                        path: joinPath(path.resolve(bases[j]), reference_),
                         isRelative: false
                     });
                 }
 
                 referencePaths.push({
-                    base: file.base,
-                    path: joinPath(path.dirname(file.path), reference_),
+                    base: fileBasePath,
+                    path: joinPath(fileBasePath, reference_),
                     isRelative: false
                 });
 
                 if(pathType === 'relative'){
                     referencePaths.push({
-                        base: file.base,
-                        path: joinPath(dirRoot, reference_),
+                        base: fileBasePath,
+                        path: joinPath(fileDir, reference_),
                         isRelative: true
                     });
                 }
