@@ -259,7 +259,7 @@ module.exports = function(options) {
                 for(var j = 0; j < bases.length; j++){
                     referencePaths.push({
                         base: path.resolve(bases[j]),
-                        path: joinPath(bases[j], reference_),
+                        path: joinPath(path.resolve(bases[j]), reference_),
                         isRelative: false
                     });
                 }
