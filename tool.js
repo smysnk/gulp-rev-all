@@ -228,7 +228,7 @@ module.exports = function(options) {
         var fileBasePath = path.resolve(file.base);
         var fileDir = path.dirname(file.path);
 
-        for (var key in refs) {
+        for (var key = 0; key < refs.length; key++) {
 
             var reference = refs[key].reference;
             var isAmdCommonJs = refs[key].isAmdCommonJs;
