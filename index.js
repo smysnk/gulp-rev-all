@@ -26,7 +26,7 @@ var plugin = function (options) {
         callback(null, file);
 
     }, function (cb) {
-        if(options.getTool){
+        if(options.getTool) {
             options.getTool(tool);
         }
 
@@ -35,7 +35,7 @@ var plugin = function (options) {
 
 };
 
-plugin.versionFile = function(options){
+plugin.versionFile = function(options) {
     var options = options || {};
     var tool = new toolFactory();
     var hash = '';

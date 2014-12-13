@@ -19,7 +19,7 @@ module.exports = function(options) {
         amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig;
 
     // Disable logging
-    if (options.silent === true || options.quiet === true){
+    if (options.silent === true || options.quiet === true) {
         gutil.log = function() {};
     }
 
@@ -48,7 +48,7 @@ module.exports = function(options) {
 
         for (var i = options.ignore.length; i--;) {
             var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', 'ig');
-            if (filename.match(regex)){
+            if (filename.match(regex)) {
                 return true;
             }
         }
@@ -88,7 +88,7 @@ module.exports = function(options) {
             newPath = joinPathUrl(options.prefix, newPath);
         }
 
-        if(isAmdCommonJs){
+        if (isAmdCommonJs) {
             newPath = newPath.replace('.js', '');
         }
 
@@ -99,19 +99,19 @@ module.exports = function(options) {
 
     };
 
-    var findRefs = function(file){
+    var findRefs = function(file) {
 
         var content = String(file.contents),
             result,
             amdContent = '',
             regularContent = String(file.contents);
 
-        while(result = amdCommonJsRegex.exec(content)){
+        while (result = amdCommonJsRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
         }
 
-        while(result = amdConfigRegex.exec(content)){
+        while (result = amdConfigRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
         }
@@ -135,12 +135,12 @@ module.exports = function(options) {
         return refs;
     };
 
-    var cachePath = function(file){
+    var cachePath = function(file) {
         var abspath = path.resolve(file);
         return abspath;
     };
 
-    var isBinary = function(file){
+    var isBinary = function(file) {
         var length = (file.contents.length > 50) ? 50 : file.contents.length;
         for (var i = 0; i < length; i++) {
             if (file.contents[i] === 0) {
@@ -154,21 +154,21 @@ module.exports = function(options) {
     var md5Dependency = function (file, stack) {
 
         // Don't calculate again if we've already done it once before
-        if (cache[cachePath(file.path)] && cache[cachePath(file.path)].hash){
+        if (cache[cachePath(file.path)] && cache[cachePath(file.path)].hash) {
             return cache[cachePath(file.path)].hash;
         }
                     
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependency overflow
         var positionInStack = _.indexOf(stack, cache[cachePath(file.path)]);
-        if (positionInStack > -1){
+        if (positionInStack > -1) {
 
             // Real or not, self references are not a problem
-            if(stack[stack.length-1].fileOriginal.path === file.path){
+            if (stack[stack.length-1].fileOriginal.path === file.path) {
                 return '';
             }
 
             var chain = [];
-            for(var i = 0; i < stack.length; i++){
+            for (var i = 0; i < stack.length; i++) {
                 chain.push(stack[i].fileOriginal.path);
             }
             chain.push(file.path);
@@ -182,7 +182,7 @@ module.exports = function(options) {
             // where the cycle is broken, has changed
 
             stack[positionInStack].backpropagate = stack[positionInStack].backpropagate || [];
-            for(var i = positionInStack+1; i < stack.length; i++){
+            for (var i = positionInStack+1; i < stack.length; i++) {
                 stack[positionInStack].backpropagate.push(stack[i]);
             }
             
@@ -227,20 +227,20 @@ module.exports = function(options) {
         var fileBasePath = path.resolve(file.base);
         var fileDir = path.dirname(file.path);
 
-        for(var key in refs) {
+        for (var key in refs) {
 
             var reference = refs[key].reference;
             var isAmdCommonJs = refs[key].isAmdCommonJs;
 
             // Don't do any work if we've already resolved this reference
-            if (cacheEntry.rewriteMap[reference]){
+            if (cacheEntry.rewriteMap[reference]) {
                 continue;
             }
             
             var pathType;
-            if(isAmdCommonJs){
+            if (isAmdCommonJs) {
                 pathType = 'amdCommonJs';
-            } else if (reference.substr(0,1) === '/'){
+            } else if (reference.substr(0,1) === '/') {
                 pathType = 'absolute';
             } else {
                 pathType = 'relative';
@@ -249,14 +249,14 @@ module.exports = function(options) {
             var referencePaths = [];
             var references = [reference,];
 
-            if(isAmdCommonJs){
+            if (isAmdCommonJs) {
                 references.push(reference + '.js');
             }
 
-            for(var i = 0; i < references.length; i++){
+            for (var i = 0; i < references.length; i++) {
                 var reference_ = references[i];
 
-                for(var j = 0; j < bases.length; j++){
+                for (var j = 0; j < bases.length; j++) {
                     referencePaths.push({
                         base: path.resolve(bases[j]),
                         path: joinPath(path.resolve(bases[j]), reference_),
@@ -270,7 +270,7 @@ module.exports = function(options) {
                     isRelative: false
                 });
 
-                if(pathType === 'relative'){
+                if (pathType === 'relative') {
                     referencePaths.push({
                         base: fileBasePath,
                         path: joinPath(fileDir, reference_),
@@ -284,17 +284,17 @@ module.exports = function(options) {
                 var referencePath = referencePaths[i];
 
                 // Stop if we've already resolved this reference
-                if (cacheEntry.rewriteMap[reference]){
+                if (cacheEntry.rewriteMap[reference]) {
                     break;
                 }
 
                 // Continue if this file doesn't exist
-                if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()){
+                if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
                     continue;          
                 }
 
                 // Don't resolve reference of ignored files
-                if (isFileIgnored(referencePath)){
+                if (isFileIgnored(referencePath)) {
                     continue;
                 }
 
@@ -320,8 +320,8 @@ module.exports = function(options) {
         cacheEntry.hash = hash;
 
         // Find all the sad files
-        if(cacheEntry.backpropagate){
-            for(var i = 0; i < cacheEntry.backpropagate.length; i++){
+        if (cacheEntry.backpropagate) {
+            for (var i = 0; i < cacheEntry.backpropagate.length; i++) {
                 var bpCacheEntry = cacheEntry.backpropagate[i];
                 bpCacheEntry.hash = md5(hash + bpCacheEntry.hash);
 
@@ -348,7 +348,7 @@ module.exports = function(options) {
             var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
             var contents;
 
-            if(isAmdCommonJs){
+            if (isAmdCommonJs) {
                 reference = '[\'"]' + reference + '[\'"]';
                 replaceWith = '\'' + replaceWith + '\'';
                 var result;
@@ -357,19 +357,19 @@ module.exports = function(options) {
 
                 // Gather partials
                 contents = String(file.contents);
-                while(result = amdCommonJsRegex.exec(contents)){
+                while(result = amdCommonJsRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
                 contents = String(file.contents);
-                while(result = amdConfigRegex.exec(contents)){
+                while(result = amdConfigRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
 
-                for(original in partials){
+                for(original in partials) {
                     partials[original] = original.replace(new RegExp(reference, 'g'), replaceWith);
                 }
 
-                for(original in partials){
+                for(original in partials) {
                     var change = partials[original];
                     contents = contents.replace(original, change);
                 }
