@@ -19,7 +19,7 @@ describe("gulp-rev-all", function () {
     var tool;
     var stream;
     var base = path.join(__dirname, 'test/fixtures/config1');
-    var writeFile = function(globPath) {
+    var writeFile = function (globPath) {
         glob(globPath, {}, function (er, fileNames) {
             fileNames.forEach(function (fileName) {
                 stream.write(new gutil.File({
@@ -40,17 +40,17 @@ describe("gulp-rev-all", function () {
         });
     };
 
-    describe('resource hash calculation', function() {
+    describe('resource hash calculation', function () {
 
-        it('should change if child reference changes', function(done) {
+        it('should change if child reference changes', function (done) {
 
             tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
-                existsSync: function() {},
-                lstatSync: function() { return {isDirectory: function(){ return false; }}; },
-                readFileSync: function(path) {}
+                existsSync: function () {},
+                lstatSync: function () { return {isDirectory: function (){ return false; }}; },
+                readFileSync: function (path) {}
             };
 
             var existsSyncStub = sinon.stub(fsMock, "existsSync");
@@ -73,7 +73,7 @@ describe("gulp-rev-all", function () {
             writeFile('test/fixtures/config1/css/style.css');
         });
 
-        it('should change if a circular referenced file changes', function(done) {
+        it('should change if a circular referenced file changes', function (done) {
             stream = null;
             var fs1 = {
                 'a.html': '<a href="b.html">Go to B</a>',
@@ -88,9 +88,9 @@ describe("gulp-rev-all", function () {
             var fakeFs;
 
             var fsMock = {
-                existsSync: function() {},
-                lstatSync: function() {},
-                readFileSync: function(filepath) {
+                existsSync: function () {},
+                lstatSync: function () {},
+                readFileSync: function (filepath) {
                     var parts = filepath.split('/');
                     var filename = parts[parts.length-1];
                     return new Buffer(fakeFs[filename]);
@@ -98,7 +98,7 @@ describe("gulp-rev-all", function () {
             };
 
             var pathMock = {
-                resolve: function(filepath){
+                resolve: function (filepath){
                     return filepath;
                 },
                 join: path.join,
@@ -110,11 +110,11 @@ describe("gulp-rev-all", function () {
             var existsSyncStub = sinon.stub(fsMock, "existsSync");
             var lstatSyncStub = sinon.stub(fsMock, "lstatSync");
             existsSyncStub.returns(true);
-            lstatSyncStub.returns({isDirectory: function(){ return false; }});
+            lstatSyncStub.returns({isDirectory: function (){ return false; }});
 
 
             var file;
-            var writeFile = function(name, content) {
+            var writeFile = function (name, content) {
                 var file = new gutil.File({
                     path: name,
                     contents: new Buffer(content),
@@ -124,9 +124,9 @@ describe("gulp-rev-all", function () {
             };
 
 
-            var run2 = function(hashA, hashB){
+            var run2 = function (hashA, hashB){
                 fakeFs = fs2;
-                stream = revall({ fs: fsMock, path: pathMock, getTool: function(t){tool = t;}});
+                stream = revall({ fs: fsMock, path: pathMock, getTool: function (t){tool = t;}});
                 stream.on('data', function () {});
 
                 stream.on('end', function () {
@@ -140,9 +140,9 @@ describe("gulp-rev-all", function () {
                 stream.end();
             };
 
-            var run1 = function(){
+            var run1 = function (){
                 fakeFs = fs1;
-                stream = revall({ fs: fsMock, path: pathMock, getTool: function(t){tool = t;}});
+                stream = revall({ fs: fsMock, path: pathMock, getTool: function (t){tool = t;}});
                 stream.on('data', function () {});
 
                 stream.on('end', function () {
@@ -160,7 +160,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe('should process images', function() {
+    describe('should process images', function () {
 
         beforeEach(function (done) {
             stream = revall();
@@ -168,7 +168,7 @@ describe("gulp-rev-all", function () {
         });
 
         var filename = path.join(base, 'img/image1.jpg');
-        it('without corrupting them', function(done) {
+        it('without corrupting them', function (done) {
             stream.on('data', function (file) {
                 file.contents[0].should.equal(255);
                 file.contents[1].should.equal(216);
@@ -181,11 +181,11 @@ describe("gulp-rev-all", function () {
         });
     });
 
-    describe('options:', function() {
+    describe('options:', function () {
 
-        describe('filename', function() {
+        describe('filename', function () {
 
-            it('should have proper hash length when specified', function(done) {
+            it('should have proper hash length when specified', function (done) {
 
                 stream = revall({hashLength: 4, ignore: []});
                 stream.on('data', function (file) {
@@ -196,7 +196,7 @@ describe("gulp-rev-all", function () {
                 writeFile('test/fixtures/config1/**/*.*');
             });
 
-            it('should be transformed when transform function is specified', function(done) {
+            it('should be transformed when transform function is specified', function (done) {
 
                 stream = revall({
                     ignore: [],
@@ -217,7 +217,7 @@ describe("gulp-rev-all", function () {
         });
 
 
-        describe('ignore', function() {
+        describe('ignore', function () {
 
 
             it('should not rename favicon.ico by default', function (done) {
@@ -324,17 +324,17 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("root html", function() {
+    describe("root html", function () {
 
         var filename = path.join(base, 'index.html');
 
         beforeEach(function (done) {
             tool = null;
-            stream = revall({getTool: function(t){tool = t;}});
+            stream = revall({getTool: function (t){tool = t;}});
             done();
         });
 
-        it("should resolve absolute path reference", function(done) {
+        it("should resolve absolute path reference", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -346,11 +346,11 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should prefix replaced references if a prefix is supplied", function(done) {
+        it("should prefix replaced references if a prefix is supplied", function (done) {
 
             stream = revall({
                 prefix: 'http://example.com/',
-                getTool: function(t){tool = t;}
+                getTool: function (t){tool = t;}
             });
 
             stream.on('data', function () {});
@@ -363,13 +363,13 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should replaced references using transform if it is supplied", function(done) {
+        it("should replaced references using transform if it is supplied", function (done) {
 
             stream = revall({
                 transformPath: function (reved, source, path) {
                     return this.joinPathUrl('//images.example.com/', reved.replace('img/', ''));
                 },
-                getTool: function(t){tool = t;}
+                getTool: function (t){tool = t;}
             });
 
             stream.on('data', function () {});
@@ -383,7 +383,7 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should resolve reference to css", function(done) {
+        it("should resolve reference to css", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -396,7 +396,7 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should resolve reference reference to angularjs view", function(done) {
+        it("should resolve reference reference to angularjs view", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -410,7 +410,7 @@ describe("gulp-rev-all", function () {
         });
 
 
-        it("should resolve reference reference to javascript include", function(done) {
+        it("should resolve reference reference to javascript include", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -424,7 +424,7 @@ describe("gulp-rev-all", function () {
         });
 
 
-        it("should resolve reference in double quotes", function(done) {
+        it("should resolve reference in double quotes", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -437,7 +437,7 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should resolve reference in single quotes", function(done) {
+        it("should resolve reference in single quotes", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -450,7 +450,20 @@ describe("gulp-rev-all", function () {
             writeFile(filename);
         });
 
-        it("should replace all references", function(done) {
+        it("should replace srcset referencess", function (done) {
+
+            stream.on('data', function () {});
+            stream.on('end', function () {
+                var file = tool.cache[tool.cachePath(filename)].file;
+                var count = String(file.contents).match(/image-[0-4]x\.[a-z0-9]{8}\.png/g);
+                count.length.should.eql(4);
+                done();
+            });
+
+            writeFile(filename);
+        });
+
+        it("should replace all references", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -466,18 +479,18 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("angularjs view", function() {
+    describe("angularjs view", function () {
 
         beforeEach(function (done) {
             //tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
             tool = null;
-            stream = revall({getTool: function(t){tool = t;}});
+            stream = revall({getTool: function (t){tool = t;}});
             done();
         });
         
         var filename = path.join(base, 'view/main.html');
         var file;
-        var writeFile = function() {
+        var writeFile = function () {
             file = new gutil.File({
                 path: filename,
                 contents: fs.readFileSync(filename),
@@ -487,7 +500,7 @@ describe("gulp-rev-all", function () {
             stream.end();
         };
 
-        it("should resolve references to images", function(done) {
+        it("should resolve references to images", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -499,7 +512,7 @@ describe("gulp-rev-all", function () {
             writeFile();
         });
 
-        it("should resolve references to angular includes", function(done) {
+        it("should resolve references to angular includes", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -513,18 +526,18 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("css", function() {
+    describe("css", function () {
 
         beforeEach(function (done) {
             tool = null;
-            stream = revall({getTool: function(t){tool = t;}});
+            stream = revall({getTool: function (t){tool = t;}});
             done();
         });
 
         var base = path.join(__dirname, 'test/fixtures/config1');
         var filename = path.join(base, 'css/style.css');
         var file;
-        var writeFile = function() {
+        var writeFile = function () {
             file = new gutil.File({
                 path: filename,
                 contents: fs.readFileSync(filename),
@@ -578,7 +591,7 @@ describe("gulp-rev-all", function () {
 
     });
 
-    describe("main js", function() {
+    describe("main js", function () {
 
         beforeEach(function (done) {
             tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico']});
@@ -588,7 +601,7 @@ describe("gulp-rev-all", function () {
 
         filename = path.join(base, 'application.js');
         var file;
-        var writeFile = function() {
+        var writeFile = function () {
             file = new gutil.File({
                 path: filename,
                 contents: fs.readFileSync(filename),
@@ -598,7 +611,7 @@ describe("gulp-rev-all", function () {
             stream.end();
         };
 
-        it("should not resolve arbitrarty text with the same name as a file", function(done) {
+        it("should not resolve arbitrarty text with the same name as a file", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -613,7 +626,7 @@ describe("gulp-rev-all", function () {
 
         });
 
-        it("should resolve references to regular commonjs include", function(done) {
+        it("should resolve references to regular commonjs include", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -629,7 +642,7 @@ describe("gulp-rev-all", function () {
 
         });
 
-        it("should resolve references to short style commonjs include", function(done) {
+        it("should resolve references to short style commonjs include", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -646,7 +659,7 @@ describe("gulp-rev-all", function () {
         });
 
     
-        it("should resolve references to angularjs views", function(done) {
+        it("should resolve references to angularjs views", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -661,7 +674,7 @@ describe("gulp-rev-all", function () {
 
         });
 
-        it("should resolve references to compiled templates", function(done) {
+        it("should resolve references to compiled templates", function (done) {
 
             stream.on('data', function () {});
             stream.on('end', function () {
@@ -679,14 +692,14 @@ describe("gulp-rev-all", function () {
     });
 
 
-    describe('tool', function() {
+    describe('tool', function () {
 
-        describe('joinPath', function() {
+        describe('joinPath', function () {
 
-            it("should correct windows style slashes", function() {
+            it("should correct windows style slashes", function () {
 
                 var pathMock = {
-                    join: function() {}
+                    join: function () {}
                 };
                 var joinStub = sinon.stub(pathMock, "join");
                 joinStub.returns('\\long\\widows\\path\\images.png');
@@ -698,9 +711,9 @@ describe("gulp-rev-all", function () {
 
         });
 
-        describe('isFileIgnored', function() {
+        describe('isFileIgnored', function () {
 
-            it("should correct windows style slashes", function() {
+            it("should correct windows style slashes", function () {
 
                 var tool = new toolFactory({ ignore: [ /^\/favicon.ico$/g ]});
                 var file = new gutil.File({

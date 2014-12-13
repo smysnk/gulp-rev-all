@@ -14,9 +14,9 @@ module.exports = function(options) {
     var bases = (options.base && Array.isArray(options.base) && options.base) || options.base && [options.base] || [];
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
+        amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
-        filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\()([ a-z0-9_@\-\/\.]{2,})/ig,
-        amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig;
+        filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z]{2,4})/ig;
 
     // Disable logging
     if (options.silent === true || options.quiet === true) {
@@ -120,6 +120,7 @@ module.exports = function(options) {
         var refs = [];
 
         while ((result = filepathRegex.exec(regularContent))) {
+            console.log(result[1]);
             refs.push({
                 reference: result[1],
                 isAmdCommonJs: false
