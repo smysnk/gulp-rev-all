@@ -120,7 +120,6 @@ module.exports = function(options) {
         var refs = [];
 
         while ((result = filepathRegex.exec(regularContent))) {
-            console.log(result[1]);
             refs.push({
                 reference: result[1],
                 isAmdCommonJs: false
