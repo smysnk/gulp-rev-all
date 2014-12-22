@@ -10,7 +10,7 @@ var plugin = function (options) {
 
     options = options || {};
     options.hashLength  = options.hashLength || 8;
-    options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
+    options.ignore = options.ignore || options.ignoredExtensions || [];
 
     var tool = new toolFactory(options);
 
