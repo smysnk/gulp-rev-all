@@ -80,7 +80,7 @@ module.exports = function(options) {
         // Add back the relative reference so we don't break commonjs style includes
         if (reference.indexOf('./') === 0) {
             newPath = './' + newPath;
-        }         
+        }
 
         if (options.transformPath) {
             newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
@@ -89,7 +89,7 @@ module.exports = function(options) {
         }
 
         if (isAmdCommonJs) {
-            newPath = newPath.replace('.js', '');
+            //newPath = newPath.replace('.js', '');
         }
 
         var msg = isRelative ? 'relative' : 'root';
