@@ -251,7 +251,7 @@ module.exports = function(options) {
             var references = [reference];
 
             if (isAmdCommonJs) {
-                if (references.substr(-3) !== '.js') {
+                if (reference.substr(-3) !== '.js') {
                     references.push(reference + '.js');
                 }
             }
