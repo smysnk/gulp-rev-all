@@ -18,6 +18,7 @@ module.exports = function(options) {
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
+    gutil._log = gutil.log;
     // Disable logging
     if (options.silent === true || options.quiet === true) {
         gutil.log = function() {};
@@ -254,7 +255,7 @@ module.exports = function(options) {
                 if (reference.substr(-3) !== '.js') {
                     references.push(reference + '.js');
                 }
-                gutil.log(references);
+                gutil._log(references);
             }
 
             for (var i = 0; i < references.length; i++) {
@@ -294,7 +295,7 @@ module.exports = function(options) {
 
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
-                    gutil.log("nofound: " + referencePath.path);
+                    gutil._log("nofound: " + referencePath.path);
                     continue;          
                 }
 
