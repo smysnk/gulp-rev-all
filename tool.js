@@ -238,19 +238,22 @@ module.exports = function(options) {
             }
             
             var pathType;
-            if (isAmdCommonJs) {
-                pathType = 'amdCommonJs';
-            } else if (reference.substr(0,1) === '/') {
+            // if (isAmdCommonJs) {
+            //     pathType = 'amdCommonJs';
+            // } else 
+            if (reference.substr(0,1) === '/') {
                 pathType = 'absolute';
             } else {
                 pathType = 'relative';
             }
 
             var referencePaths = [];
-            var references = [reference,];
+            var references = [reference];
 
             if (isAmdCommonJs) {
-                references.push(reference + '.js');
+                if (references.substr(-3) !== '.js') {
+                    references.push(reference + '.js');
+                }
             }
 
             for (var i = 0; i < references.length; i++) {
