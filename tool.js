@@ -254,6 +254,7 @@ module.exports = function(options) {
                 if (reference.substr(-3) !== '.js') {
                     references.push(reference + '.js');
                 }
+                gutil.log(references);
             }
 
             for (var i = 0; i < references.length; i++) {
