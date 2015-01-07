@@ -90,7 +90,7 @@ module.exports = function(options) {
         }
 
         if (isAmdCommonJs) {
-            //newPath = newPath.replace('.js', '');
+            newPath = newPath.replace('.js', '');
         }
 
         var msg = isRelative ? 'relative' : 'root';
@@ -252,10 +252,7 @@ module.exports = function(options) {
             var references = [reference];
 
             if (isAmdCommonJs) {
-                if (reference.substr(-3) !== '.js') {
-                    references.push(reference + '.js');
-                }
-                gutil._log(references);
+                references.push(reference + '.js');
             }
 
             for (var i = 0; i < references.length; i++) {
