@@ -290,6 +290,7 @@ module.exports = function(options) {
 
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
+                    gutil.log("nofound: " + referencePath.path);
                     continue;          
                 }
 
