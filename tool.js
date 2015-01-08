@@ -75,7 +75,7 @@ module.exports = function(options) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
     };
 
-    var getReplacement = function (reference, file, isRelative, isAmdCommonJs) {
+    var getReplacement = function (reference, file, isRelative, isAmdCommonJs, isAmdConfig) {
         var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
         // Add back the relative reference so we don't break commonjs style includes
@@ -89,7 +89,7 @@ module.exports = function(options) {
             newPath = joinPathUrl(options.prefix, newPath);
         }
 
-        if (isAmdCommonJs) {
+        if (isAmdCommonJs && !(!isAmdConfig && options.prefix)) {
             newPath = newPath.replace('.js', '');
         }
 
@@ -105,7 +105,8 @@ module.exports = function(options) {
         var content = String(file.contents),
             result,
             amdContent = '',
-            regularContent = String(file.contents);
+            regularContent = String(file.contents),
+            isAmdConfig = false;
 
         while (result = amdCommonJsRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
@@ -115,6 +116,7 @@ module.exports = function(options) {
         while (result = amdConfigRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
+            isAmdConfig = true;
         }
 
 
@@ -123,14 +125,16 @@ module.exports = function(options) {
         while ((result = filepathRegex.exec(regularContent))) {
             refs.push({
                 reference: result[1],
-                isAmdCommonJs: false
+                isAmdCommonJs: false,
+                isAmdConfig: false
             });
         }
 
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
             refs.push({
                 reference: result[1] || result[2],
-                isAmdCommonJs: true
+                isAmdCommonJs: true,
+                isAmdConfig: isAmdConfig
             });
         }
         return refs;
@@ -232,6 +236,7 @@ module.exports = function(options) {
 
             var reference = refs[key].reference;
             var isAmdCommonJs = refs[key].isAmdCommonJs;
+            var isAmdConfig = refs[key].isAmdConfig;
 
             // Don't do any work if we've already resolved this reference
             if (cacheEntry.rewriteMap[reference]) {
@@ -239,10 +244,9 @@ module.exports = function(options) {
             }
             
             var pathType;
-            // if (isAmdCommonJs) {
-            //     pathType = 'amdCommonJs';
-            // } else 
-            if (reference.substr(0,1) === '/') {
+            if (isAmdCommonJs) {
+                pathType = 'amdCommonJs';
+            } else if (reference.substr(0,1) === '/') {
                 pathType = 'absolute';
             } else {
                 pathType = 'relative';
@@ -313,7 +317,8 @@ module.exports = function(options) {
                 cacheEntry.rewriteMap[reference] = {
                     reference: cache[cachePath(referencePath.path)],
                     relative: referencePath.isRelative,
-                    amdCommonJs: isAmdCommonJs
+                    amdCommonJs: isAmdCommonJs,
+                    amdConfig: isAmdConfig
                 };
             }
         }
@@ -347,8 +352,9 @@ module.exports = function(options) {
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;          
-            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;
+            var isAmdConfig = cache[cachePath(file.path)].rewriteMap[reference].amdConfig;        
+            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs, isAmdConfig);
             var contents;
 
             if (isAmdCommonJs) {
