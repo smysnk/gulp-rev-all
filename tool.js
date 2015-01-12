@@ -129,7 +129,8 @@ module.exports = function(options) {
         while ((result = filepathRegex.exec(regularContent))) {
             refs.push({
                 reference: result[1],
-                isAmdCommonJs: false
+                isAmdCommonJs: false,
+                isAmdConfig: false
             });
         }
 
@@ -355,8 +356,8 @@ module.exports = function(options) {
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;    
-            var isAmdConfig = cache[cachePath(file.path)].rewriteMap[reference].amdConfig;      
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;
+            var isAmdConfig = cache[cachePath(file.path)].rewriteMap[reference].amdConfig;        
             var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs, isAmdConfig);
             var contents;
 
