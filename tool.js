@@ -15,10 +15,10 @@ module.exports = function(options) {
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
-        amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
+        amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!(paths|map)["']\s+:))*(paths|map)["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
-    gutil._log = gutil.log;
+    var mylog = gutil.log;
     // Disable logging
     if (options.silent === true || options.quiet === true) {
         gutil.log = function() {};
@@ -75,7 +75,7 @@ module.exports = function(options) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
     };
 
-    var getReplacement = function (reference, file, isRelative, isAmdCommonJs) {
+    var getReplacement = function (reference, file, isRelative, isAmdCommonJs, isAmdConfig) {
         var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
         // Add back the relative reference so we don't break commonjs style includes
@@ -89,7 +89,11 @@ module.exports = function(options) {
             newPath = joinPathUrl(options.prefix, newPath);
         }
 
-        if (isAmdCommonJs) {
+        //当为amdjs且不是配置项中的模块id，当添加prefix的时候，amd不会自动添加
+        //.js后缀
+        //@todo  prefix 为http or https开头，/开头，.js结尾
+        //
+        if (isAmdCommonJs && !(!isAmdConfig && options.prefix)) {
             newPath = newPath.replace('.js', '');
         }
 
@@ -105,7 +109,8 @@ module.exports = function(options) {
         var content = String(file.contents),
             result,
             amdContent = '',
-            regularContent = String(file.contents);
+            regularContent = String(file.contents),
+            isAmdConfig = false;
 
         while (result = amdCommonJsRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
@@ -115,6 +120,7 @@ module.exports = function(options) {
         while (result = amdConfigRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
+            isAmdConfig = true;
         }
 
 
@@ -130,7 +136,8 @@ module.exports = function(options) {
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
             refs.push({
                 reference: result[1] || result[2],
-                isAmdCommonJs: true
+                isAmdCommonJs: true,
+                isAmdConfig: isAmdConfig
             });
         }
         return refs;
@@ -232,6 +239,7 @@ module.exports = function(options) {
 
             var reference = refs[key].reference;
             var isAmdCommonJs = refs[key].isAmdCommonJs;
+            var isAmdConfig = refs[key].isAmdConfig;
 
             // Don't do any work if we've already resolved this reference
             if (cacheEntry.rewriteMap[reference]) {
@@ -239,10 +247,9 @@ module.exports = function(options) {
             }
             
             var pathType;
-            // if (isAmdCommonJs) {
-            //     pathType = 'amdCommonJs';
-            // } else 
-            if (reference.substr(0,1) === '/') {
+            if (isAmdCommonJs) {
+                pathType = 'amdCommonJs';
+            } else if (reference.substr(0,1) === '/') {
                 pathType = 'absolute';
             } else {
                 pathType = 'relative';
@@ -292,7 +299,7 @@ module.exports = function(options) {
 
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
-                    gutil._log("nofound: " + referencePath.path);
+                    gutil.log("nofound: " + referencePath.path);
                     continue;          
                 }
 
@@ -313,7 +320,8 @@ module.exports = function(options) {
                 cacheEntry.rewriteMap[reference] = {
                     reference: cache[cachePath(referencePath.path)],
                     relative: referencePath.isRelative,
-                    amdCommonJs: isAmdCommonJs
+                    amdCommonJs: isAmdCommonJs,
+                    amdConfig: isAmdConfig
                 };
             }
         }
@@ -347,8 +355,9 @@ module.exports = function(options) {
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;          
-            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;    
+            var isAmdConfig = cache[cachePath(file.path)].rewriteMap[reference].amdConfig;      
+            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs, isAmdConfig);
             var contents;
 
             if (isAmdCommonJs) {
