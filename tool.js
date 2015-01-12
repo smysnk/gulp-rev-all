@@ -15,7 +15,7 @@ module.exports = function(options) {
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
-        amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!(paths|map)["']\s+:))*(paths|map)["']?\s*:\s*{([^}]*)}/g,
+        amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
     var mylog = gutil.log;
