@@ -14,11 +14,11 @@ module.exports = function(options) {
     var bases = (options.base && Array.isArray(options.base) && options.base) || options.base && [options.base] || [];
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
-        amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
+        amdCommonJsFilepathRegex = /\"([ !a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
+        amdMapConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!map["']\s+:))*map["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
-    var mylog = gutil.log;
     // Disable logging
     if (options.silent === true || options.quiet === true) {
         gutil.log = function() {};
@@ -94,7 +94,9 @@ module.exports = function(options) {
         //@todo  prefix 为http or https开头，/开头，.js结尾
         //
         if (isAmdCommonJs && !(!isAmdConfig && options.prefix)) {
+            console.log(newPath);
             newPath = newPath.replace('.js', '');
+            newPath = newPath.replace('.css', '');
         }
 
         var msg = isRelative ? 'relative' : 'root';
@@ -117,8 +119,16 @@ module.exports = function(options) {
             amdContent += ' ' + result[1];
         }
 
+        var i = 0;
+
         while (result = amdConfigRegex.exec(content)) {
-            regularContent = regularContent.replace(result[1]);
+            regularContent = regularContent.replace(result[1], '');
+            amdContent += ' ' + result[1];
+            isAmdConfig = true;
+        }
+
+        while (result = amdMapConfigRegex.exec(content)) {
+            regularContent = regularContent.replace(result[1], '');
             amdContent += ' ' + result[1];
             isAmdConfig = true;
         }
@@ -134,6 +144,7 @@ module.exports = function(options) {
             });
         }
 
+
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
             refs.push({
                 reference: result[1] || result[2],
@@ -141,6 +152,7 @@ module.exports = function(options) {
                 isAmdConfig: isAmdConfig
             });
         }
+
         return refs;
     };
 
@@ -259,12 +271,23 @@ module.exports = function(options) {
             var referencePaths = [];
             var references = [reference];
 
-            if (isAmdCommonJs) {
-                references.push(reference + '.js');
-            }
-
             for (var i = 0; i < references.length; i++) {
-                var reference_ = references[i];
+                var reference_ = references[i],
+                    postfix = '.js',
+                    tmp;
+
+                if (isAmdCommonJs) {
+                    tmp = reference_.split('!');
+                    if (tmp[1]) {
+                        postfix = '.' + tmp[0];
+                        reference_ = tmp[1];
+                    } else {
+                        reference_ = tmp[0];
+                    }
+                    if (reference_.indexOf(postfix) === -1) {
+                        reference_ += postfix;
+                    }
+                }
 
                 for (var j = 0; j < bases.length; j++) {
                     referencePaths.push({
@@ -375,6 +398,10 @@ module.exports = function(options) {
                 }
                 contents = String(file.contents);
                 while(result = amdConfigRegex.exec(contents)) {
+                    partials[result[1]] = '';
+                }
+
+                while(result = amdMapConfigRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
 
