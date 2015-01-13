@@ -410,11 +410,11 @@ module.exports = function(options) {
                         replaceWith_ = replaceWith.replace(patho.extname(replaceWith), '');
                     }
                     //如果有css!xx类似的连接，则将css!移动到最前面，
-                    //当有prefix的时候可能会有问题 变成css!http://xxx无法正常起作用, 因为require-css不支持css!http://xxx.com/xxx.css
-                    replaceWith_ = replaceWith_.replace(/([0-9a-z]+!)/, function ($1, $2, $3) {
-                        return $2 + $1 + $3;
-                    });
-                    //console.log("replacement-post", replaceWith_);
+                    //当有prefix的时候可能会有问题 变成css!http://xxx无法正常起作用， 因为require-css机制问题
+                    var exec_ = /[0-9a-z]+!/.exec(replaceWith_);
+                    if (exec_) {
+                        replaceWith_ = exec_[0] + replaceWith_.replace(exec_[0], '');
+                    }
 
                     partials[original] = original.replace(new RegExp(reference, 'g'), '"' + replaceWith_ + '"');
                 }
