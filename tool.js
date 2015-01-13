@@ -57,7 +57,6 @@ module.exports = function(options) {
     };
 
     var getRevisionFilename = function (file) {
-
         var hash = cache[cachePath(file.path)].hash;
         var ext = path.extname(file.path);
         var filename;
@@ -75,7 +74,7 @@ module.exports = function(options) {
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
     };
 
-    var getReplacement = function (reference, file, isRelative, isAmdCommonJs, isAmdConfig) {
+    var getReplacement = function (reference, file, isRelative, isAmdCommonJs) {
         var newPath = joinPath(path.dirname(reference), getRevisionFilename(file));
 
         // Add back the relative reference so we don't break commonjs style includes
@@ -87,17 +86,6 @@ module.exports = function(options) {
             newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
         } else if (!isRelative && options.prefix) {
             newPath = joinPathUrl(options.prefix, newPath);
-        }
-
-        //当为amdjs且不是配置项中的模块id，当添加prefix的时候，amd不会自动添加
-        //.js后缀
-        //@todo  prefix 为http or https开头，/开头，.js结尾
-        //
-        console.log(newPath, isAmdConfig);
-        if (isAmdCommonJs && ((options.prefix && isAmdConfig) || !options.prefix)) {
-            console.log(newPath);
-            newPath = newPath.replace('.js', '');
-            newPath = newPath.replace('.css', '');
         }
 
         var msg = isRelative ? 'relative' : 'root';
@@ -112,8 +100,7 @@ module.exports = function(options) {
         var content = String(file.contents),
             result,
             amdContent = '',
-            regularContent = String(file.contents),
-            isAmdConfig = false;
+            regularContent = String(file.contents);
 
         //当一个文件里面有amdCommonjs和config写法的时候就有问题了。。。。
         //isAmdconfig永远是true
@@ -123,21 +110,16 @@ module.exports = function(options) {
         while (result = amdCommonJsRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
-            isAmdConfig = false;
         }
-
-        var i = 0;
 
         while (result = amdConfigRegex.exec(content)) {
             regularContent = regularContent.replace(result[1], '');
             amdContent += ' ' + result[1];
-            isAmdConfig = true;
         }
 
         while (result = amdMapConfigRegex.exec(content)) {
             regularContent = regularContent.replace(result[1], '');
             amdContent += ' ' + result[1];
-            isAmdConfig = true;
         }
 
 
@@ -146,8 +128,7 @@ module.exports = function(options) {
         while ((result = filepathRegex.exec(regularContent))) {
             refs.push({
                 reference: result[1],
-                isAmdCommonJs: false,
-                isAmdConfig: false
+                isAmdCommonJs: false
             });
         }
 
@@ -155,8 +136,7 @@ module.exports = function(options) {
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
             refs.push({
                 reference: result[1] || result[2],
-                isAmdCommonJs: true,
-                isAmdConfig: isAmdConfig
+                isAmdCommonJs: true
             });
         }
 
@@ -259,7 +239,6 @@ module.exports = function(options) {
 
             var reference = refs[key].reference;
             var isAmdCommonJs = refs[key].isAmdCommonJs;
-            var isAmdConfig = refs[key].isAmdConfig;
 
             // Don't do any work if we've already resolved this reference
             if (cacheEntry.rewriteMap[reference]) {
@@ -280,19 +259,23 @@ module.exports = function(options) {
 
             for (var i = 0; i < references.length; i++) {
                 var reference_ = references[i],
-                    postfix = '.js',
+                    
+                /**
+                 * 通过reference获取真实文件路径
+                 */
+                    extname = '.js',
                     tmp;
 
                 if (isAmdCommonJs) {
                     tmp = reference_.split('!');
                     if (tmp[1]) {
-                        postfix = '.' + tmp[0];
+                        extname = '.' + tmp[0];
                         reference_ = tmp[1];
                     } else {
                         reference_ = tmp[0];
                     }
-                    if (reference_.indexOf(postfix) === -1) {
-                        reference_ += postfix;
+                    if (reference_.indexOf(extname) === -1) {
+                        reference_ += extname;
                     }
                 }
 
@@ -351,8 +334,7 @@ module.exports = function(options) {
                 cacheEntry.rewriteMap[reference] = {
                     reference: cache[cachePath(referencePath.path)],
                     relative: referencePath.isRelative,
-                    amdCommonJs: isAmdCommonJs,
-                    amdConfig: isAmdConfig
+                    amdCommonJs: isAmdCommonJs
                 };
             }
         }
@@ -381,39 +363,58 @@ module.exports = function(options) {
 
     // Entry point
     var revisionFile = function (file) {
+        //获取某个文件hash
         var hash = md5Dependency(file);
         // Replace references with revisioned names
+        // 从cache中获取需要替换的资源引用
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
+
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
             var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;
-            var isAmdConfig = cache[cachePath(file.path)].rewriteMap[reference].amdConfig;        
-            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs, isAmdConfig);
+            var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
             var contents;
+
 
             if (isAmdCommonJs) {
                 reference = '[\'"]' + reference + '[\'"]';
-                replaceWith = '\'' + replaceWith + '\'';
+                //replaceWith = '\'' + replaceWith + '\'';
                 var result;
                 var original;
                 var partials = {};
 
+
+                var AMD_TYPE_MAP = {
+                    CONFIG: 1,
+                    COMMONJS: 2
+                };
+
                 // Gather partials
                 contents = String(file.contents);
                 while(result = amdCommonJsRegex.exec(contents)) {
-                    partials[result[1]] = '';
+                    partials[result[1]] = AMD_TYPE_MAP.COMMONJS;
                 }
                 contents = String(file.contents);
                 while(result = amdConfigRegex.exec(contents)) {
-                    partials[result[1]] = '';
+                    partials[result[1]] = AMD_TYPE_MAP.CONFIG;
                 }
 
                 while(result = amdMapConfigRegex.exec(contents)) {
-                    partials[result[1]] = '';
+                    partials[result[1]] = AMD_TYPE_MAP.CONFIG;
                 }
 
+                var replaceWith_ = replaceWith;
                 for(original in partials) {
-                    partials[original] = original.replace(new RegExp(reference, 'g'), replaceWith);
+                    //如果是amd配置项，那么需要去除替换的扩展名
+                    if (!options.prefix || (options.prefix && (AMD_TYPE_MAP.CONFIG === partials[original]))) {
+                        replaceWith_ = replaceWith.replace(patho.extname(replaceWith), '');
+                    }
+                    //如果有css!xx类似的连接，则将css!移动到最前面，
+                    //当有prefix的时候可能会有问题 变成css!http://xxx无法正常起作用, 因为require-css的原因
+                    replaceWith_ = replaceWith_.replace(/([0-9a-z]+!)/, '');
+                    replaceWith_ = RegExp.$1 + replaceWith_;
+
+                    partials[original] = original.replace(new RegExp(reference, 'g'), '"' + replaceWith_ + '"');
                 }
 
                 for(original in partials) {
