@@ -93,7 +93,8 @@ module.exports = function(options) {
         //.js后缀
         //@todo  prefix 为http or https开头，/开头，.js结尾
         //
-        if (isAmdCommonJs && !(!isAmdConfig && options.prefix)) {
+        console.log(newPath, isAmdConfig);
+        if (isAmdCommonJs && ((options.prefix && isAmdConfig) || !options.prefix)) {
             console.log(newPath);
             newPath = newPath.replace('.js', '');
             newPath = newPath.replace('.css', '');
@@ -114,9 +115,15 @@ module.exports = function(options) {
             regularContent = String(file.contents),
             isAmdConfig = false;
 
+        //当一个文件里面有amdCommonjs和config写法的时候就有问题了。。。。
+        //isAmdconfig永远是true
+        //
+        //
+
         while (result = amdCommonJsRegex.exec(content)) {
             regularContent = regularContent.replace(result[1]);
             amdContent += ' ' + result[1];
+            isAmdConfig = false;
         }
 
         var i = 0;
