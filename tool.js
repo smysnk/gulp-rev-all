@@ -15,8 +15,8 @@ module.exports = function(options) {
 
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdCommonJsFilepathRegex = /\"([ !a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
-        amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
-        amdMapConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!map["']\s+:))*map["']?\s*:\s*{([^}]*)}/g,
+        amdConfigRegex = /requirejs\.config\s*\(\s*{\s*(?:[^](?!paths["']?\s*:))*[\s,"']*paths["']?\s*:\s*{([^}]*)}/g,
+        amdMapConfigRegex = /requirejs\.config\s*\(\s*{\s*(?:[^](?!map["']?\s*:))*[\s,"']*map["']?\s*:\s*{([^}]*)}/g,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
     // Disable logging
