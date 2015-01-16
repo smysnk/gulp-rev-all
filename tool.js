@@ -16,6 +16,7 @@ module.exports = function(options) {
     var amdCommonJsRegex = /(?:define|require)\s*\(\s*((?:['"][^'"]*['"]\s?,\s?)?(?:\[[^\]]*|(?:function))|(?:['"][^'"]*['"]\s?))/g,
         amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
+        sourcemapRegex = /sourceMappingURL=([ a-z0-9_@\-\/\.]{2,})/ig,
         filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
     // Disable logging
@@ -124,6 +125,13 @@ module.exports = function(options) {
                 reference: result[1],
                 isAmdCommonJs: false
             });
+        }
+
+        while ((result = sourcemapRegex.exec(regularContent))) {
+          refs.push({
+            reference: result[1],
+            isAmdCommonJs: false
+          })
         }
 
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
