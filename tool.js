@@ -272,12 +272,6 @@ module.exports = function(options) {
                     });
                 }
 
-                referencePaths.push({
-                    base: fileBasePath,
-                    path: joinPath(fileBasePath, reference_),
-                    isRelative: false
-                });
-
                 if (pathType === 'relative') {
                     referencePaths.push({
                         base: fileBasePath,
@@ -285,6 +279,12 @@ module.exports = function(options) {
                         isRelative: true
                     });
                 }
+
+                referencePaths.push({
+                    base: fileBasePath,
+                    path: joinPath(fileBasePath, reference_),
+                    isRelative: false
+                });
 
             }
 
