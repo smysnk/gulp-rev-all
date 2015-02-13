@@ -11,6 +11,7 @@ var plugin = function (options) {
     options = options || {};
     options.hashLength  = options.hashLength || 8;
     options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
+    options.ignoreRefs = options.ignoreRefs || options.ignoredReferences || [ /\.svg$/g ];
 
     var tool = new toolFactory(options);
 
@@ -20,7 +21,7 @@ var plugin = function (options) {
             return callback(null, file);
         } else if (file.isStream()) {
             throw new Error('Streams are not supported!');
-        } 
+        }
 
         tool.revisionFile(file);
         callback(null, file);
@@ -31,7 +32,7 @@ var plugin = function (options) {
         }
 
         cb();
-    });    
+    });
 
 };
 
@@ -52,7 +53,7 @@ plugin.versionFile = function(options) {
         cb();
 
     }, function (cb) {
-        
+
         var out = {
             hash: hash,
             timestamp: new Date()
@@ -92,7 +93,7 @@ plugin.manifest = function (options) {
         cb();
 
     }, function (cb) {
-        
+
         if (firstFile) {
             this.push(new gutil.File({
                 cwd: firstFile.cwd,

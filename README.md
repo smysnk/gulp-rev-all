@@ -164,6 +164,21 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.ignoreRefs
+
+Type: `Array of (Regex and/or String)`
+Default: `[ /^\.svg$/ ]`
+
+In some cases, you may not want to replace references in your `*.csv` files:
+
+```js
+gulp.task('default', function () {
+    gulp.src('dist/**')
+        .pipe(revall({ ignoreRefs: [/^\.svg$/g, '.csv'] }))
+        .pipe(gulp.dest('cdn'))
+});
+```
+
 #### options.hashLength
 
 Type: `hashLength`

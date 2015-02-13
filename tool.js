@@ -56,6 +56,19 @@ module.exports = function(options) {
         return false;
     };
 
+    var isIgnoringRefs = function(file) {
+
+        var filename = getRelativeFilename(file.base, file.path);
+
+        for (var i = options.ignoreRefs.length; i--;) {
+            var regex = (options.ignoreRefs[i] instanceof RegExp) ? options.ignoreRefs[i] : new RegExp(options.ignoreRefs[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     var getRevisionFilename = function (file) {
 
         var hash = cache[cachePath(file.path)].hash;
@@ -81,7 +94,7 @@ module.exports = function(options) {
         // Add back the relative reference so we don't break commonjs style includes
         if (reference.indexOf('./') === 0) {
             newPath = './' + newPath;
-        }         
+        }
 
         if (options.transformPath) {
             newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
@@ -131,7 +144,7 @@ module.exports = function(options) {
           refs.push({
             reference: result[1],
             isAmdCommonJs: false
-          })
+          });
         }
 
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
@@ -165,7 +178,7 @@ module.exports = function(options) {
         if (cache[cachePath(file.path)] && cache[cachePath(file.path)].hash) {
             return cache[cachePath(file.path)].hash;
         }
-                    
+
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependency overflow
         var positionInStack = _.indexOf(stack, cache[cachePath(file.path)]);
         if (positionInStack > -1) {
@@ -193,7 +206,7 @@ module.exports = function(options) {
             for (var i = positionInStack+1; i < stack.length; i++) {
                 stack[positionInStack].backpropagate.push(stack[i]);
             }
-            
+
             return '';
         }
 
@@ -217,15 +230,16 @@ module.exports = function(options) {
             stack.push(cache[cachePath(file.path)]);
         }
 
-        var refs;
+        var refs = [];
         if (isBinary(file)) {
-            refs = [];
             gutil.log('gulp-rev-all:', 'Skipping binary file [', gutil.colors.grey(getRelativeFilename(file.base, file.path)), ']');
+        } else if (isIgnoringRefs(file)) {
+            gutil.log('gulp-rev-all:', 'Not finding references in file [', gutil.colors.red(getRelativeFilename(file.base, file.path)), '] due to filter rules');
         } else {
             gutil.log('gulp-rev-all:', 'Finding references in [', gutil.colors.magenta(getRelativeFilename(file.base, file.path)), ']');
             refs = findRefs(file);
         }
-        
+
         // Create a map of file references and their proper revisioned name
         var contents = String(file.contents);
         var hash = md5(contents);
@@ -244,7 +258,7 @@ module.exports = function(options) {
             if (cacheEntry.rewriteMap[reference]) {
                 continue;
             }
-            
+
             var pathType;
             if (isAmdCommonJs) {
                 pathType = 'amdCommonJs';
@@ -298,7 +312,7 @@ module.exports = function(options) {
 
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
-                    continue;          
+                    continue;
                 }
 
                 // Don't resolve reference of ignored files
@@ -352,7 +366,7 @@ module.exports = function(options) {
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;          
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;
             var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
             var contents;
 
@@ -381,7 +395,7 @@ module.exports = function(options) {
                     var change = partials[original];
                     contents = contents.replace(original, change);
                 }
-                
+
             } else {
                 contents = String(file.contents);
                 contents = contents.replace(new RegExp(reference, 'g'), replaceWith);
@@ -398,7 +412,7 @@ module.exports = function(options) {
         } else {
             gutil.log('gulp-rev-all:', 'Not renaming [', gutil.colors.red(getRelativeFilename(file.base, file.path)), '] due to filter rules.');
         }
-        
+
         return file;
     };
 
