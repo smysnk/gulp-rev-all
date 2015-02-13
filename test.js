@@ -44,7 +44,7 @@ describe("gulp-rev-all", function () {
 
         it('should change if child reference changes', function (done) {
 
-            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], ignoreRefs: ['.svg']});
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
@@ -594,7 +594,7 @@ describe("gulp-rev-all", function () {
     describe("main js", function () {
 
         beforeEach(function (done) {
-            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico']});
+            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico'], ignoreRefs: ['.svg']});
             stream = revall();
             done();
         });
