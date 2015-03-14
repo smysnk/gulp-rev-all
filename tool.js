@@ -129,7 +129,7 @@ module.exports = function(options) {
 
         while ((result = sourcemapRegex.exec(regularContent))) {
           refs.push({
-            reference: result[1],
+            reference: result[1].trim(),
             isAmdCommonJs: false
           })
         }
