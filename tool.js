@@ -17,7 +17,7 @@ module.exports = function(options) {
         amdCommonJsFilepathRegex = /\"([ a-z0-9_@\-\/\.]{2,})\"|\'([ a-z0-9_@\-\/\.]{2,})\'/ig,
         amdConfigRegex = /requirejs\.config\s*\(\s*(?:[^](?!paths["']\s+:))*paths["']?\s*:\s*{([^}]*)}/g,
         sourcemapRegex = /sourceMappingURL=([ a-z0-9_@\-\/\.]{2,})/ig,
-        filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'|\"|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
+        filepathRegex = /(?:(?:require|define)\([ ]*)*(?:\'?|\"?|\(|\s)((?!\s)[ a-z0-9_@\-\/\.]{2,}\.[a-z0-9]{2,8})/ig;
 
     // Disable logging
     if (options.silent === true || options.quiet === true) {
@@ -81,7 +81,7 @@ module.exports = function(options) {
         // Add back the relative reference so we don't break commonjs style includes
         if (reference.indexOf('./') === 0) {
             newPath = './' + newPath;
-        }         
+        }
 
         if (options.transformPath) {
             newPath = options.transformPath.call(self, newPath, reference, file, isRelative);
@@ -165,7 +165,7 @@ module.exports = function(options) {
         if (cache[cachePath(file.path)] && cache[cachePath(file.path)].hash) {
             return cache[cachePath(file.path)].hash;
         }
-                    
+
         // If the hash of the file we're trying to resolve is already in the stack, stop to prevent circular dependency overflow
         var positionInStack = _.indexOf(stack, cache[cachePath(file.path)]);
         if (positionInStack > -1) {
@@ -193,7 +193,7 @@ module.exports = function(options) {
             for (var i = positionInStack+1; i < stack.length; i++) {
                 stack[positionInStack].backpropagate.push(stack[i]);
             }
-            
+
             return '';
         }
 
@@ -225,7 +225,7 @@ module.exports = function(options) {
             gutil.log('gulp-rev-all:', 'Finding references in [', gutil.colors.magenta(getRelativeFilename(file.base, file.path)), ']');
             refs = findRefs(file);
         }
-        
+
         // Create a map of file references and their proper revisioned name
         var contents = String(file.contents);
         var hash = md5(contents);
@@ -244,7 +244,7 @@ module.exports = function(options) {
             if (cacheEntry.rewriteMap[reference]) {
                 continue;
             }
-            
+
             var pathType;
             if (isAmdCommonJs) {
                 pathType = 'amdCommonJs';
@@ -298,7 +298,7 @@ module.exports = function(options) {
 
                 // Continue if this file doesn't exist
                 if (!fs.existsSync(referencePath.path) || fs.lstatSync(referencePath.path).isDirectory()) {
-                    continue;          
+                    continue;
                 }
 
                 // Don't resolve reference of ignored files
@@ -352,7 +352,7 @@ module.exports = function(options) {
         for (var reference in cache[cachePath(file.path)].rewriteMap) {
             var fileReference = cache[cachePath(file.path)].rewriteMap[reference].reference.fileOriginal;
             var isRelative = cache[cachePath(file.path)].rewriteMap[reference].relative;
-            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;          
+            var isAmdCommonJs = cache[cachePath(file.path)].rewriteMap[reference].amdCommonJs;
             var replaceWith = getReplacement(reference, fileReference, isRelative, isAmdCommonJs);
             var contents;
 
@@ -381,7 +381,7 @@ module.exports = function(options) {
                     var change = partials[original];
                     contents = contents.replace(original, change);
                 }
-                
+
             } else {
                 contents = String(file.contents);
                 contents = contents.replace(new RegExp(reference, 'g'), replaceWith);
@@ -398,7 +398,7 @@ module.exports = function(options) {
         } else {
             gutil.log('gulp-rev-all:', 'Not renaming [', gutil.colors.red(getRelativeFilename(file.base, file.path)), '] due to filter rules.');
         }
-        
+
         return file;
     };
 
