@@ -63,7 +63,7 @@ plugin.versionFile = function(options) {
                 cwd: firstFile.cwd,
                 base: firstFile.base,
                 path: path.join(firstFile.base, fileName),
-                contents: new Buffer(JSON.stringify(out, null, '  '))
+                contents: new Buffer(JSON.stringify(out, null, 2))
             }));
         }
         cb();
