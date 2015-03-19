@@ -56,6 +56,19 @@ module.exports = function(options) {
         return false;
     };
 
+    var isIgnoringRefs = function(file) {
+
+        var filename = getRelativeFilename(file.base, file.path);
+
+        for (var i = options.ignoreRefs.length; i--;) {
+            var regex = (options.ignoreRefs[i] instanceof RegExp) ? options.ignoreRefs[i] : new RegExp(options.ignoreRefs[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
     var getRevisionFilename = function (file) {
 
         var hash = cache[cachePath(file.path)].hash;
@@ -131,7 +144,7 @@ module.exports = function(options) {
           refs.push({
             reference: result[1],
             isAmdCommonJs: false
-          })
+          });
         }
 
         while ((result = amdCommonJsFilepathRegex.exec(amdContent))) {
@@ -217,10 +230,11 @@ module.exports = function(options) {
             stack.push(cache[cachePath(file.path)]);
         }
 
-        var refs;
+        var refs = [];
         if (isBinary(file)) {
-            refs = [];
             gutil.log('gulp-rev-all:', 'Skipping binary file [', gutil.colors.grey(getRelativeFilename(file.base, file.path)), ']');
+        } else if (isIgnoringRefs(file)) {
+            gutil.log('gulp-rev-all:', 'Not finding references in file [', gutil.colors.red(getRelativeFilename(file.base, file.path)), '] due to filter rules');
         } else {
             gutil.log('gulp-rev-all:', 'Finding references in [', gutil.colors.magenta(getRelativeFilename(file.base, file.path)), ']');
             refs = findRefs(file);

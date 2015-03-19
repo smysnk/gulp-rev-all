@@ -11,7 +11,7 @@ var path = require('path');
 var gutil = require("gulp-util");
 var glob = require("glob");
 var sinon = require("sinon");
- 
+
 require("mocha");
 
 describe("gulp-rev-all", function () {
@@ -44,7 +44,7 @@ describe("gulp-rev-all", function () {
 
         it('should change if child reference changes', function (done) {
 
-            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico']});
+            tool = new toolFactory({hashLength: 8, ignore: ['favicon.ico'], ignoreRefs: ['.svg']});
             var fileStyleBaseline = tool.revisionFile(getFile('test/fixtures/config1/css/style.css'));
 
             var fsMock = {
@@ -155,7 +155,7 @@ describe("gulp-rev-all", function () {
             };
 
             run1();
-            
+
         });
 
     });
@@ -373,7 +373,7 @@ describe("gulp-rev-all", function () {
             });
 
             stream.on('data', function () {});
-            stream.on('end', function () { 
+            stream.on('end', function () {
                 var file = tool.cache[tool.cachePath(filename)].file;
                 var revedReference = path.basename(tool.revisionFile(getFile('test/fixtures/config1/css/style.css')).path);
                 String(file.contents).should.containEql(revedReference);
@@ -487,7 +487,7 @@ describe("gulp-rev-all", function () {
             stream = revall({getTool: function (t){tool = t;}});
             done();
         });
-        
+
         var filename = path.join(base, 'view/main.html');
         var file;
         var writeFile = function () {
@@ -594,7 +594,7 @@ describe("gulp-rev-all", function () {
     describe("main js", function () {
 
         beforeEach(function (done) {
-            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico']});
+            tool = new toolFactory({ hashLength: 8, ignore: ['favicon.ico'], ignoreRefs: ['.svg']});
             stream = revall();
             done();
         });
@@ -658,7 +658,7 @@ describe("gulp-rev-all", function () {
 
         });
 
-    
+
         it("should resolve references to angularjs views", function (done) {
 
             stream.on('data', function () {});
