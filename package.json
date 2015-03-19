@@ -4,13 +4,15 @@
   "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
   "main": "index.js",
   "dependencies": {
-    "gulp-util": "~2.2.14",
-    "event-stream": "~3.1.0",
-    "through2": "~0.4.0",
     "chalk": "~0.4.0",
+    "event-stream": "~3.1.0",
     "graceful-fs": "~3.0.2",
-    "underscore": "~1.6.0",
-    "sinon": "~1.10.2"
+    "gulp-util": "~2.2.14",
+    "merge": "^1.2.0",
+    "q": "^1.2.0",
+    "sinon": "~1.10.2",
+    "through2": "~0.4.0",
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "glob": "~3.2.9",
@@ -18,8 +20,9 @@
     "gulp-jshint": "~1.5.1",
     "gulp-mocha": "~0.4.1",
     "gulp-util": "~2.2.0",
-    "mocha": "~1.13.0",
-    "should": "*"
+    "mocha": "~2.2.1",
+    "should": "*",
+    "q": "^1.2.0"
   },
   "scripts": {
     "test": "mocha test.js"

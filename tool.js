@@ -8,7 +8,7 @@ module.exports = function(options) {
     'use strict';
     var options = options || {};
     var self = this;
-    var cache = {};
+    var cache = options.cache || {};
     var fs = options.fs || gracefulfs;
     var path = options.path || patho;
     var bases = (options.base && Array.isArray(options.base) && options.base) || options.base && [options.base] || [];
@@ -144,8 +144,7 @@ module.exports = function(options) {
     };
 
     var cachePath = function(file) {
-        var abspath = path.resolve(file);
-        return abspath;
+        return path.resolve(file); // Return absolute path
     };
 
     var isBinary = function(file) {
@@ -365,19 +364,20 @@ module.exports = function(options) {
 
                 // Gather partials
                 contents = String(file.contents);
-                while(result = amdCommonJsRegex.exec(contents)) {
+                while (result = amdCommonJsRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
+                
                 contents = String(file.contents);
-                while(result = amdConfigRegex.exec(contents)) {
+                while (result = amdConfigRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
 
-                for(original in partials) {
+                for (original in partials) {
                     partials[original] = original.replace(new RegExp(reference, 'g'), replaceWith);
                 }
 
-                for(original in partials) {
+                for (original in partials) {
                     var change = partials[original];
                     contents = contents.replace(original, change);
                 }

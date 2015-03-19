@@ -5,105 +5,114 @@ var toolFactory = require('./tool');
 var through = require('through2');
 var chalk = require('chalk');
 var gutil = require('gulp-util');
+var merge = require('merge');
 
-var plugin = function (options) {
+var Plugin = (function () { 
 
-    options = options || {};
-    options.hashLength  = options.hashLength || 8;
-    options.ignore = options.ignore || options.ignoredExtensions || [ /^\/favicon.ico$/g ];
-
-    var tool = new toolFactory(options);
-
-    return through.obj(function (file, enc, callback) {
-
-        if (file.isNull()) {
-            return callback(null, file);
-        } else if (file.isStream()) {
-            throw new Error('Streams are not supported!');
-        } 
-
-        tool.revisionFile(file);
-        callback(null, file);
-
-    }, function (cb) {
-        if(options.getTool) {
-            options.getTool(tool);
-        }
-
-        cb();
-    });    
-
-};
-
-plugin.versionFile = function(options) {
-    var options = options || {};
-    var tool = new toolFactory();
-    var hash = '';
+    var tool, options;
     var firstFile = null;
-    var fileName = options.fileName || 'version.json';
+    var manifest = [];
+    var hash = '';    
+    var optionsDefault = {
+        'hashLength': 8,
+        'ignore': [ /^\/favicon.ico$/g ],
+        'fileNameVersion': 'version.json',
+        'fileNameManifest': 'rev-manifest.json',
+        'prefix': '',
+        'cache': {}
+    };
 
-    return through.obj(function (file, enc, cb) {
+    var Plugin = function (optionsSupplied) {
 
-        // ignore all non-rev'd files
-        if (file.path && file.revOrigPath) {
-            firstFile = firstFile || file;
-            hash = tool.md5(hash + file.path);
-        }
-        cb();
+        options = merge(optionsDefault, optionsSupplied);
+        tool = new toolFactory(options);
 
-    }, function (cb) {
-        
-        var out = {
-            hash: hash,
-            timestamp: new Date()
-        };
+    };
 
-        if (firstFile) {
+    Plugin.prototype.revision = function () {
+
+        return through.obj(function (file, enc, callback) {
+
+            if (file.isNull()) {
+                return callback(null, file);
+            } else if (file.isStream()) {
+                throw new Error('Streams are not supported!');
+            } 
+
+            tool.revisionFile(file);
+
+            // ignore all non-rev'd files
+            if (file.path && file.revOrigPath) {
+                firstFile = firstFile || file;
+                manifest[tool.getRelativeFilename(file.revOrigBase, file.revOrigPath, true)] = options.prefix + tool.getRelativeFilename(file.base, file.path, true);
+            }
+
+            callback(null, file);
+
+        }, function (callback) {
+            
+            callback();
+
+        });    
+
+    };
+
+    Plugin.prototype.versionFile = function () {
+
+        return through.obj(function (file, enc, callback) {
+            
+            // Drop any existing files off the stream
+            callback();
+
+        }, function (callback) {
+            
+            var out = {
+                hash: hash,
+                timestamp: new Date()
+            };
+
             this.push(new gutil.File({
                 cwd: firstFile.cwd,
                 base: firstFile.base,
-                path: path.join(firstFile.base, fileName),
+                path: path.join(firstFile.base, fileNameVersion),
                 contents: new Buffer(JSON.stringify(out, null, 2))
             }));
-        }
-        cb();
 
-    });
+            callback();
 
-};
+        });
 
-// Borrowed from: https://github.com/sindresorhus/gulp-rev
-plugin.manifest = function (options) {
+    };
 
-    var options = options || {};
-    var manifest  = {};
-    var firstFile = null;
-    var tool = new toolFactory();
-    var fileName = options.fileName || 'rev-manifest.json';
-    var prefix = options.prefix || '';
+    Plugin.prototype.manifestFile = function () {
 
-    return through.obj(function (file, enc, cb) {
+        return through.obj(function (file, enc, callback) {
 
-        // ignore all non-rev'd files
-        if (file.path && file.revOrigPath) {
-            firstFile = firstFile || file;
-            manifest[tool.getRelativeFilename(file.revOrigBase, file.revOrigPath, true)] = prefix + tool.getRelativeFilename(file.base, file.path, true);
-        }
-        cb();
+            // Drop any existing files off the stream
+            callback();
 
-    }, function (cb) {
-        
-        if (firstFile) {
+        }, function (callback) {
+            
             this.push(new gutil.File({
                 cwd: firstFile.cwd,
                 base: firstFile.base,
-                path: path.join(firstFile.base, fileName),
-                contents: new Buffer(JSON.stringify(manifest, null, '  '))
+                path: path.join(firstFile.base, fileNameManifest),
+                contents: new Buffer(JSON.stringify(manifest, null, 2))
             }));
-        }
-        cb();
 
-    });
-};
+            callback();
 
-module.exports = plugin;
+        });
+    };
+
+    Plugin.prototype.getTool = function () {
+        
+        return tool;
+
+    };
+
+    return Plugin;
+    
+})();
+
+module.exports = Plugin;
