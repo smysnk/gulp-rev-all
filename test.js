@@ -57,37 +57,37 @@ describe('gulp-rev-all', function () {
 
     var revAll, streamRevision, tool, cache;
 
-    beforeEach(function (done) {
+    beforeEach(function () {
 
         cache = {};
         revAll = new RevAll({ cache: cache });
         streamRevision = revAll.revision();
         tool = revAll.getTool();
 
-        done();
-
     });    
 
-    describe.only('resource hash calculation', function () {
+    describe('resource hash calculation', function () {
 
         it('should change if child reference changes', function (done) {
-
+            
             var fileStyleBaseline = revAll.getTool().revisionFile(get_file('test/fixtures/config1/css/style.css'));
             
-            // All child references of style.css should return contents 'dummy'
+            // All child references of style.css should return contents 'dummy' instead of regular content
             var fsMock = {
                 readFileSync: sinon.stub().returns(new Buffer('dummy')),
                 existsSync: sinon.stub().returns(true),
                 lstatSync: function () { 
                     return {
-                        isDirectory: function () { 
+                        isDirectory: function (abc) { 
                             return false; 
                         }
                     }; 
                 }
             };
 
-            var streamRevision = new RevAll({ fs: fsMock }).revision();
+            revAll = new RevAll({ fs: fsMock });
+            streamRevision = revAll.revision();
+            console.log('cache', revAll.getTool().cache);
 
             streamRevision.on('data', function (file) {
                 file.path.should.not.equal(fileStyleBaseline.path);
@@ -170,13 +170,6 @@ describe('gulp-rev-all', function () {
     });
 
     describe('should process images', function () {
-
-        beforeEach(function (done) {
-
-            streamRevision = new RevAll().revision();
-            done();
-
-        });
 
         var filename = Path.join(base, 'img/image1.jpg');
         it('without corrupting them', function (done) {

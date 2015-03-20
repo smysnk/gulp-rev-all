@@ -7,29 +7,28 @@ var chalk = require('chalk');
 var gutil = require('gulp-util');
 var merge = require('merge');
 
-var Plugin = (function () { 
+var RevAll = (function () { 
 
     var tool, options;
     var firstFile = null;
     var manifest = [];
     var hash = '';    
-    var optionsDefault = {
-        'hashLength': 8,
-        'ignore': [ /^\/favicon.ico$/g ],
-        'fileNameVersion': 'version.json',
-        'fileNameManifest': 'rev-manifest.json',
-        'prefix': '',
-        'cache': {}
-    };
 
-    var Plugin = function (optionsSupplied) {
+    var RevAll = function (optionsSupplied) {
 
-        options = merge(optionsDefault, optionsSupplied);
+        options = merge({
+            'hashLength': 8,
+            'ignore': [ /^\/favicon.ico$/g ],
+            'fileNameVersion': 'version.json',
+            'fileNameManifest': 'rev-manifest.json',
+            'prefix': '',
+            'cache': {}
+        }, optionsSupplied);
         tool = new toolFactory(options);
 
     };
 
-    Plugin.prototype.revision = function () {
+    RevAll.prototype.revision = function () {
 
         return through.obj(function (file, enc, callback) {
 
@@ -57,7 +56,7 @@ var Plugin = (function () {
 
     };
 
-    Plugin.prototype.versionFile = function () {
+    RevAll.prototype.versionFile = function () {
 
         return through.obj(function (file, enc, callback) {
             
@@ -84,7 +83,7 @@ var Plugin = (function () {
 
     };
 
-    Plugin.prototype.manifestFile = function () {
+    RevAll.prototype.manifestFile = function () {
 
         return through.obj(function (file, enc, callback) {
 
@@ -105,14 +104,14 @@ var Plugin = (function () {
         });
     };
 
-    Plugin.prototype.getTool = function () {
+    RevAll.prototype.getTool = function () {
         
         return tool;
 
     };
 
-    return Plugin;
+    return RevAll;
     
 })();
 
-module.exports = Plugin;
+module.exports = RevAll;
