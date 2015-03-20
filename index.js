@@ -22,7 +22,8 @@ var RevAll = (function () {
             'fileNameVersion': 'version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
-            'cache': {}
+            'cache': {},
+            'dontRename': []
         }, optionsSupplied);
         tool = new toolFactory(options);
 

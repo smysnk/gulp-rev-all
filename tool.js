@@ -43,17 +43,24 @@ module.exports = function(options) {
         return path.substr(dirRoot.length).replace(/\\/g, '/');
     };
 
-    var isFileIgnored = function (file) {
-
+    var matchesFilter = function (file, search) {
         var filename = getRelativeFilename(file.base, file.path);
 
-        for (var i = options.ignore.length; i--;) {
-            var regex = (options.ignore[i] instanceof RegExp) ? options.ignore[i] : new RegExp(options.ignore[i] + '$', 'ig');
+        for (var i = search.length; i--;) {
+            var regex = (search[i] instanceof RegExp) ? search[i] : new RegExp(search[i] + '$', 'ig');
             if (filename.match(regex)) {
                 return true;
             }
         }
         return false;
+    };
+
+    var isFileIgnored = function(file) {
+      return matchesFilter(file, options.ignore);
+    };
+
+    var canBeRenamed = function(file) {
+      return ! matchesFilter(file, options.dontRename);
     };
 
     var getRevisionFilename = function (file) {
@@ -390,7 +397,7 @@ module.exports = function(options) {
             file.contents = new Buffer(contents);
         }
 
-        if (!isFileIgnored(file)) {
+        if (!isFileIgnored(file) && canBeRenamed(file)) {
             file.revOrigPath = file.path;
             file.revOrigBase = file.base;
             file.revHash = hash;
@@ -408,6 +415,7 @@ module.exports = function(options) {
         joinPath: joinPath,
         revisionFile: revisionFile,
         isFileIgnored: isFileIgnored,
+        canBeRenamed: canBeRenamed,
         getReplacement: getReplacement,
         getRelativeFilename: getRelativeFilename,
         cache: cache,

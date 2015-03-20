@@ -164,6 +164,13 @@ gulp.task('default', function () {
 });
 ```
 
+#### options.dontRename
+
+Type: `Array of (Regex and/or String)`
+Default: `[ ]`
+
+Following the same format as `options.ignore`, you may want to omit certain files from being renamed on the filesystem. File references will still be revisionsed in the source code.
+
 #### options.hashLength
 
 Type: `hashLength`
