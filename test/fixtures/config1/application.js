@@ -19,7 +19,7 @@ define(['app'], function (app) {
             templateUrl: 'view/gps.html',
             link: function (scope, element, attrs, interfacePanel) {
 
-                
+
             },
             controller: function ($scope, $snapshot) {
 
@@ -35,7 +35,7 @@ define(['app'], function (app) {
             template: "<img src=\"img/image1.jpg\" />test</h1>",
             link: function (scope, element, attrs, interfacePanel) {
 
-                
+
             },
             controller: function ($scope, $snapshot) {
 
@@ -49,4 +49,4 @@ define(['app'], function (app) {
 
 });
 
-//# sourceMappingURL=application.js.map                
+//# sourceMappingURL=application.js.map
