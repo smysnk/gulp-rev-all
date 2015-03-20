@@ -224,6 +224,46 @@ describe('gulp-rev-all', function () {
 
         });
 
+        describe('dontRename', function () {
+          it('should still rename unmatched files', function (done) {
+
+            streamRevision = new RevAll({ dontRename: [ /^\/index.html/g ] }).revision();
+            streamRevision.on('data', function (file) {
+                file.path.should.not.match(/nested\/index\.html$/);
+                file.path.should.not.match(/config1\/index\.[a-z0-9]{8}\.html$/);
+            });
+
+            streamRevision.on('end', done);
+            write_glob_to_stream('test/fixtures/config1/**/*.*', streamRevision);
+
+          });
+
+          it('should not rename an html file when specified', function (done) {
+
+            streamRevision = new RevAll({ dontRename: ['.html'] }).revision();
+            streamRevision.on('data', function (file) {
+                Path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.html$/);
+            });
+
+            streamRevision.on('end', done);
+            write_glob_to_stream('test/fixtures/config1/**/*.*', streamRevision);
+
+          });
+
+          it('should still process and re-write references to unrenamed files', function (done) {
+
+              streamRevision = new RevAll({ dontRename: ['.css'] }).revision();
+              streamRevision.on('data', function (file) {
+                  String(file.contents).should.match(/style\.[a-z0-9]{8}\.css/);
+              });
+
+              streamRevision.on('end', done);
+              write_glob_to_stream('test/fixtures/config1/index.html', streamRevision);
+
+          });
+
+        })
+
 
         describe('ignore', function () {
 
