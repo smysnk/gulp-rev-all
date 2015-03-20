@@ -367,7 +367,7 @@ module.exports = function(options) {
                 while (result = amdCommonJsRegex.exec(contents)) {
                     partials[result[1]] = '';
                 }
-                
+
                 contents = String(file.contents);
                 while (result = amdConfigRegex.exec(contents)) {
                     partials[result[1]] = '';

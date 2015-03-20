@@ -15,7 +15,7 @@ A solution to this problem is adding a revisioned number to the name your static
 
 ## Why fork?
 
-This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.  
+This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.
 It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
 `gulp-rev-all` does not agree with this idea for the simple reason that to accurately calculate a file's hash for caching purposes you need to take child references in to consideration.
 
@@ -79,7 +79,7 @@ gulp.task('default', function () {
 
 ## Original path
 
-Original file paths are stored at `file.revOrigPath`. 
+Original file paths are stored at `file.revOrigPath`.
 
 ## Asset hash
 
@@ -225,7 +225,7 @@ gulp.task('default', function () {
 Type: `function (file, hash)`
 Default: `none`
 
-If the default naming convention does not suite your needs, you can specify a custom filename transform. 
+If the default naming convention does not suite your needs, you can specify a custom filename transform.
 
 The function takes one argument:
   - `file` - file to be revisioned

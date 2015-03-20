@@ -7,12 +7,12 @@ var chalk = require('chalk');
 var gutil = require('gulp-util');
 var merge = require('merge');
 
-var RevAll = (function () { 
+var RevAll = (function () {
 
     var tool, options;
     var firstFile = null;
     var manifest = [];
-    var hash = '';    
+    var hash = '';
 
     var RevAll = function (optionsSupplied) {
 
@@ -36,7 +36,7 @@ var RevAll = (function () {
                 return callback(null, file);
             } else if (file.isStream()) {
                 throw new Error('Streams are not supported!');
-            } 
+            }
 
             tool.revisionFile(file);
 
@@ -49,22 +49,22 @@ var RevAll = (function () {
             callback(null, file);
 
         }, function (callback) {
-            
+
             callback();
 
-        });    
+        });
 
     };
 
     RevAll.prototype.versionFile = function () {
 
         return through.obj(function (file, enc, callback) {
-            
+
             // Drop any existing files off the stream
             callback();
 
         }, function (callback) {
-            
+
             var out = {
                 hash: hash,
                 timestamp: new Date()
@@ -91,7 +91,7 @@ var RevAll = (function () {
             callback();
 
         }, function (callback) {
-            
+
             this.push(new gutil.File({
                 cwd: firstFile.cwd,
                 base: firstFile.base,
@@ -105,13 +105,13 @@ var RevAll = (function () {
     };
 
     RevAll.prototype.getTool = function () {
-        
+
         return tool;
 
     };
 
     return RevAll;
-    
+
 })();
 
 module.exports = RevAll;

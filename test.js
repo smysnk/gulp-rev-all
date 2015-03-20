@@ -12,7 +12,7 @@ var gutil = require('gulp-util');
 var glob = require('glob');
 var sinon = require('sinon');
 var Q = require('q');
- 
+
 require('mocha');
 
 describe('gulp-rev-all', function () {
@@ -64,24 +64,24 @@ describe('gulp-rev-all', function () {
         streamRevision = revAll.revision();
         tool = revAll.getTool();
 
-    });    
+    });
 
     describe('resource hash calculation', function () {
 
         it('should change if child reference changes', function (done) {
-            
+
             var fileStyleBaseline = revAll.getTool().revisionFile(get_file('test/fixtures/config1/css/style.css'));
-            
+
             // All child references of style.css should return contents 'dummy' instead of regular content
             var fsMock = {
                 readFileSync: sinon.stub().returns(new Buffer('dummy')),
                 existsSync: sinon.stub().returns(true),
-                lstatSync: function () { 
+                lstatSync: function () {
                     return {
-                        isDirectory: function (abc) { 
-                            return false; 
+                        isDirectory: function (abc) {
+                            return false;
                         }
-                    }; 
+                    };
                 }
             };
 
@@ -157,7 +157,7 @@ describe('gulp-rev-all', function () {
             };
 
             Q.all([run(fileSystem1), run(fileSystem2)])
-                .then(function (caches) { 
+                .then(function (caches) {
 
                     caches[0][FILE_A].hash.should.not.be.equal(caches[1][FILE_A].hash);
                     caches[0][FILE_B].hash.should.not.be.equal(caches[1][FILE_B].hash);
@@ -374,7 +374,7 @@ describe('gulp-rev-all', function () {
             streamRevision = revAll.revision();
 
             streamRevision.on('data', function () {});
-            streamRevision.on('end', function () { 
+            streamRevision.on('end', function () {
                 var file = cache[tool.cachePath(filename)].file;
                 var revedReference = Path.basename(tool.revisionFile(get_file('test/fixtures/config1/css/style.css')).path);
                 String(file.contents).should.containEql(revedReference);
@@ -482,7 +482,7 @@ describe('gulp-rev-all', function () {
     });
 
     describe('angularjs view', function () {
-        
+
         var filename = Path.join(base, 'view/main.html');
 
         it('should resolve references to images', function (done) {
@@ -494,7 +494,7 @@ describe('gulp-rev-all', function () {
                 done();
 
             });
-           
+
             write_glob_to_stream(filename, streamRevision);
         });
 
@@ -503,7 +503,7 @@ describe('gulp-rev-all', function () {
             var revedReference = Path.basename(tool.revisionFile(get_file('test/fixtures/config1/view/core/footer.html')).path);
             streamRevision.on('data', function (file) {
 
-                String(file.contents).should.containEql(revedReference);                
+                String(file.contents).should.containEql(revedReference);
                 done();
 
             });
@@ -513,7 +513,7 @@ describe('gulp-rev-all', function () {
 
     });
 
-    describe('css', function () { 
+    describe('css', function () {
 
         var base = Path.join(__dirname, 'test/fixtures/config1');
         var filename = Path.join(base, 'css/style.css');
@@ -610,7 +610,7 @@ describe('gulp-rev-all', function () {
 
         });
 
-    
+
         it('should resolve references to angularjs views', function (done) {
 
             var revedReference = Path.basename(tool.revisionFile(get_file('test/fixtures/config1/view/gps.html')).path);
