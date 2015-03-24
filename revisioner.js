@@ -19,6 +19,35 @@ var Revisioner = (function () {
         }, options);
 
         this.files = this.options.files;
+        this.hashCombined = '';
+        this.manifest = {};
+
+    };
+
+    Revisioner.prototype.versionFile = function () {
+
+        var out = {
+            hash: this.hashCombined,
+            timestamp: new Date()
+        };
+    
+        return new gutil.File({
+            cwd: this.pathCwd,
+            base: this.pathBase,
+            path: path.join(this.pathBase, this.options.fileNameVersion),
+            contents: new Buffer(JSON.stringify(out, null, 2))
+        });
+
+    };
+
+    Revisioner.prototype.manifestFile = function () {
+
+        return new gutil.File({
+            cwd: this.pathCwd,
+            base: this.pathBase,
+            path: path.join(this.pathBase, this.options.fileNameManifest),
+            contents: new Buffer(JSON.stringify(this.manifest, null, 2))
+        });
 
     };
 
@@ -28,11 +57,13 @@ var Revisioner = (function () {
     Revisioner.prototype.processFile = function (file) {
 
         if (!this.pathBase) this.pathBase = file.base;
+        if (!this.pathCwd) this.pathCwd = file.cwd;
 
         var path = Tool.get_relative_path(this.pathBase, file.path);
         
         // Store original values before we do any processing
-        file.revFilenameOriginalExt = Path.extname(file.path);
+        file.revPathOriginal = file.path;
+        file.revFilenameExtOriginal = Path.extname(file.path);
         file.revFilenameOriginal = Path.basename(file.path, file.revFilenameOriginalExt);
         file.revHashOriginal = Tool.md5(String(file.contents));
 
@@ -46,6 +77,8 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.run = function () {
 
+        this.hashCombined = '';
+
         // Resolve references to other files
         for (var path in this.files) {
             this.resolveReferences(this.files[path]);
@@ -53,8 +86,11 @@ var Revisioner = (function () {
 
         // Resolve and set revisioned filename based on hash + reference hashes and ignore rules
         for (var path in this.files) {
-            this.revisionFilename(this.files[path]);            
+            this.revisionFilename(this.files[path]);
         }
+
+        // Consolidate the concatinated hash of all the files, into a single hash for the version file
+        this.hashCombined = Tool.md5(this.hashCombined);
 
         // Update references to revisioned filenames
         for (var path in this.files) {
@@ -89,22 +125,27 @@ var Revisioner = (function () {
 
         var hash = file.revHashOriginal;
         var filename = file.revFilenameOriginal;
-        var ext = file.revFilenameOriginalExt;
+        var ext = file.revFilenameExtOriginal;
 
         // Final hash = hash(file hash + hash references 1 + hash reference N)
         for (var reference in file.revReferences) {
             hash += file.revReferences[reference].revHashOriginal;
         }
-        hash = Tool.md5(hash);
+        file.revHash = Tool.md5(hash);
 
         if (this.options.transformFilename) {
-            filename = this.options.transformFilename.call(this, file, hash);
+            filename = this.options.transformFilename.call(this, file, file.revHash);
         } else {
-            filename = filename + '.' + hash.substr(0, this.options.hashLength) + ext;
+            filename = filename + '.' + file.revHash.substr(0, this.options.hashLength) + ext;
         }
 
         file.revFilename = filename;
         file.path = Tool.join_path(Path.dirname(file.path), filename);
+
+        this.hashCombined += file.revHash;
+        
+        manifest[Tool.get_relative_path(this.pathBase, file.revPathOriginal, true)] = prefix + tool.get_relative_path(this.pathBase, file.path, true);
+        
 
     };
 
