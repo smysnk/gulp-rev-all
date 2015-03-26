@@ -1,4 +1,4 @@
-var Through = require('Through2');
+var Through = require('through2');
 var Revisioner = require('./revisioner');
 
 var RevAll = (function () { 
