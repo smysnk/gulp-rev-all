@@ -31,8 +31,8 @@ describe('gulp-rev-all', function () {
 
     describe('resource hash calculation', function () {
 
-        // it('should change if child reference changes', function (done) {
-        it.only('should change if child reference changes', function (done) {
+        it('should change if child reference changes', function (done) {
+        // it.only('should change if child reference changes', function (done) {
 
             setup();
 

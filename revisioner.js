@@ -87,9 +87,8 @@ var Revisioner = (function () {
         // Resolve references to other files
         for (var path in this.files) {
             this.resolveReferences(this.files[path]);
+            console.log(path, this.files[path].revReferences);
         }
-
-        throw new Error('');
 
         // Resolve and set revisioned filename based on hash + reference hashes and ignore rules
         for (var path in this.files) {
@@ -115,8 +114,6 @@ var Revisioner = (function () {
         var contents = String(fileResolveReferencesIn.contents);
         fileResolveReferencesIn.revReferences = [];
 
-        console.log(fileResolveReferencesIn.path, contents);
-
         // Don't try and resolve references in binary files
         if (Tool.is_binary_file(fileResolveReferencesIn)) return;
 
@@ -128,12 +125,12 @@ var Revisioner = (function () {
             var references = Tool.get_reference_representations(fileCurrentReference, fileResolveReferencesIn);
             for (var i = references.length; i--;) {
 
-                var regExp = '[ \'"=](' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')[ \'"=]';
+                var regExp = '[ \'"=](' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')[ \'"=\r\n$]';
                 
                 regExp = new RegExp(regExp, 'g');
                 var matches;
                 if (matches = contents.match(regExp)) {
-                    fileResolveReferencesIn.revReferences.push([regExp, this.files[path]]);
+                    fileResolveReferencesIn.revReferences.push({'regExp': regExp, 'file': this.files[path]});
                 }
 
             }
@@ -157,7 +154,7 @@ var Revisioner = (function () {
 
         // Final hash = hash(file hash + hash references 1 + hash reference N)
         for (var i = file.revReferences.length; i--;) {
-            hash += file.revReferences[i].revHashOriginal;
+            hash += file.revReferences[i]['file'].revHashOriginal;
         }
         file.revHash = Tool.md5(hash);
 
