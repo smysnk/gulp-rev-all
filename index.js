@@ -1,4 +1,4 @@
-var through = require('through2');
+var Through = require('Through2');
 var Revisioner = require('./revisioner');
 
 var RevAll = (function () { 
@@ -14,7 +14,7 @@ var RevAll = (function () {
         var _this = this;
 
         // Feed the RevAll Revisioner with all the files in the stream, don't emit them until all of them have been processed
-        return through.obj(function (file, enc, callback) {
+        return Through.obj(function (file, enc, callback) {
 
             if (file.isNull()) {
                 return callback(null, file);
@@ -44,7 +44,7 @@ var RevAll = (function () {
         var _this = this;
 
         // Drop any existing files off the stream, push the generated version file 
-        return through.obj(function (file, enc, callback) {
+        return Through.obj(function (file, enc, callback) {
             
             // Drop any existing files off the stream
             callback();
@@ -63,7 +63,7 @@ var RevAll = (function () {
         var _this = this;
 
         // Drop any existing files off the stream, push the generated manifest file
-        return through.obj(function (file, enc, callback) {
+        return Through.obj(function (file, enc, callback) {
 
             callback();
 
