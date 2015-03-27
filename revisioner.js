@@ -11,7 +11,9 @@ var Revisioner = (function () {
 
         this.options = merge({
             'hashLength': 8,
-            'ignore': [ /^\/favicon.ico$/g ],
+            'dontGlobal': [ /^\/favicon.ico$/g ],
+            'dontRenameFile': [],
+            'dontUpdateReference': [],
             'fileNameVersion': 'version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
@@ -147,8 +149,6 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.revisionFilename = function (file) {
 
-        if (this.isFileIgnored(file)) return;
-
         var hash = file.revHashOriginal;
         var filename = file.revFilenameOriginal;
         var ext = file.revFilenameExtOriginal;
@@ -167,7 +167,10 @@ var Revisioner = (function () {
         }
 
         file.revFilename = filename;
-        file.path = this.Tool.join_path(Path.dirname(file.path), filename);
+
+        if (this.shouldFileBeRenamed(file)) {
+            file.path = this.Tool.join_path(Path.dirname(file.path), filename);
+        }
 
         this.hashCombined += file.revHash;
         
@@ -191,19 +194,21 @@ var Revisioner = (function () {
             var reference = file.revReferences[i];
 
             // Replace regular filename with revisioned version
-            var pathReference;
+            var pathReferenceReplace;
             if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/.js$/)) {
-                pathReference = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
-                pathReference += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);              
+                pathReferenceReplace = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
+                pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);              
             } else {
-                pathReference = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
-                pathReference += reference.file.revFilename;
+                pathReferenceReplace = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
+                pathReferenceReplace += reference.file.revFilename;
             }
 
             // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
-            pathReference = (this.options.transformPath) ? this.options.transformPath.call(this, pathReference, reference.file.revOrigPath, reference.file) : this.Tool.join_path_url(this.options.prefix, pathReference);
+            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) : this.Tool.join_path_url(this.options.prefix, pathReferenceReplace);
 
-            contents = contents.replace(reference.regExp, '$1' + pathReference + '$3');
+            if (this.shouldUpdateReference(reference.file)) {
+                contents = contents.replace(reference.regExp, '$1' + pathReferenceReplace + '$3');
+            }
         
         }
 
@@ -215,19 +220,51 @@ var Revisioner = (function () {
     };
 
     /**
-     * Determines if a file should be revisioned based on ignore rules supplied in options.
+     * Determines if a file should be renamed based on dontRenameFile supplied in options.
      */
-    Revisioner.prototype.isFileIgnored = function (file) {
+    Revisioner.prototype.shouldFileBeRenamed = function (file) {
 
         var filename = this.Tool.get_relative_path(file.base, file.path);
 
-        for (var i = this.options.ignore.length; i--;) {
-            var regex = (this.options.ignore[i] instanceof RegExp) ? this.options.ignore[i] : new RegExp(this.options.ignore[i] + '$', 'ig');
+        for (var i = this.options.dontGlobal.length; i--;) {
+            var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
             if (filename.match(regex)) {
-                return true;
+                return false;
             }
         }
-        return false;
+
+        for (var i = this.options.dontRenameFile.length; i--;) {
+            var regex = (this.options.dontRenameFile[i] instanceof RegExp) ? this.options.dontRenameFile[i] : new RegExp(this.options.dontRenameFile[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+        return true;
+
+    };
+
+
+    /**
+     * Determines if a particular reference should be updated across assets based on dontUpdateReference supplied in options.
+     */
+    Revisioner.prototype.shouldUpdateReference = function (file) {
+
+        var filename = this.Tool.get_relative_path(file.base, file.path);
+
+        for (var i = this.options.dontGlobal.length; i--;) {
+            var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+
+        for (var i = this.options.dontUpdateReference.length; i--;) {
+            var regex = (this.options.dontUpdateReference[i] instanceof RegExp) ? this.options.dontUpdateReference[i] : new RegExp(this.options.dontUpdateReference[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+        return true;
 
     };
 

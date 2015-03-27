@@ -104,7 +104,9 @@ describe('gulp-rev-all', function () {
             it('should be transformed when transform function is specified', function (done) {
 
                 setup({
-                    ignore: [],
+                    dontGlobal: [],
+                    dontUpdateReference: [],
+                    dontRenameFile: [],
                     transformFilename: function (file, hash) {
                         var ext = Path.extname(file.path);
                         return hash.slice(0, 5) + '.' + Path.basename(file.path, ext) + ext; // 3410c.glob.ext
@@ -127,17 +129,16 @@ describe('gulp-rev-all', function () {
 
         });
 
+        describe('dontGlobal', function () {
 
-        describe('ignore', function () {
-
-            it('should not rename favicon.ico by default', function (done) {
+            it('should not update favicon.ico reference by default', function (done) {
 
                 setup();
 
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
 
-                    files['/favicon.ico'].path.should.not.match(/favicon\.[a-z0-9]{8}\.ico$/);
+                    String(files['/index.html'].contents).should.not.match(/favicon\.[a-z0-9]{8}\.ico/g);
                     done();
 
                 });
@@ -146,9 +147,88 @@ describe('gulp-rev-all', function () {
 
             });
 
+            it('should not update references when specified with file extension', function (done) {
+
+                setup({ 
+                    dontGlobal: ['.html']
+                });
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    done();
+
+                });
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
+
+            it('should not update references when specified with file regex', function (done) {
+
+                setup({ 
+                    dontGlobal: [ /.html$/g ]
+                });
+
+                streamRevision.on('data', function (file) {});
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    done();
+
+                });
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
+
+            it('should not rename when specified with files extension', function (done) {
+
+                setup({ 
+                    dontGlobal: ['.js']
+                });
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+
+                    String(files['/index.html'].contents).should.match(/\"[a-z0-9\/]*\.js\"/);
+                    done();
+
+                });
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                
+
+            });
+
+            it('should not rename when specified with files extension', function (done) {
+
+                setup({ 
+                    dontGlobal: [ /.js$/g ]
+                });
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+
+                    String(files['/index.html'].contents).should.match(/\"[a-z0-9\/]*\.js\"/);
+                    done();
+
+                });
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                
+
+            });
+
+        });
+
+
+        describe('dontRenameFile', function () {
+
             it('should rename nested index', function (done) {
 
-                setup({ ignore: [ /^\/index.html/g ] });
+                setup({ 
+                    dontRenameFile: [ /^\/index.html/g ] 
+                });
 
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
@@ -165,7 +245,9 @@ describe('gulp-rev-all', function () {
 
             it('should not rename html files when specified', function (done) {
 
-                setup({ ignore: ['.html'] });
+                setup({ 
+                    dontRenameFile: ['.html'] 
+                });
 
                 streamRevision.on('data', function (file) {
                     Path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.html$/);
@@ -176,15 +258,39 @@ describe('gulp-rev-all', function () {
 
             });
 
-            it('should still process and re-write references in a ignored file', function (done) {
+            it('should still process and re-write references in a dontRenameFile file', function (done) {
 
-                setup({ ignore: ['.html'] });
+                setup({ 
+                    dontRenameFile: ['.html'] 
+                });
 
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
 
-                    console.log(files['/index.html'].contents);
-                    String(files['/index.html'].contents).should.match(/\"[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}\"/);
+                    String(files['/index.html'].contents).should.match(/[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}/);
+                    done();
+
+                });
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });            
+
+        });
+
+        describe('dontUpdateReference', function () {            
+
+            it('should not update reference when specified with file extension', function (done) {
+
+                setup({ 
+                    dontUpdateReference: ['.html'] 
+                });
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    done();
 
                 });
 
@@ -192,59 +298,24 @@ describe('gulp-rev-all', function () {
 
             });
 
-            it('should not rename reference if that reference is ignored', function (done) {
+            it('should not update reference when specified with file regex', function (done) {
 
-                setup({ ignore: ['.js'] });
-
-                streamRevision.on('data', function (file) {
-                    String(file.contents).should.match(/\"[a-z0-9]*\.js\"/);
+                setup({ 
+                    dontUpdateReference: [ /.html$/g ]  
                 });
 
-                streamRevision.on('end', done);
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/index.html', streamRevision);
+                streamRevision.on('data', function (file) {});
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    done();
 
-            });
-
-            it('should not rename js files when specified', function (done) {
-
-                setup({ ignore: ['.js'] });
-
-                streamRevision.on('data', function (file) {
-                    Path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.js$/);
                 });
 
-                streamRevision.on('end', done);
                 Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
-
-            it('should not rename woff files when specified', function (done) {
-
-                setup({ ignore: ['.woff'] });
-
-                streamRevision.on('data', function (file) {
-                    Path.basename(file.path).should.not.match(/\.[a-z0-9]{8}\.woff$/);
-                });
-
-                streamRevision.on('end', done);
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
-
-            });
-
-
-            it('should rename all files when ignore not specified', function (done) {
-
-                setup();
-                
-                streamRevision.on('data', function (file) {
-                    Path.basename(file.path).should.match(/(\.[a-z0-9]{8}\.[a-z]{2,4}$|favicon\.ico$)/);
-                });
-
-                streamRevision.on('end', done);
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
-
-            });
         });
 
     });
