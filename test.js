@@ -176,7 +176,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            it.only('should still process and re-write references in a ignored file', function (done) {
+            it('should still process and re-write references in a ignored file', function (done) {
 
                 setup({ ignore: ['.html'] });
 
