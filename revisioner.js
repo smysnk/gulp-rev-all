@@ -27,6 +27,9 @@ var Revisioner = (function () {
         // Stores the before : after path of assets, used to create the manifset file
         this.manifest = {};
 
+        // Make tools available client side callbacks supplied in options
+        this.Tool = Tool;
+
     };
 
     Revisioner.prototype.versionFile = function () {
@@ -64,13 +67,13 @@ var Revisioner = (function () {
         if (!this.pathBase) this.pathBase = file.base;
         if (!this.pathCwd) this.pathCwd = file.cwd;
 
-        var path = Tool.get_relative_path(this.pathBase, file.path);
+        var path = this.Tool.get_relative_path(this.pathBase, file.path);
         
         // Store original values before we do any processing
         file.revPathOriginal = file.revOrigPath = file.path;
         file.revFilenameExtOriginal = Path.extname(file.path);
         file.revFilenameOriginal = Path.basename(file.path, file.revFilenameExtOriginal);
-        file.revHashOriginal = Tool.md5(String(file.contents));
+        file.revHashOriginal = this.Tool.md5(String(file.contents));
 
         this.files[path] = file;
 
@@ -87,7 +90,6 @@ var Revisioner = (function () {
         // Resolve references to other files
         for (var path in this.files) {
             this.resolveReferences(this.files[path]);
-            console.log(path, this.files[path].revReferences);
         }
 
         // Resolve and set revisioned filename based on hash + reference hashes and ignore rules
@@ -96,7 +98,7 @@ var Revisioner = (function () {
         }
 
         // Consolidate the concatinated hash of all the files, into a single hash for the version file
-        this.hashCombined = Tool.md5(this.hashCombined);
+        this.hashCombined = this.Tool.md5(this.hashCombined);
 
         // Update references to revisioned filenames
         for (var path in this.files) {
@@ -115,22 +117,21 @@ var Revisioner = (function () {
         fileResolveReferencesIn.revReferences = [];
 
         // Don't try and resolve references in binary files
-        if (Tool.is_binary_file(fileResolveReferencesIn)) return;
+        if (this.Tool.is_binary_file(fileResolveReferencesIn)) return;
 
-        // For the current file, look for references to any other file in the project
+        // For the current file (fileResolveReferencesIn), look for references to any other file in the project
         for (var path in this.files) {
             var fileCurrentReference = this.files[path];
 
             // Go through possible references to known assets and see if we can match them
-            var references = Tool.get_reference_representations(fileCurrentReference, fileResolveReferencesIn);
+            var references = this.Tool.get_reference_representations(fileCurrentReference, fileResolveReferencesIn);
             for (var i = references.length; i--;) {
 
-                var regExp = '[ \'"=](' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')[ \'"=\r\n$]';
+                var regExp = '([^a-z0-9\\.\\-\\_/])(' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_])';
                 
                 regExp = new RegExp(regExp, 'g');
-                var matches;
-                if (matches = contents.match(regExp)) {
-                    fileResolveReferencesIn.revReferences.push({'regExp': regExp, 'file': this.files[path]});
+                if (contents.match(regExp)) {
+                    fileResolveReferencesIn.revReferences.push({ 'regExp': regExp, 'file': this.files[path], 'path': references[i] });
                 }
 
             }
@@ -156,7 +157,7 @@ var Revisioner = (function () {
         for (var i = file.revReferences.length; i--;) {
             hash += file.revReferences[i]['file'].revHashOriginal;
         }
-        file.revHash = Tool.md5(hash);
+        file.revHash = this.Tool.md5(hash);
 
         // Allow the client to transform the final filename
         if (this.options.transformFilename) {
@@ -166,12 +167,12 @@ var Revisioner = (function () {
         }
 
         file.revFilename = filename;
-        file.path = Tool.join_path(Path.dirname(file.path), filename);
+        file.path = this.Tool.join_path(Path.dirname(file.path), filename);
 
         this.hashCombined += file.revHash;
         
-        var pathOriginal = Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
-        var pathRevisioned = this.options.prefix + Tool.get_relative_path(file.base, file.path, true);
+        var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
+        var pathRevisioned = this.options.prefix + this.Tool.get_relative_path(file.base, file.path, true);
         this.manifest[pathOriginal] = pathRevisioned;
         
     };
@@ -181,9 +182,35 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.updateReferences = function (file) {
 
+        // Don't try and update references in binary files
+        if (this.Tool.is_binary_file(file)) return;
+
+        var contents = String(file.contents);
         for (var i = file.revReferences.length; i--;) {
-            file.contents = new Buffer(Tool.replace_references_in_contents(file.revReferences, file.contents));
+            
+            var reference = file.revReferences[i];
+
+            // Replace regular filename with revisioned version
+            var pathReference;
+            if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/.js$/)) {
+                pathReference = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
+                pathReference += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);              
+            } else {
+                pathReference = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
+                pathReference += reference.file.revFilename;
+            }
+
+            // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
+            pathReference = (this.options.transformPath) ? this.options.transformPath.call(this, pathReference, reference.file.revOrigPath, reference.file) : this.Tool.join_path_url(this.options.prefix, pathReference);
+
+            contents = contents.replace(reference.regExp, '$1' + pathReference + '$3');
+        
         }
+
+        //console.log(file.revReferences);
+        // console.log(file.path, contents);
+
+        file.contents = new Buffer(contents);
 
     };
 
@@ -192,7 +219,7 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.isFileIgnored = function (file) {
 
-        var filename = Tool.get_relative_path(file.base, file.path);
+        var filename = this.Tool.get_relative_path(file.base, file.path);
 
         for (var i = this.options.ignore.length; i--;) {
             var regex = (this.options.ignore[i] instanceof RegExp) ? this.options.ignore[i] : new RegExp(this.options.ignore[i] + '$', 'ig');

@@ -113,6 +113,13 @@ module.exports = (function() {
         //  /view/index.html  (reference: absolute)
         representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
 
+        // Without starting slash, only if it contains a directory
+        // view/index.html  (reference: absolute, without slash prefix)
+        var representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
+        if (representation.indexOf('/')) {
+            representations.push(representation);
+        }
+
         //  Scenario 2: Current file is the same directory or lower than the reference
         //              (ie. file.path and the reference file.path are the same)
         //
@@ -182,22 +189,19 @@ module.exports = (function() {
 
         }
 
-        // Create alternative representations for javascript files for frameworks that omit the .js extension
-        for (var i = 0, length = representations.length; i < length; i++) {
-            if (!representations[i].match(/.js$/ig)) continue;
-            representations.push(representations[i].substr(0, representations[i].length - 3));
+        // Only care about trying to match shorthand javascript includes in javascript file context
+        if (file.revPathOriginal.match(/.js$/ig)) {
+            // Create alternative representations for javascript files for frameworks that omit the .js extension
+            for (var i = 0, length = representations.length; i < length; i++) {
+                if (!representations[i].match(/.js$/ig)) continue;
+                representations.push(representations[i].substr(0, representations[i].length - 3));
+            }
         }
 
         return representations;
 
     };
 
-
-    var replace_references_in_contents = function (references, contents) {
-
-        return "";
-
-    };
 
 
     return {
@@ -208,8 +212,8 @@ module.exports = (function() {
         md5: md5,
         is_binary_file: is_binary_file,
         join_path: join_path,
-        get_reference_representations: get_reference_representations,
-        replace_references_in_contents: replace_references_in_contents
+        join_path_url: join_path_url,
+        get_reference_representations: get_reference_representations
     };
 
 })();

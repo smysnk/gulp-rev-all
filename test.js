@@ -31,8 +31,8 @@ describe('gulp-rev-all', function () {
 
     describe('resource hash calculation', function () {
 
+        // it('should change if child reference changes', function (done) {
         it('should change if child reference changes', function (done) {
-        // it.only('should change if child reference changes', function (done) {
 
             setup();
 
@@ -176,13 +176,14 @@ describe('gulp-rev-all', function () {
 
             });
 
-            it('should still process and re-write references in a ignored file', function (done) {
+            it.only('should still process and re-write references in a ignored file', function (done) {
 
                 setup({ ignore: ['.html'] });
 
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
 
+                    console.log(files['/index.html'].contents);
                     String(files['/index.html'].contents).should.match(/\"[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}\"/);
 
                 });
@@ -287,16 +288,15 @@ describe('gulp-rev-all', function () {
         it('should replaced references using transform if it is supplied', function (done) {
 
             setup({
-                cache: cache,
                 transformPath: function (reved, source, path) {
-                    return this.joinPathUrl('//images.example.com/', reved.replace('img/', ''));
+                    return this.Tool.join_path_url('//images.example.com/', reved.replace('img/', ''));
                 }
             });
 
             streamRevision.on('data', function () {});
             streamRevision.on('end', function () { 
 
-                String(files['/index.html'].contents).should.match(/'http:\/\/example\.com\/index\.[a-z0-9]{8}\.html'/);
+                String(files['/index.html'].contents).should.match(/\/\/images\.example\.com\/image1\.[a-z0-9]{8}\.jpg/);
                 done();
 
             });
@@ -312,7 +312,7 @@ describe('gulp-rev-all', function () {
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
 
-                String(files['/index.html'].contents).should.containEql(files['/css/style.css'].path);
+                String(files['/index.html'].contents).match(/\/css\/style\.[a-z0-9]{8}\.css/g);
                 done();
                 
             });
@@ -327,13 +327,14 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/view/main.html')).path);
-                String(file.contents).should.containEql(revedReference);
+                
+                String(files['/index.html'].contents).match(/\/view\/main\.[a-z0-9]{8}\.html/g);
                 done();
+
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
         });
 
 
@@ -343,13 +344,14 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/application.js')).path);
-                String(file.contents).should.containEql(revedReference);
+
+                String(files['/index.html'].contents).match(/\/script\/main\.[a-z0-9]{8}\.js/g);
+                String(files['/index.html'].contents).match(/\/lib\/require\.[a-z0-9]{8}\.js/g);
+
                 done();
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -360,13 +362,13 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image1.jpg')).path);
-                String(file.contents).should.containEql(revedReference);
+                
+                String(files['/index.html'].contents).match(/\/img\/image1\.[a-z0-9]{8}\.jpg/g);
                 done();
+
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should resolve reference in single quotes', function (done) {
@@ -375,13 +377,13 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image2.jpg')).path);
-                String(file.contents).should.containEql(revedReference);
+
+                String(files['/index.html'].contents).match(/\/img\/image2\.[a-z0-9]{8}\.jpg/g);
                 done();
+
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should replace srcset referencess', function (done) {
@@ -390,13 +392,14 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var count = String(file.contents).match(/image-[0-4]x\.[a-z0-9]{8}\.png/g);
+                
+                var count = String(files['/index.html'].contents).match(/image-[0-4]x\.[a-z0-9]{8}\.png/g);
                 count.length.should.eql(4);
+
                 done();
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should replace all references', function (done) {
@@ -405,14 +408,14 @@ describe('gulp-rev-all', function () {
 
             streamRevision.on('data', function () {  });
             streamRevision.on('end', function () {
-                var file = Tool.cache[Tool.cachePath(glob)].file;
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image3.jpg')).path);
-                var count = String(file.contents).match(RegExp(revedReference, 'g'));
+
+                var count = String(files['/index.html'].contents).match(/\/img\/image3\.[a-z0-9]{8}\.jpg/g);
                 count.length.should.eql(2);
                 done();
+
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
     });
@@ -702,32 +705,65 @@ describe('gulp-rev-all', function () {
 
         describe('get_reference_representations', function () {
 
-            it('should produce alternate representations for javascript files without the extension', function () {
+            describe('producing alternate representations for javascript (without the extension)', function () {
 
-                var base = '/first/second';
+                it('should not when the context is a html file', function () {
 
-                var file = new gutil.File({
-                    path: '/first/second/third/index.html',
-                    base: base
+                    var base = '/first/second';
+
+                    var file = new gutil.File({
+                        path: '/first/second/third/index.html',
+                        base: base
+                    });
+
+                    var fileReference = new gutil.File({
+                        path: '/first/second/third/script.js',
+                        base: base
+                    });
+
+                    file.revPathOriginal = file.path;
+                    fileReference.revPathOriginal = fileReference.path;
+
+                    var references = Tool.get_reference_representations(fileReference, file);
+
+                    references.length.should.equal(4);
+                    references[0].should.equal('/third/script.js');
+                    references[1].should.equal('third/script.js');
+                    references[2].should.equal('script.js');
+                    references[3].should.equal('./script.js');                
+
                 });
 
-                var fileReference = new gutil.File({
-                    path: '/first/second/third/script.js',
-                    base: base
+                it('should when the context is a javascript file', function () {
+
+                    var base = '/first/second';
+
+                    var file = new gutil.File({
+                        path: '/first/second/third/other.js',
+                        base: base
+                    });
+
+                    var fileReference = new gutil.File({
+                        path: '/first/second/third/script.js',
+                        base: base
+                    });
+
+                    file.revPathOriginal = file.path;
+                    fileReference.revPathOriginal = fileReference.path;
+
+                    var references = Tool.get_reference_representations(fileReference, file);
+
+                    references.length.should.equal(8);
+                    references[0].should.equal('/third/script.js');
+                    references[1].should.equal('third/script.js');
+                    references[2].should.equal('script.js');
+                    references[3].should.equal('./script.js');                
+                    references[4].should.equal('/third/script');
+                    references[5].should.equal('third/script');
+                    references[6].should.equal('script');
+                    references[7].should.equal('./script');
+
                 });
-
-                file.revPathOriginal = file.path;
-                fileReference.revPathOriginal = fileReference.path;
-
-                var references = Tool.get_reference_representations(fileReference, file);
-
-                references.length.should.equal(6);
-                references[0].should.equal('/third/script.js');
-                references[1].should.equal('script.js');
-                references[2].should.equal('./script.js');                
-                references[3].should.equal('/third/script');
-                references[4].should.equal('script');
-                references[5].should.equal('./script');
 
             });
 
@@ -752,10 +788,11 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);
 
-                    references.length.should.equal(3);
+                    references.length.should.equal(4);
                     references[0].should.equal('/third/other.html');
-                    references[1].should.equal('other.html');
-                    references[2].should.equal('./other.html');
+                    references[1].should.equal('third/other.html');
+                    references[2].should.equal('other.html');
+                    references[3].should.equal('./other.html');
 
                 });
 
@@ -778,10 +815,11 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);
 
-                    references.length.should.equal(3);
+                    references.length.should.equal(4);
                     references[0].should.equal('/third/fourth/other.html');
-                    references[1].should.equal('fourth/other.html');
-                    references[2].should.equal('./fourth/other.html');
+                    references[1].should.equal('third/fourth/other.html');
+                    references[2].should.equal('fourth/other.html');
+                    references[3].should.equal('./fourth/other.html');
 
                 });
 
@@ -808,9 +846,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
                     
-                    references.length.should.equal(2);
-                    references[0].should.equal('/index.html');
-                    references[1].should.equal('../index.html');
+                    references.length.should.equal(3);
+                    references[0].should.equal('/index.html');                    
+                    references[1].should.equal('index.html');                    
+                    references[2].should.equal('../index.html');
 
                 });
 
@@ -833,9 +872,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
                     
-                    references.length.should.equal(2);
+                    references.length.should.equal(3);
                     references[0].should.equal('/other/index.html');
-                    references[1].should.equal('../other/index.html');
+                    references[1].should.equal('other/index.html');
+                    references[2].should.equal('../other/index.html');
 
                 });
 
@@ -858,9 +898,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
                     
-                    references.length.should.equal(2);
+                    references.length.should.equal(3);
                     references[0].should.equal('/other/advanced/index.html');
-                    references[1].should.equal('../other/advanced/index.html');
+                    references[1].should.equal('other/advanced/index.html');
+                    references[2].should.equal('../other/advanced/index.html');
 
                 });
 
@@ -887,9 +928,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
 
-                    references.length.should.equal(2);
+                    references.length.should.equal(3);
                     references[0].should.equal('/index.html');
-                    references[1].should.equal('../../index.html');
+                    references[1].should.equal('index.html');
+                    references[2].should.equal('../../index.html');
 
                 });
 
@@ -912,9 +954,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
                     
-                    references.length.should.equal(2);
+                    references.length.should.equal(3);
                     references[0].should.equal('/other/index.html');
-                    references[1].should.equal('../../other/index.html');
+                    references[1].should.equal('other/index.html');
+                    references[2].should.equal('../../other/index.html');
 
                 });
 
@@ -937,9 +980,10 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);                
                     
-                    references.length.should.equal(2);
+                    references.length.should.equal(3);
                     references[0].should.equal('/other/index.html');
-                    references[1].should.equal('../../../other/index.html');
+                    references[1].should.equal('other/index.html');
+                    references[2].should.equal('../../../other/index.html');
 
                 });
 
