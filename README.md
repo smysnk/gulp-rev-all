@@ -24,9 +24,9 @@ If we take in to consideration the dependency graph while calculating the css fi
 
 So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
 
-## Upgrading to v0.8.0
+## Upgrading to v0.8.x
 
-NOTICE: Major breaking changes occured between the last release (v0.7.6) and (v0.8.0) that you should be aware of.
+NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.0 that you should be aware of.
   - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
   - Reference dependency analysis has been greatly simplified, previous method was way too complex
   - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored.
@@ -277,7 +277,7 @@ This option allows you to set addition search paths `gulp-rev-all` will use to r
 Type: `Boolean`
 Default: `false`
 
-If you set this options to true gulp will no longer emit `gulp-rev-all` log messages.
+If you set this options to true, verbose logging will be emitted to console.
 
 ## Tips
 
