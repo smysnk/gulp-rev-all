@@ -145,9 +145,17 @@ The version file will contain the build date and a combined hash of all the revi
 
 ## Options
 
-#### options.dontGlobal - Don't rename file or update refrences in files matching these rules
-#### options.dontRenameFile - Don't rename files matching these rules
-#### options.dontUpdateReference - Don't update references in files matching these rules
+#### options.dontGlobal
+
+Don't rename file or update refrences in files matching these rules
+
+#### options.dontRenameFile
+
+Don't rename files matching these rules
+
+#### options.dontUpdateReference
+
+Don't update references in files matching these rules
 
 Type: `Array of (Regex and/or String)`
 Default: `[ /^\/favicon.ico$/ ]`
