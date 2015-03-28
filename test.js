@@ -31,7 +31,6 @@ describe('gulp-rev-all', function () {
 
     describe('resource hash calculation', function () {
 
-        // it('should change if child reference changes', function (done) {
         it('should change if child reference changes', function (done) {
 
             setup();
@@ -782,284 +781,538 @@ describe('gulp-rev-all', function () {
 
         describe('get_reference_representations', function () {
 
-            describe('producing alternate representations for javascript (without the extension)', function () {
+            describe('_relative', function () {
 
-                it('should not when the context is a html file', function () {
+                describe('producing alternate representations for javascript (without the extension)', function () {
 
-                    var base = '/first/second';
+                    it('should not when the context is a html file', function () {
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/script.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('script.js');
+                        references[1].should.equal('./script.js');                
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/third/script.js',
-                        base: base
+                    it('should when the context is a javascript file', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/other.js',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/script.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(3);
+                        references[0].should.equal('script.js');
+                        references[1].should.equal('./script.js');                
+                        references[2].should.equal('./script');
+
                     });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);
-
-                    references.length.should.equal(4);
-                    references[0].should.equal('/third/script.js');
-                    references[1].should.equal('third/script.js');
-                    references[2].should.equal('script.js');
-                    references[3].should.equal('./script.js');                
 
                 });
 
-                it('should when the context is a javascript file', function () {
+                describe('should resolve references that have 0 traversals', function () {
 
-                    var base = '/first/second';
+                    it('0 deep', function () {
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/other.js',
-                        base: base
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('other.html');
+                        references[1].should.equal('./other.html');
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/third/script.js',
-                        base: base
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/fourth/other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('fourth/other.html');
+                        references[1].should.equal('./fourth/other.html');
+
                     });
 
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
+                });
 
-                    var references = Tool.get_reference_representations(fileReference, file);
+                describe('should resolve references that have 1 traversals', function () {
 
-                    references.length.should.equal(7);
-                    references[0].should.equal('/third/script.js');
-                    references[1].should.equal('third/script.js');
-                    references[2].should.equal('script.js');
-                    references[3].should.equal('./script.js');                
-                    references[4].should.equal('/third/script');
-                    references[5].should.equal('third/script');
-                    references[6].should.equal('./script');
+                    it('0 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+                        
+                        references.length.should.equal(1);
+                        references[0].should.equal('../index.html');
+
+                    });
+
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+                        
+                        references.length.should.equal(1);
+                        references[0].should.equal('../other/index.html');
+
+                    });
+
+                    it('2 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/advanced/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+                        
+                        references.length.should.equal(1);
+                        references[0].should.equal('../other/advanced/index.html');
+
+                    });
+
+                });
+
+                describe('should resolve references that have 2 traversals', function () {
+
+                    it('0 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../index.html');
+
+                    });
+
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+                        
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../other/index.html');
+
+                    });
+
+                    it('2 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/fifth/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);                
+                        
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../../other/index.html');
+
+                    });
 
                 });
 
             });
 
-            describe('should resolve references that have 0 traversals', function () {
+            describe('_absolute', function () {
 
-                it('0 deep', function () {
+                describe('producing alternate representations for javascript (without the extension)', function () {
 
-                    var base = '/first/second';
+                    it('should not when the context is a html file', function () {
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/script.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/script.js');
+                        references[1].should.equal('third/script.js');
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/third/other.html',
-                        base: base
+                    it('should when the context is a javascript file', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/other.js',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/script.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(4);
+                        references[0].should.equal('/third/script.js');
+                        references[1].should.equal('third/script.js');
+                        references[2].should.equal('/third/script');
+                        references[3].should.equal('third/script');
+
                     });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);
-
-                    references.length.should.equal(4);
-                    references[0].should.equal('/third/other.html');
-                    references[1].should.equal('third/other.html');
-                    references[2].should.equal('other.html');
-                    references[3].should.equal('./other.html');
 
                 });
 
-                it('1 deep', function () {
+                describe('should resolve references that have 0 traversals', function () {
 
-                    var base = '/first/second';
+                    it('0 deep', function () {
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/other.html');
+                        references[1].should.equal('third/other.html');
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/third/fourth/other.html',
-                        base: base
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/third/fourth/other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/fourth/other.html');
+                        references[1].should.equal('third/fourth/other.html');
+
                     });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);
-
-                    references.length.should.equal(4);
-                    references[0].should.equal('/third/fourth/other.html');
-                    references[1].should.equal('third/fourth/other.html');
-                    references[2].should.equal('fourth/other.html');
-                    references[3].should.equal('./fourth/other.html');
 
                 });
 
-            });
+                describe('should resolve references that have 1 traversals', function () {
 
-            describe('should resolve references that have 1 traversals', function () {
+                    it('0 deep', function () {
 
-                it('0 deep', function () {
+                        var base = '/first/second';
 
-                    var base = '/first/second';
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var fileReference = new gutil.File({
+                            path: '/first/second/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+                        
+                        references.length.should.equal(2);
+                        references[0].should.equal('/index.html');                    
+                        references[1].should.equal('index.html');                    
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/index.html',
-                        base: base
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+                        
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
                     });
 
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
+                    it('2 deep', function () {
 
-                    var references = Tool.get_reference_representations(fileReference, file);                
-                    
-                    references.length.should.equal(3);
-                    references[0].should.equal('/index.html');                    
-                    references[1].should.equal('index.html');                    
-                    references[2].should.equal('../index.html');
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/advanced/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+                        
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/advanced/index.html');
+                        references[1].should.equal('other/advanced/index.html');
+
+                    });
 
                 });
 
-                it('1 deep', function () {
+                describe('should resolve references that have 2 traversals', function () {
 
-                    var base = '/first/second';
+                    it('0 deep', function () {
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/index.html');
+                        references[1].should.equal('index.html');
+
                     });
 
-                    var fileReference = new gutil.File({
-                        path: '/first/second/other/index.html',
-                        base: base
+                    it('1 deep', function () {
+
+                        var base = '/first/second';
+
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+                        
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
                     });
 
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
+                    it('2 deep', function () {
 
-                    var references = Tool.get_reference_representations(fileReference, file);                
-                    
-                    references.length.should.equal(3);
-                    references[0].should.equal('/other/index.html');
-                    references[1].should.equal('other/index.html');
-                    references[2].should.equal('../other/index.html');
+                        var base = '/first/second';
 
-                });
+                        var file = new gutil.File({
+                            path: '/first/second/third/fourth/fifth/index.html',
+                            base: base
+                        });
 
-                it('2 deep', function () {
+                        var fileReference = new gutil.File({
+                            path: '/first/second/other/index.html',
+                            base: base
+                        });
 
-                    var base = '/first/second';
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
 
-                    var file = new gutil.File({
-                        path: '/first/second/third/index.html',
-                        base: base
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);                
+                        
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
                     });
-
-                    var fileReference = new gutil.File({
-                        path: '/first/second/other/advanced/index.html',
-                        base: base
-                    });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);                
-                    
-                    references.length.should.equal(3);
-                    references[0].should.equal('/other/advanced/index.html');
-                    references[1].should.equal('other/advanced/index.html');
-                    references[2].should.equal('../other/advanced/index.html');
-
-                });
-
-            });
-
-            describe('should resolve references that have 2 traversals', function () {
-
-                it('0 deep', function () {
-
-                    var base = '/first/second';
-
-                    var file = new gutil.File({
-                        path: '/first/second/third/fourth/index.html',
-                        base: base
-                    });
-
-                    var fileReference = new gutil.File({
-                        path: '/first/second/index.html',
-                        base: base
-                    });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);                
-
-                    references.length.should.equal(3);
-                    references[0].should.equal('/index.html');
-                    references[1].should.equal('index.html');
-                    references[2].should.equal('../../index.html');
-
-                });
-
-                it('1 deep', function () {
-
-                    var base = '/first/second';
-
-                    var file = new gutil.File({
-                        path: '/first/second/third/fourth/index.html',
-                        base: base
-                    });
-
-                    var fileReference = new gutil.File({
-                        path: '/first/second/other/index.html',
-                        base: base
-                    });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);                
-                    
-                    references.length.should.equal(3);
-                    references[0].should.equal('/other/index.html');
-                    references[1].should.equal('other/index.html');
-                    references[2].should.equal('../../other/index.html');
-
-                });
-
-                it('2 deep', function () {
-
-                    var base = '/first/second';
-
-                    var file = new gutil.File({
-                        path: '/first/second/third/fourth/fifth/index.html',
-                        base: base
-                    });
-
-                    var fileReference = new gutil.File({
-                        path: '/first/second/other/index.html',
-                        base: base
-                    });
-
-                    file.revPathOriginal = file.path;
-                    fileReference.revPathOriginal = fileReference.path;
-
-                    var references = Tool.get_reference_representations(fileReference, file);                
-                    
-                    references.length.should.equal(3);
-                    references[0].should.equal('/other/index.html');
-                    references[1].should.equal('other/index.html');
-                    references[2].should.equal('../../../other/index.html');
 
                 });
 

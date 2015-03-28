@@ -32,6 +32,7 @@ NOTICE: Major breaking changes occured between the last release (v0.7.6) and (v0
   - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored.
   - Bug Fix: Manifset and Version files can be created in the same gulp-rev-all run without issue
   - Bug Fix: References without quotes now getting updated (See: #64)
+  - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
 
 Warning: From v0.7 to v0.8 was a fairly substanial re-write and I highly suspect I broke some things! Treat v0.8 as an alpha!
 
@@ -271,8 +272,7 @@ Default: `none`
 
 This option allows you to set addition search paths `gulp-rev-all` will use to resolve file references.
 
-#### options.silent
-#### options.quiet
+#### options.debug
 
 Type: `Boolean`
 Default: `false`

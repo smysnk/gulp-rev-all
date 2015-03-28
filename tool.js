@@ -113,20 +113,9 @@ module.exports = (function() {
      * the context to the reference file.
      *
      */
-    var get_reference_representations = function (fileCurrentReference, file) {
+    var get_reference_representations_relative = function (fileCurrentReference, file) {
 
         var representations = [];
-
-        //  Scenario 1: Current file is anywhere
-        //  /view/index.html  (reference: absolute)
-        representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
-
-        // Without starting slash, only if it contains a directory
-        // view/index.html  (reference: absolute, without slash prefix)
-        var representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
-        if (representation.indexOf('/')) {
-            representations.push(representation);
-        }
 
         //  Scenario 2: Current file is the same directory or lower than the reference
         //              (ie. file.path and the reference file.path are the same)
@@ -213,6 +202,41 @@ module.exports = (function() {
 
     };
 
+    /**
+     * Given a file (context) and a file reference, return all the possible representations of paths to get from 
+     * the context to the reference file.
+     *
+     */
+    var get_reference_representations_absolute = function (fileCurrentReference, file) {
+
+        var representations = [];
+
+        //  Scenario 1: Current file is anywhere
+        //  /view/index.html  (reference: absolute)
+        representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
+
+        // Without starting slash, only if it contains a directory
+        // view/index.html  (reference: absolute, without slash prefix)
+        var representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
+        if (representation.indexOf('/')) {
+            representations.push(representation);
+        }
+
+        // Only care about trying to match shorthand javascript includes in javascript file context
+        if (file.revPathOriginal.match(/.js$/ig)) {
+            // Create alternative representations for javascript files for frameworks that omit the .js extension
+            for (var i = 0, length = representations.length; i < length; i++) {
+
+                // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
+                if (!representations[i].match(/.js$/ig) || !representations[i].match(/\//ig)) continue;
+
+                representations.push(representations[i].substr(0, representations[i].length - 3));
+            }
+        }
+
+        return representations;
+
+    };
 
 
     return {
@@ -224,7 +248,8 @@ module.exports = (function() {
         is_binary_file: is_binary_file,
         join_path: join_path,
         join_path_url: join_path_url,
-        get_reference_representations: get_reference_representations
+        get_reference_representations_relative: get_reference_representations_relative,
+        get_reference_representations_absolute: get_reference_representations_absolute
     };
 
 })();

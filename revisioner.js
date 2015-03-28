@@ -17,7 +17,8 @@ var Revisioner = (function () {
             'fileNameVersion': 'version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
-            'files': {}
+            'files': {},
+            'debug': false
         }, options);
 
         // File pool, any file passed into the Revisioner is stored in this object
@@ -28,6 +29,9 @@ var Revisioner = (function () {
 
         // Stores the before : after path of assets, used to create the manifset file
         this.manifest = {};
+
+        // Enable / Disable logger based on supplied options
+        this.log = (this.options.debug) ? gutil.log : function () {};
 
         // Make tools available client side callbacks supplied in options
         this.Tool = Tool;
@@ -76,6 +80,7 @@ var Revisioner = (function () {
         file.revFilenameExtOriginal = Path.extname(file.path);
         file.revFilenameOriginal = Path.basename(file.path, file.revFilenameExtOriginal);
         file.revHashOriginal = this.Tool.md5(String(file.contents));
+        file.revContentsOriginal = file.contents;
 
         this.files[path] = file;
 
@@ -115,31 +120,77 @@ var Revisioner = (function () {
     Revisioner.prototype.resolveReferences = function (fileResolveReferencesIn) {
 
 
-        var contents = String(fileResolveReferencesIn.contents);
-        fileResolveReferencesIn.revReferences = [];
+        var contents = String(fileResolveReferencesIn.revContentsOriginal);
+        fileResolveReferencesIn.revReferences = {};
 
         // Don't try and resolve references in binary files
         if (this.Tool.is_binary_file(fileResolveReferencesIn)) return;
 
+        var referenceGroupRelative = [];
+        var referenceGroupAbsolute = [];
+        var referenceGroupsContainer = {
+            'relative': referenceGroupRelative, 
+            'absolute': referenceGroupAbsolute
+        };
+
         // For the current file (fileResolveReferencesIn), look for references to any other file in the project
         for (var path in this.files) {
+            
+            // Organize them by relative vs absolute reference types
             var fileCurrentReference = this.files[path];
+            var references;
 
-            // Go through possible references to known assets and see if we can match them
-            var references = this.Tool.get_reference_representations(fileCurrentReference, fileResolveReferencesIn);
+            references = this.Tool.get_reference_representations_relative(fileCurrentReference, fileResolveReferencesIn);
             for (var i = 0, length = references.length; i < length; i++) {
+                referenceGroupRelative.push({
+                    'file': this.files[path],
+                    'path': references[i]
+                });                
+            }
 
-                // Expect left and right sides of the reference to be a non-filename type character
-                var regExp = '([^a-z0-9\\.\\-\\_/])(' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_])';
-                
-                regExp = new RegExp(regExp, 'g');
-                if (contents.match(regExp)) {
-                    fileResolveReferencesIn.revReferences.push({ 'regExp': regExp, 'file': this.files[path], 'path': references[i] });
-                }
-
+            references = this.Tool.get_reference_representations_absolute(fileCurrentReference, fileResolveReferencesIn);
+            for (var i = 0, length = references.length; i < length; i++) {
+                referenceGroupAbsolute.push({
+                    'file': this.files[path],
+                    'path': references[i]
+                });                
             }
 
         }
+
+        // Priority relative references higher than absolute
+        for (var referenceType in referenceGroupsContainer) {
+            var referenceGroup = referenceGroupsContainer[referenceType];
+            
+            for (var referenceIndex = 0, referenceGroupLength = referenceGroup.length; referenceIndex < referenceGroupLength; referenceIndex++) {
+                var reference = referenceGroup[referenceIndex];
+
+                // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
+                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_])';                
+                regExp = new RegExp(regExp, 'g');
+
+                if (contents.match(regExp)) {
+
+                    // Only register this reference if we don't have one already by the same path            
+                    if (!fileResolveReferencesIn.revReferences[reference.path]) {
+
+                        fileResolveReferencesIn.revReferences[reference.path] = { 
+                            'regExp': regExp, 
+                            'file': reference.file,
+                            'path': reference.path
+                        };
+                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', gutil.colors.magenta(reference.path), '] -> [', gutil.colors.green(reference.file.path), ']');
+
+                    } else if (fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
+
+                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', gutil.colors.red(fileResolveReferencesIn.revReferences[reference.path].path), ' (', fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal, ')] <-> [', gutil.colors.red(reference.path) ,'(', gutil.colors.red(reference.file.revPathOriginal), ')]');
+
+                    }
+                
+                }
+
+            }
+        }   
 
 
     };  
@@ -155,8 +206,8 @@ var Revisioner = (function () {
         var ext = file.revFilenameExtOriginal;
 
         // Final hash = hash(file hash + hash references 1 + hash reference N)
-        for (var i = file.revReferences.length; i--;) {
-            hash += file.revReferences[i]['file'].revHashOriginal;
+        for (var pathReference in file.revReferences) {
+            hash += file.revReferences[pathReference]['file'].revHashOriginal;
         }
         file.revHash = this.Tool.md5(hash);
 
@@ -173,10 +224,14 @@ var Revisioner = (function () {
             file.path = this.Tool.join_path(Path.dirname(file.path), filename);
         }
 
+        // Maintain the combined hash used in version file
         this.hashCombined += file.revHash;
+
+        // Maintain the manifset file
         var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
         var pathRevisioned = this.Tool.get_relative_path(file.base, file.path, true);
         this.manifest[pathOriginal] = pathRevisioned;
+
         file.revPath = pathRevisioned;
 
     };
@@ -189,10 +244,10 @@ var Revisioner = (function () {
         // Don't try and update references in binary files
         if (this.Tool.is_binary_file(file)) return;
 
-        var contents = String(file.contents);
-        for (var i = file.revReferences.length; i--;) {
+        var contents = String(file.revContentsOriginal);
+        for (var pathReference in file.revReferences) {
             
-            var reference = file.revReferences[i];
+            var reference = file.revReferences[pathReference];
 
             // Replace regular filename with revisioned version
             var pathReferenceReplace;
