@@ -175,9 +175,10 @@ var Revisioner = (function () {
         this.hashCombined += file.revHash;
         
         var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
-        var pathRevisioned = this.options.prefix + this.Tool.get_relative_path(file.base, file.path, true);
+        var pathRevisioned = this.Tool.get_relative_path(file.base, file.path, true);
         this.manifest[pathOriginal] = pathRevisioned;
-        
+        file.revPath = pathRevisioned;
+
     };
 
     /**
@@ -204,16 +205,14 @@ var Revisioner = (function () {
             }
 
             // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
-            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) : this.Tool.join_path_url(this.options.prefix, pathReferenceReplace);
+            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) : 
+                                   (this.options.prefix) ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
                 contents = contents.replace(reference.regExp, '$1' + pathReferenceReplace + '$3');
             }
         
         }
-
-        //console.log(file.revReferences);
-        // console.log(file.path, contents);
 
         file.contents = new Buffer(contents);
 

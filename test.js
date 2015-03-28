@@ -473,14 +473,14 @@ describe('gulp-rev-all', function () {
             Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
-        it('should replace all references', function (done) {
+        it('should replace multiple occurances of the same reference', function (done) {
 
             setup();
 
             streamRevision.on('data', function () {  });
             streamRevision.on('end', function () {
 
-                var count = String(files['/index.html'].contents).match(/\/img\/image3\.[a-z0-9]{8}\.jpg/g);
+                var count = String(files['/index.html'].contents).match(/img\/image3\.[a-z0-9]{8}\.jpg/g);
                 count.length.should.eql(2);
                 done();
 
@@ -493,66 +493,62 @@ describe('gulp-rev-all', function () {
 
     describe('angularjs view', function () {
         
-        var glob = Path.join(base, 'view/main.html');
-
         it('should resolve references to images', function (done) {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image1.jpg')).path);
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function () {  });
+            streamRevision.on('end', function () {
 
-                String(file.contents).should.containEql(revedReference);
+                var count = String(files['/view/main.html'].contents).match(/\.[a-z0-9]{8}\.jpg/g);
+                count.length.should.eql(1);
                 done();
 
             });
-           
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should resolve references to angular includes', function (done) {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/view/core/footer.html')).path);
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function () {  });
+            streamRevision.on('end', function () {
 
-                String(file.contents).should.containEql(revedReference);                
+                var count = String(files['/view/main.html'].contents).match(/view\/core\/footer\.[a-z0-9]{8}\.html/g);
+                count.length.should.eql(1);
                 done();
 
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
         });
 
     });
 
     describe('css', function () { 
 
-        var base = Path.join(__dirname, 'test/fixtures/config1');
-        var glob = Path.join(base, 'css/style.css');
-
         it('should resolve references to fonts', function (done) {
 
             setup();
 
-            streamRevision.on('data', function (file) {
-                var contents = String(file.contents);
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/font/font1.eot')).path);
-                contents.should.containEql(revedReference);
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/font/font1.woff')).path);
-                contents.should.containEql(revedReference);
+                var contents = String(files['/css/style.css'].contents);
 
-                revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/font/font1 space.ttf')).path);
-                contents.should.containEql(revedReference);
+                contents.should.containEql(files['/font/font1.eot'].revFilename);
+                contents.should.containEql(files['/font/font1.woff'].revFilename);
+                contents.should.containEql(files['/font/font1 space.ttf'].revFilename);
+                contents.should.containEql(files['/font/font1.svg'].revFilename);
 
-                revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/font/font1.svg')).path);
-                contents.should.containEql(revedReference);
                 done();
+
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -560,20 +556,19 @@ describe('gulp-rev-all', function () {
 
             setup();
 
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                var revedReference;
-                revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image1.jpg')).path);
-                String(file.contents).should.containEql(revedReference);
+                var contents = String(files['/css/style.css'].contents);
 
-                revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image2.jpg')).path);
-                String(file.contents).should.containEql(revedReference);
+                contents.should.containEql(files['/img/image1.jpg'].revFilename);
+                contents.should.containEql(files['/img/image2.jpg'].revFilename);
 
                 done();
 
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
 
@@ -581,21 +576,20 @@ describe('gulp-rev-all', function () {
 
     describe('main js', function () {
 
-        glob = Path.join(base, 'application.js');
-
         it('should not resolve arbitrarty text with the same name as a file', function (done) {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/short.js')).path);
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                String(file.contents).should.not.containEql('var ' + revedReference);
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.not.containEql('var ' + files['/script/short.js'].revFilename);
                 done();
 
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -603,16 +597,16 @@ describe('gulp-rev-all', function () {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/layout.js')).path).replace('.js', '');
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                String(file.contents).should.containEql(revedReference);
-                String(file.contents).should.containEql('./');
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.containEql(files['/script/layout.js'].revFilename);
                 done();
 
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -620,17 +614,19 @@ describe('gulp-rev-all', function () {
 
             setup();
 
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/short.js')).path).replace('.js', '');
-                String(file.contents).should.containEql(revedReference);
-                String(file.contents).should.containEql('./');
-
+                var contents = String(files['/script/app.js'].contents);
+                
+                // Rebuild include as we should expect it, eg.  require('./short.abcdef');                
+                var reference = './' + files['/script/short.js'].revFilename.substr(0, files['/script/short.js'].revFilename.length - 3);
+                contents.should.containEql(reference);
                 done();
 
             });
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -639,31 +635,33 @@ describe('gulp-rev-all', function () {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/view/gps.html')).path);
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                String(file.contents).should.containEql(revedReference);
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.containEql(files['/view/gps.html'].revFilename);
                 done();
 
-            });
+            });            
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
-        it('should resolve references to compiled templates', function (done) {
+        it('should resolve references in angularjs inline templates', function (done) {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/img/image1.jpg')).path);
-            streamRevision.on('data', function (file) {
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
 
-                String(file.contents).should.containEql(revedReference);
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.containEql(files['/img/image1.jpg'].revFilename);
                 done();
 
-            });
+            });            
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -671,15 +669,17 @@ describe('gulp-rev-all', function () {
 
             setup();
 
-            var revedReference = Path.basename(Tool.revisionFile(get_file('test/fixtures/config1/application.js.map')).path);
-            streamRevision.on('data', function (file) {
 
-                String(file.contents).should.containEql(revedReference);
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
+
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.containEql('//# sourceMappingURL=' + files['/script/app.js.map'].revFilename);
                 done();
 
-            });
+            });    
 
-            Tool.write_glob_to_stream(base, glob, streamRevision);
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -824,15 +824,14 @@ describe('gulp-rev-all', function () {
 
                     var references = Tool.get_reference_representations(fileReference, file);
 
-                    references.length.should.equal(8);
+                    references.length.should.equal(7);
                     references[0].should.equal('/third/script.js');
                     references[1].should.equal('third/script.js');
                     references[2].should.equal('script.js');
                     references[3].should.equal('./script.js');                
                     references[4].should.equal('/third/script');
                     references[5].should.equal('third/script');
-                    references[6].should.equal('script');
-                    references[7].should.equal('./script');
+                    references[6].should.equal('./script');
 
                 });
 
