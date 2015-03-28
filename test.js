@@ -731,18 +731,21 @@ describe('gulp-rev-all', function () {
                 it('should correct slashes', function () {
 
                     Tool.get_relative_path('\\base', '\\base\\sub\\index.html').should.equal('/sub/index.html');
+                    Tool.get_relative_path('\\base\\', '\\base\\sub\\index.html').should.equal('/sub/index.html');
 
                 });
 
                 it('should remove starting slash', function () {
 
                     Tool.get_relative_path('\\base', '\\base\\sub\\index.html', true).should.equal('sub/index.html');
+                    Tool.get_relative_path('\\base\\', '\\base\\sub\\index.html', true).should.equal('sub/index.html');
 
                 });
 
                 it('should work on base', function () {
 
                     Tool.get_relative_path('\\base\\sub', '\\base\\sub\\index.html', true).should.equal('index.html');
+                    Tool.get_relative_path('\\base\\sub\\', '\\base\\sub\\index.html', true).should.equal('index.html');
 
                 });
 
@@ -753,12 +756,14 @@ describe('gulp-rev-all', function () {
 
                 it('should correct slashes', function () {
 
+                    Tool.get_relative_path('/base/', '/base/sub/index.html').should.equal('/sub/index.html');
                     Tool.get_relative_path('/base', '/base/sub/index.html').should.equal('/sub/index.html');
 
                 });
 
                 it('should remove starting slash', function () {
 
+                    Tool.get_relative_path('/base/', '/base/sub/index.html', true).should.equal('sub/index.html');
                     Tool.get_relative_path('/base', '/base/sub/index.html', true).should.equal('sub/index.html');
 
                 });
@@ -766,6 +771,7 @@ describe('gulp-rev-all', function () {
 
                 it('should work on base', function () {
 
+                    Tool.get_relative_path('/base/sub/', '/base/sub/index.html', true).should.equal('index.html');
                     Tool.get_relative_path('/base/sub', '/base/sub/index.html', true).should.equal('index.html');
 
                 });

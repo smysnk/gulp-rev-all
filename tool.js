@@ -76,7 +76,10 @@ module.exports = (function() {
 
         if (base === path) return '';
 
+        // Sanitize inputs, convert windows to posix style slashes, remove trailing slash off base is there is one
+        base = base.replace(/\\/g, '/').replace(/\/$/g, '');
         path = path.substr(base.length).replace(/\\/g, '/');
+
         if (path.indexOf('/') == 0 && noStartingSlash) {
             path = path.substr(1);
         } else if (path.indexOf('/') != 0 && noStartingSlash) {
@@ -105,6 +108,11 @@ module.exports = (function() {
 
     };
 
+    /**
+     * Given a file (context) and a file reference, return all the possible representations of paths to get from 
+     * the context to the reference file.
+     *
+     */
     var get_reference_representations = function (fileCurrentReference, file) {
 
         var representations = [];

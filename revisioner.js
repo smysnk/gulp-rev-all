@@ -44,7 +44,7 @@ var Revisioner = (function () {
         return new gutil.File({
             cwd: this.pathCwd,
             base: this.pathBase,
-            path: path.join(this.pathBase, this.options.fileNameVersion),
+            path: Path.join(this.pathBase, this.options.fileNameVersion),
             contents: new Buffer(JSON.stringify(out, null, 2))
         });
 
@@ -55,7 +55,7 @@ var Revisioner = (function () {
         return new gutil.File({
             cwd: this.pathCwd,
             base: this.pathBase,
-            path: path.join(this.pathBase, this.options.fileNameManifest),
+            path: Path.join(this.pathBase, this.options.fileNameManifest),
             contents: new Buffer(JSON.stringify(this.manifest, null, 2))
         });
 
@@ -127,8 +127,9 @@ var Revisioner = (function () {
 
             // Go through possible references to known assets and see if we can match them
             var references = this.Tool.get_reference_representations(fileCurrentReference, fileResolveReferencesIn);
-            for (var i = references.length; i--;) {
+            for (var i = 0, length = references.length; i < length; i++) {
 
+                // Expect left and right sides of the reference to be a non-filename type character
                 var regExp = '([^a-z0-9\\.\\-\\_/])(' + references[i].replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_])';
                 
                 regExp = new RegExp(regExp, 'g');
@@ -173,7 +174,6 @@ var Revisioner = (function () {
         }
 
         this.hashCombined += file.revHash;
-        
         var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
         var pathRevisioned = this.Tool.get_relative_path(file.base, file.path, true);
         this.manifest[pathOriginal] = pathRevisioned;

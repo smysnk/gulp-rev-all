@@ -24,6 +24,17 @@ If we take in to consideration the dependency graph while calculating the css fi
 
 So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
 
+## Upgrading to v0.8.0
+
+NOTICE: Major breaking changes occured between the last release (v0.7.6) and (v0.8.0) that you should be aware of.
+  - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
+  - Reference dependency analysis has been greatly simplified, previous method was way too complex
+  - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored.
+  - Bug Fix: Manifset and Version files can be created in the same gulp-rev-all run without issue
+  - Bug Fix: References without quotes now getting updated (See: #64)
+
+Warning: From v0.7 to v0.8 was a fairly substanial re-write and I highly suspect I broke some things! Treat v0.8 as an alpha!
+
 
 ## Install
 
@@ -134,7 +145,9 @@ The version file will contain the build date and a combined hash of all the revi
 
 ## Options
 
-#### options.ignore
+#### options.dontGlobal - Don't rename file or update refrences in files matching these rules
+#### options.dontRenameFile - Don't rename files matching these rules
+#### options.dontUpdateReference - Don't update references in files matching these rules
 
 Type: `Array of (Regex and/or String)`
 Default: `[ /^\/favicon.ico$/ ]`
@@ -144,7 +157,7 @@ In some cases, you may not want to rev your `*.html` files:
 ```js
 gulp.task('default', function () {
     gulp.src('dist/**')
-        .pipe(revAll({ ignore: [/^\/favicon.ico$/g, '.html'] }))
+        .pipe(revAll({ dontRenameFile: [/^\/favicon.ico$/g, '.html'] }))
         .pipe(gulp.dest('cdn'))
 });
 ```
@@ -154,7 +167,7 @@ Every html file except the root `/index.html` file:
 ```js
 gulp.task('default', function () {
     gulp.src('dist/**')
-        .pipe(revAll({ ignore: [/^\/favicon.ico$/g, /^\/index.html/g] }))
+        .pipe(revAll({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] }))
         .pipe(gulp.dest('cdn'))
 });
 ```
