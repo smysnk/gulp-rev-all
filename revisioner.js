@@ -179,7 +179,7 @@ var Revisioner = (function () {
                             'file': reference.file,
                             'path': reference.path
                         };
-                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', gutil.colors.magenta(reference.path), '] -> [', gutil.colors.green(reference.file.path), ']');
+                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', gutil.colors.magenta(reference.path), '] -> [', gutil.colors.green(reference.file.path), '] in [', gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
                     } else if (fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
 

@@ -31,6 +31,26 @@ describe('gulp-rev-all', function () {
 
     describe('resource hash calculation', function () {
 
+        it('should not change on consecutive runs with no changes', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () {
+
+                var pathBaseline = files['/css/style.css'].path;
+
+                // Re-run the revisioner to re-calculate the filename hash
+                revisioner.run();
+                files['/css/style.css'].path.should.equal(pathBaseline);
+
+                done();
+            });
+
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+        });
+
         it('should change if child reference changes', function (done) {
 
             setup();
@@ -321,8 +341,6 @@ describe('gulp-rev-all', function () {
 
     describe('root html', function () {
 
-        var glob = Path.join(base, 'index.html');
-
         it('should resolve absolute path reference', function (done) {
 
             setup();
@@ -486,6 +504,52 @@ describe('gulp-rev-all', function () {
             });
 
             Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+        });
+
+    });
+
+    describe('nested html', function () {
+
+        it('should prioritize relative refereference', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function () { });
+            streamRevision.on('end', function () {
+
+                var hashRelative = files['/nested/config.js'].revFilename;
+                var hashAbsolute = files['/config.js'].revFilename;
+
+                var contents = String(files['/nested/index.html'].contents);
+                contents.should.containEql(hashRelative);
+                contents.should.not.containEql(hashAbsolute);
+                done();
+
+            });
+
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+        });
+
+        it('should resolve both relative and absolute references correctly', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function () { });
+            streamRevision.on('end', function () {
+
+                var hashRelative = files['/nested/index.html'].revFilename;
+                var hashAbsolute = files['/index.html'].revFilename;
+
+                var contents = String(files['/nested/index.html'].contents);
+                contents.should.containEql(hashRelative);
+                contents.should.containEql(hashAbsolute);
+                done();
+
+            });
+
+            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
         });
 
     });
