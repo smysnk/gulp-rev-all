@@ -50,11 +50,12 @@ var gulp = require('gulp');
 var RevAll = require('gulp-rev-all');
 
 gulp.task('default', function () {
-    var revAll = new RevAll();
 
+    var revAll = new RevAll();
     gulp.src('dist/**')
         .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'));
+
 });
 ```
 
@@ -77,8 +78,8 @@ var publisher = awspublish.create(aws);
 var headers = {'Cache-Control': 'max-age=315360000, no-transform, public'};
 
 gulp.task('default', function () {
-    var revAll = new RevAll();
 
+    var revAll = new RevAll();
     gulp.src('dist/**')
         .pipe(revAll.revision())
         .pipe(awspublish.gzip())
@@ -86,6 +87,7 @@ gulp.task('default', function () {
         .pipe(publisher.cache())
         .pipe(awspublish.reporter())
         .pipe(cloudfront(aws));
+
 });
 ```
   * See [gulp-awspublish](https://www.npmjs.org/package/gulp-awspublish), [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
@@ -106,6 +108,7 @@ var gulp = require('gulp');
 var RevAll = require('gulp-rev-all');
 
 gulp.task('default', function () {
+
     var revAll = new RevAll();
 
     // by default, gulp would pick `assets/css` as the base,
@@ -118,6 +121,7 @@ gulp.task('default', function () {
         .pipe(gulp.dest('build/assets')); // Write manifest file to build dir
         .pipe(revAll.versionFile())
         .pipe(gulp.dest('build/assets')); // Write version file to build dir
+
 });
 ```
 
@@ -147,25 +151,32 @@ The version file will contain the build date and a combined hash of all the revi
 #### options.dontGlobal
 
 Don't rename file or update refrences in files matching these rules
+Type: `Array of (Regex and/or String)`
+Default: `[ /^\/favicon.ico$/ ]`
 
 #### options.dontRenameFile
 
 Don't rename files matching these rules
+Type: `Array of (Regex and/or String)`
+Default: `[]`
 
 #### options.dontUpdateReference
 
 Don't update references in files matching these rules
-
 Type: `Array of (Regex and/or String)`
-Default: `[ /^\/favicon.ico$/ ]`
+Default: `[]`
+
 
 In some cases, you may not want to rev your `*.html` files:
 
 ```js
 gulp.task('default', function () {
+
+    var revAll = new RevAll({ dontRenameFile: [/^\/favicon.ico$/g, '.html'] });
     gulp.src('dist/**')
-        .pipe(revAll({ dontRenameFile: [/^\/favicon.ico$/g, '.html'] }))
+        .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'))
+
 });
 ```
 
@@ -173,8 +184,10 @@ Every html file except the root `/index.html` file:
 
 ```js
 gulp.task('default', function () {
+
+    var revAll = new RevAll({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] });
     gulp.src('dist/**')
-        .pipe(revAll({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] }))
+        .pipe(revAll.revision()))
         .pipe(gulp.dest('cdn'))
 });
 ```
@@ -188,8 +201,10 @@ Change the length of the hash appended to the end of each revisioned file (use `
 
 ```js
 gulp.task('default', function () {
+
+    var revAll = new RevAll({ hashLength: 4 });
     gulp.src('dist/**')
-        .pipe(revAll({ hashLength: 4 }))
+        .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'))
 });
 ```
@@ -203,10 +218,12 @@ Prefixes matched files with a string (use `options.transformPath` for more compl
 
 ```js
 gulp.task('default', function () {
+
     var revAll = new RevAll({ prefix: 'http://1234.cloudfront.net/' });
     gulp.src('dist/**')
         .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'))
+
 });
 ```
 
@@ -225,6 +242,7 @@ The function takes three arguments:
 
 ```js
 gulp.task('default', function () {
+
     var revAll = new RevAll({
         transformPath: function (rev, source, path) {
             // on the remote server, image files are served from `/images`
@@ -235,6 +253,7 @@ gulp.task('default', function () {
     gulp.src('dist/**')
         .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'))
+
 });
 ```
 
@@ -251,15 +270,18 @@ The function takes one argument:
 
 ```js
 gulp.task('default', function () {
+
     var revAll = new RevAll({
         transformFilename: function (file, hash) {
             var ext = path.extname(file.path);
             return hash.substr(0, 5) + '.'  + path.basename(file.path, ext) + ext; // 3410c.filename.ext
         }
     });
+
     gulp.src('dist/**')
         .pipe(revAll.revision())
         .pipe(gulp.dest('cdn'))
+        
 });
 ```
 
