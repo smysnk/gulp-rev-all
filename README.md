@@ -29,9 +29,10 @@ So to recap, `gulp-rev-all` not only handles reference re-writing but it also ta
 NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.0 that you should be aware of.
   - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
   - Reference dependency analysis has been greatly simplified, previous method was way too complex
+  - No longer requires references to exist physically on disk, can now be piped through, embracing nature of gulp
   - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored.
-  - Bug Fix: Manifset and Version files can be created in the same gulp-rev-all run without issue
-  - Bug Fix: References without quotes now getting updated (See: #64)
+  - New Feature: Manifset and Version files can be created in the same gulp-rev-all run without issue
+  - Bug Fix: References without quotes were not getting updated 
   - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
 
 Warning: From v0.7 to v0.8 was a fairly substanial re-write and I highly suspect I broke some things! Treat v0.8 as an alpha!
