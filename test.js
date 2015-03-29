@@ -309,6 +309,7 @@ describe('gulp-rev-all', function () {
                 streamRevision.on('end', function () {
                     
                     String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    String(files['/index.html'].contents).should.match(/\.[a-z0-9]{8}\.jpg/g);
                     done();
 
                 });
@@ -327,6 +328,47 @@ describe('gulp-rev-all', function () {
                 streamRevision.on('end', function () {
                     
                     String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\.html/g);
+                    String(files['/index.html'].contents).should.match(/\.[a-z0-9]{8}\.jpg/g);
+                    done();
+
+                });
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
+
+        });
+
+        describe('dontSearchFile', function () {            
+
+            it('should not update reference when specified with file extension', function (done) {
+
+                setup({ 
+                    dontSearchFile: ['.html'] 
+                });
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\./g);
+                    done();
+
+                });
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
+
+            it('should not update reference when specified with file regex', function (done) {
+
+                setup({ 
+                    dontSearchFile: [ /.html$/g ]  
+                });
+
+                streamRevision.on('data', function (file) {});
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/\.[a-z0-9]{8}\./g);
                     done();
 
                 });

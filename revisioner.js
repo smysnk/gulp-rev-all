@@ -14,7 +14,7 @@ var Revisioner = (function () {
             'dontGlobal': [ /^\/favicon.ico$/g ],
             'dontRenameFile': [],
             'dontUpdateReference': [],
-            'dontSearchReference': [],
+            'dontSearchFile': [],
             'fileNameVersion': 'version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
@@ -125,7 +125,7 @@ var Revisioner = (function () {
         fileResolveReferencesIn.revReferences = {};
 
         // Don't try and resolve references in binary files or files that have been blacklisted
-        if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchReference(fileResolveReferencesIn)) return;
+        if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchFile(fileResolveReferencesIn)) return;
 
         var referenceGroupRelative = [];
         var referenceGroupAbsolute = [];
@@ -326,7 +326,7 @@ var Revisioner = (function () {
     /**
      * Determines if a particular reference should be updated across assets based on dontUpdateReference supplied in options.
      */
-    Revisioner.prototype.shouldSearchReference = function (file) {
+    Revisioner.prototype.shouldSearchFile = function (file) {
 
         var filename = this.Tool.get_relative_path(file.base, file.path);
 
@@ -337,8 +337,8 @@ var Revisioner = (function () {
             }
         }
 
-        for (var i = this.options.dontSearchReference.length; i--;) {
-            var regex = (this.options.dontSearchReference[i] instanceof RegExp) ? this.options.dontSearchReference[i] : new RegExp(this.options.dontSearchReference[i] + '$', 'ig');
+        for (var i = this.options.dontSearchFile.length; i--;) {
+            var regex = (this.options.dontSearchFile[i] instanceof RegExp) ? this.options.dontSearchFile[i] : new RegExp(this.options.dontSearchFile[i] + '$', 'ig');
             if (filename.match(regex)) {
                 return false;
             }

@@ -162,11 +162,11 @@ Default: `[]`
 
 #### options.dontUpdateReference
 
-Don't update references in files matching these rules
+Don't update references matching these rules
 Type: `Array of (Regex and/or String)`
 Default: `[]`
 
-#### options.dontSearchReference
+#### options.dontSearchFile
 
 Don't search for references in files matching these rules
 Type: `Array of (Regex and/or String)`
