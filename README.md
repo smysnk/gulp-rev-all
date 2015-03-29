@@ -20,7 +20,7 @@ It is the philosophy of `gulp-rev` that concerns should be seperated between rev
 
 ### Consider the following example:
 A css file makes reference to an image.  If the image changes, the hash of the css file remains the same since its contents have not changed.  Web clients that have previously cached this css file will not correctly resolve the new image.
-If we take in to consideration the dependency graph while calculating the css file hash, we can have it change if any of it child references have changed.
+If we take in to consideration the dependency graph while calculating the css file hash, we can have it change if any of its child references have changed.
 
 So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
 
