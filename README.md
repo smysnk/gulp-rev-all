@@ -16,10 +16,11 @@ A solution to this problem is adding a revisioned number to the name your static
 ## Why fork?
 
 This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.  
-It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and correcting internal references.  That is to say it is not `gulp-rev`'s responsibility to analyse or re-write references.
-`gulp-rev-all` does not agree with this idea for the simple reason that to accurately calculate a file's hash for caching purposes you need to take child references in to consideration.
+It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and re-writing references to those files.  
+`gulp-rev-all` does not agree with this, we believe you need analyze each revisioned files' references, to calculate a final hash for caching purposes.  
 
-eg. A revisioned css file makes a reference to an image.  If the image contents changes, the hash of the css file will remain the same since none of its contents have changed.  Web clients that have previously cached this css file will not correctly resolve the new image file.
+### Consider the following example:
+A css file makes reference to an image.  If the image changes, the hash of the css file remains the same since its contents have not changed.  Web clients that have previously cached this css file will not correctly resolve the new image.
 If we take in to consideration the dependency graph while calculating the css file hash, we can have it change if any of it child references have changed.
 
 So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
@@ -34,9 +35,6 @@ NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.
   - New Feature: Manifset and Version files can be created in the same gulp-rev-all run without issue
   - Bug Fix: References without quotes were not getting updated 
   - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
-
-Warning: From v0.7 to v0.8 was a fairly substanial re-write and I highly suspect I broke some things! Treat v0.8 as an alpha!
-
 
 ## Install
 
