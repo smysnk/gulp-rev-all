@@ -137,7 +137,7 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 ## Version file
 
 
-The version file will contain the build date and a combined hash of all the revisioned files.
+The version file will contain the build date and a combined hash of all the revisioned files, will be written to `build/assets/rev-version.json`.
 
 ```json
 {
@@ -147,6 +147,16 @@ The version file will contain the build date and a combined hash of all the revi
 ```
 
 ## Options
+
+#### options.fileNameVersion
+Set the filename of the file created by revAll.versionFile()
+Type: `String`
+Default: `rev-version.json`
+
+#### options.fileNameManifest
+Set the filename of the file created by revAll.manifsetFile()
+Type: `String`
+Default: `rev-manifset.json`
 
 #### options.dontGlobal
 

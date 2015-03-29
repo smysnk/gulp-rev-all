@@ -15,7 +15,7 @@ var Revisioner = (function () {
             'dontRenameFile': [],
             'dontUpdateReference': [],
             'dontSearchFile': [],
-            'fileNameVersion': 'version.json',
+            'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
             'files': {},
