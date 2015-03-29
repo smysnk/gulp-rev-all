@@ -14,6 +14,7 @@ var Revisioner = (function () {
             'dontGlobal': [ /^\/favicon.ico$/g ],
             'dontRenameFile': [],
             'dontUpdateReference': [],
+            'dontSearchReference': [],
             'fileNameVersion': 'version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
@@ -123,8 +124,8 @@ var Revisioner = (function () {
         var contents = String(fileResolveReferencesIn.revContentsOriginal);
         fileResolveReferencesIn.revReferences = {};
 
-        // Don't try and resolve references in binary files
-        if (this.Tool.is_binary_file(fileResolveReferencesIn)) return;
+        // Don't try and resolve references in binary files or files that have been blacklisted
+        if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchReference(fileResolveReferencesIn)) return;
 
         var referenceGroupRelative = [];
         var referenceGroupAbsolute = [];
@@ -314,6 +315,30 @@ var Revisioner = (function () {
 
         for (var i = this.options.dontUpdateReference.length; i--;) {
             var regex = (this.options.dontUpdateReference[i] instanceof RegExp) ? this.options.dontUpdateReference[i] : new RegExp(this.options.dontUpdateReference[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+        return true;
+
+    };
+
+    /**
+     * Determines if a particular reference should be updated across assets based on dontUpdateReference supplied in options.
+     */
+    Revisioner.prototype.shouldSearchReference = function (file) {
+
+        var filename = this.Tool.get_relative_path(file.base, file.path);
+
+        for (var i = this.options.dontGlobal.length; i--;) {
+            var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+
+        for (var i = this.options.dontSearchReference.length; i--;) {
+            var regex = (this.options.dontSearchReference[i] instanceof RegExp) ? this.options.dontSearchReference[i] : new RegExp(this.options.dontSearchReference[i] + '$', 'ig');
             if (filename.match(regex)) {
                 return false;
             }

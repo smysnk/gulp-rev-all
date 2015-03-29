@@ -150,7 +150,7 @@ The version file will contain the build date and a combined hash of all the revi
 
 #### options.dontGlobal
 
-Don't rename file or update refrences in files matching these rules
+Don't rename, search or update refrences in files matching these rules
 Type: `Array of (Regex and/or String)`
 Default: `[ /^\/favicon.ico$/ ]`
 
@@ -166,6 +166,11 @@ Don't update references in files matching these rules
 Type: `Array of (Regex and/or String)`
 Default: `[]`
 
+#### options.dontSearchReference
+
+Don't search for references in files matching these rules
+Type: `Array of (Regex and/or String)`
+Default: `[]`
 
 In some cases, you may not want to rev your `*.html` files:
 
