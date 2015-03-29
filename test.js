@@ -637,7 +637,7 @@ describe('gulp-rev-all', function () {
 
     });
 
-    describe('main js', function () {
+    describe('reference resolution', function () {
 
         it('should not resolve arbitrarty text with the same name as a file', function (done) {
 
@@ -728,21 +728,43 @@ describe('gulp-rev-all', function () {
 
         });
 
-        it('should resolve references to source map', function (done) {
+        describe('source map', function () {
 
-            setup();
+            it('should resolve reference with spaces after map statement', function (done) {
+
+                setup();
 
 
-            streamRevision.on('data', function (file) { });
-            streamRevision.on('end', function () { 
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () { 
 
-                var contents = String(files['/script/app.js'].contents);
-                contents.should.containEql('//# sourceMappingURL=' + files['/script/app.js.map'].revFilename);
-                done();
+                    var contents = String(files['/script/app.js'].contents);
+                    contents.should.containEql('//# sourceMappingURL=' + files['/script/app.js.map'].revFilename);
+                    done();
 
-            });    
+                });    
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
+
+            it('should resolve reference with no characters after map statement', function (done) {
+
+                setup();
+
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () { 
+
+                    var contents = String(files['/script/no_space_after_map.js'].contents);
+                    contents.should.containEql('//# sourceMappingURL=' + files['/script/no_space_after_map.js.map'].revFilename);
+                    done();
+
+                });    
+
+                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+
+            });
 
         });
 

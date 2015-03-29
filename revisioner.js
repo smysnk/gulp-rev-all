@@ -166,7 +166,7 @@ var Revisioner = (function () {
                 var reference = referenceGroup[referenceIndex];
 
                 // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
-                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_])';                
+                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_]|$)';                
                 regExp = new RegExp(regExp, 'g');
 
                 if (contents.match(regExp)) {
