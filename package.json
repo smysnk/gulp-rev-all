@@ -19,10 +19,8 @@
     "gulp": "~3.5.5",
     "gulp-jshint": "~1.5.1",
     "gulp-mocha": "~0.4.1",
-    "gulp-util": "~2.2.0",
     "mocha": "~2.2.1",
-    "should": "*",
-    "q": "^1.2.0"
+    "should": "*"
   },
   "scripts": {
     "test": "mocha test.js"
