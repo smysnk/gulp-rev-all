@@ -92,13 +92,6 @@ gulp.task('default', function () {
 ```
   * See [gulp-awspublish](https://www.npmjs.org/package/gulp-awspublish), [gulp-cloudfront](https://www.npmjs.org/package/gulp-cloudfront)
 
-
-## Original path
-Original file paths are stored at `file.revPathOriginal`. 
-
-## Asset hash
-The hash of each rev'd file is stored at `file.revHash`. You can use this for customizing the file renaming, or for building different manifest formats.
-
 ## Methods
 
 ### .revision()
@@ -310,7 +303,7 @@ gulp.task('default', function () {
 ```
 
 #### base
-If you are including multiple paths you may need to use this option to set a common base.
+If you are including multiple paths you may need to use this option to set a common base.<br/>
 Type: `string`<br/>
 Default: `none`<br/>
 
@@ -334,6 +327,24 @@ gulp.task('default', function () {
 If you set this options to true, verbose logging will be emitted to console.<br/>
 Type: `Boolean`<br/>
 Default: `false`<br/>
+
+## Additional Properties
+
+### file.revPathOriginal 
+The original full path of the file, before revisioning.
+
+### file.revFilenameOriginal
+The original filename less the file extension, before revisioning.
+
+### file.revFilenameExtOriginal
+The original file extension, before revisioning.
+
+### file.revHashOriginal
+The original hash of the asset before any calculations by `gulp-rev-all`.
+
+### file.revHash
+The hash of the asset as calculated by `gulp-rev-all`, you can use this for customizing the file renaming, or for building different manifest formats.
+
 
 ## Tips
 
