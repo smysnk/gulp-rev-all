@@ -43,7 +43,7 @@ Install with [npm](https://npmjs.org/)
 npm install --save-dev gulp-rev-all
 ```
 
-## Example
+## Usage
 
 ```js
 var gulp = require('gulp');
@@ -94,14 +94,18 @@ gulp.task('default', function () {
 
 
 ## Original path
-
 Original file paths are stored at `file.revPathOriginal`. 
 
 ## Asset hash
-
 The hash of each rev'd file is stored at `file.revHash`. You can use this for customizing the file renaming, or for building different manifest formats.
 
-## Asset manifest / Version file
+## Methods
+
+### .revision()
+Returns a transform function that can be used to pipe assets through so that they may be revisioned.
+
+### .manifestFile()
+Returns a transform function that will filter any existing files going through the pipe and emit a new manifest file.
 
 ```js
 var gulp = require('gulp');
@@ -110,17 +114,12 @@ var RevAll = require('gulp-rev-all');
 gulp.task('default', function () {
 
     var revAll = new RevAll();
-
-    // by default, gulp would pick `assets/css` as the base,
-    // so we need to set it explicitly:
-    return gulp.src(['assets/css/*.css', 'assets/js/*.js'], { base: 'assets' })
-        .pipe(gulp.dest('build/assets'))  // Copy original assets to build dir
+    return gulp.src(['assets/**'])
+        .pipe(gulp.dest('build/assets'))  
         .pipe(revAll.revision())
-        .pipe(gulp.dest('build/assets'))  // Write rev'd assets to build dir
-        .pipe(revAll.manifestFile()) 
-        .pipe(gulp.dest('build/assets')); // Write manifest file to build dir
-        .pipe(revAll.versionFile())
-        .pipe(gulp.dest('build/assets')); // Write version file to build dir
+        .pipe(gulp.dest('build/assets'))  
+        .pipe(revAll.manifsetFile())
+        .pipe(gulp.dest('build/assets')); 
 
 });
 ```
@@ -134,8 +133,25 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 }
 ```
 
-## Version file
+### .versionFile()
+Returns a transform function that will filter any existing files going through the pipe and emit a new version file.
 
+```js
+var gulp = require('gulp');
+var RevAll = require('gulp-rev-all');
+
+gulp.task('default', function () {
+
+    var revAll = new RevAll();
+    return gulp.src(['assets/**'])
+        .pipe(gulp.dest('build/assets'))
+        .pipe(revAll.revision())
+        .pipe(gulp.dest('build/assets'))
+        .pipe(revAll.versionFile())
+        .pipe(gulp.dest('build/assets'));
+
+});
+```
 
 The version file will contain the build date and a combined hash of all the revisioned files, will be written to `build/assets/rev-version.json`.
 
@@ -146,40 +162,41 @@ The version file will contain the build date and a combined hash of all the revi
 }
 ```
 
+
 ## Options
+```js
+var revAll = new RevAll({ options });
+```
 
-#### options.fileNameVersion
-Set the filename of the file created by revAll.versionFile()
-Type: `String`
-Default: `rev-version.json`
+#### fileNameVersion
+Type: `String`<br/>
+Default: `rev-version.json`<br />
+Set the filename of the file created by revAll.versionFile()<br/>
 
-#### options.fileNameManifest
-Set the filename of the file created by revAll.manifsetFile()
-Type: `String`
+#### fileNameManifest
+Set the filename of the file created by revAll.manifsetFile()<br/>
+Type: `String`<br/>
 Default: `rev-manifset.json`
 
-#### options.dontGlobal
+#### dontGlobal
 
-Don't rename, search or update refrences in files matching these rules
-Type: `Array of (Regex and/or String)`
-Default: `[ /^\/favicon.ico$/ ]`
+Don't rename, search or update refrences in files matching these rules<br/>
+Type: `Array of (Regex and/or String)`<br/>
+Default: `[ /^\/favicon.ico$/ ]`<br/>
 
-#### options.dontRenameFile
-
-Don't rename files matching these rules
-Type: `Array of (Regex and/or String)`
+#### dontRenameFile
+Don't rename files matching these rules<br/>
+Type: `Array of (Regex and/or String)`<br/>
 Default: `[]`
 
-#### options.dontUpdateReference
-
-Don't update references matching these rules
-Type: `Array of (Regex and/or String)`
+#### dontUpdateReference
+Don't update references matching these rules<br/>
+Type: `Array of (Regex and/or String)`<br/>
 Default: `[]`
 
-#### options.dontSearchFile
-
-Don't search for references in files matching these rules
-Type: `Array of (Regex and/or String)`
+#### dontSearchFile
+Don't search for references in files matching these rules<br/>
+Type: `Array of (Regex and/or String)`<br/>
 Default: `[]`
 
 In some cases, you may not want to rev your `*.html` files:
@@ -207,12 +224,10 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.hashLength
-
-Type: `hashLength`
-Default: `8`
-
-Change the length of the hash appended to the end of each revisioned file (use `options.transformFilename` for more complicated scenarios).
+#### hashLength
+Change the length of the hash appended to the end of each revisioned file (use `transformFilename` for more complicated scenarios).<br/>
+Type: `hashLength`<br/>
+Default: `8`<br/>
 
 ```js
 gulp.task('default', function () {
@@ -224,12 +239,10 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.prefix
-
-Type: `prefix`
-Default: `none`
-
-Prefixes matched files with a string (use `options.transformPath` for more complicated scenarios). Useful for adding a full url path to files.
+#### prefix
+Prefixes matched files with a string (use `transformPath` for more complicated scenarios). Useful for adding a full url path to files.<br/>
+Type: `prefix`<br/>
+Default: `none`<br/>
 
 ```js
 gulp.task('default', function () {
@@ -242,12 +255,10 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.transformPath
-
-Type: `function (rev, source, path)`
-Default: `none`
-
-Specify a function to transform the reference path. Useful in instances where the local file structure does not reflect what the remote file structure will be.
+#### transformPath
+Specify a function to transform the reference path. Useful in instances where the local file structure does not reflect what the remote file structure will be.<br/>
+Type: `function (rev, source, path)`<br/>
+Default: `none`<br/>
 
 The function takes three arguments:
   - `rev` - revisioned reference path
@@ -272,12 +283,10 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.transformFilename
-
-Type: `function (file, hash)`
-Default: `none`
-
-If the default naming convention does not suite your needs, you can specify a custom filename transform. 
+#### transformFilename
+If the default naming convention does not suite your needs, you can specify a custom filename transform. <br/>
+Type: `function (file, hash)`<br/>
+Default: `none`<br/>
 
 The function takes one argument:
   - `file` - file to be revisioned
@@ -300,19 +309,31 @@ gulp.task('default', function () {
 });
 ```
 
-#### options.base
+#### base
+If you are including multiple paths you may need to use this option to set a common base.
+Type: `string`<br/>
+Default: `none`<br/>
 
-Type: `String` or `[]`
-Default: `none`
+```js
+var gulp = require('gulp');
+var RevAll = require('gulp-rev-all');
 
-This option allows you to set addition search paths `gulp-rev-all` will use to resolve file references.
+gulp.task('default', function () {
 
-#### options.debug
+    var revAll = new RevAll();
 
-Type: `Boolean`
-Default: `false`
+    // by default, gulp would pick `assets/css` as the base,
+    return gulp.src(['assets/css/*.css', 'assets/js/*.js'], { base: 'assets' })
+        .pipe(gulp.dest('build/assets'))
+        .pipe(revAll.revision());
 
-If you set this options to true, verbose logging will be emitted to console.
+});
+```
+
+#### debug
+If you set this options to true, verbose logging will be emitted to console.<br/>
+Type: `Boolean`<br/>
+Default: `false`<br/>
 
 ## Tips
 
