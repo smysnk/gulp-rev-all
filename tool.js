@@ -1,54 +1,8 @@
-var gutil = require('gulp-util');
 var Path = require('path');
 var crypto = require('crypto');
-var glob = require('glob');
-var fs = require('fs');
 
 module.exports = (function() {
     'use strict';
-
-    var write_glob_to_stream = function (base, path, stream) {
-
-        glob(path, {}, function (er, pathsGlob) {
-            
-            pathsGlob.forEach(function (pathGlob) {
-                
-                // Not interested in directories
-                if (fs.lstatSync(pathGlob).isDirectory()) return;
-
-                stream.write(new gutil.File({
-                    path: Path.resolve(pathGlob),
-                    contents: fs.readFileSync(pathGlob),
-                    base: base
-                }));
-
-            });
-
-            stream.end();
-        });
-
-    };
-
-    var write_to_stream = function (base, name, content, stream) {
-
-        var file = new gutil.File({
-            path: name,
-            contents: new Buffer(content),
-            base: base
-        });
-        stream.write(file);
-
-    };
-
-    var get_file = function (base, filePath) {
-
-        return new gutil.File({
-            path: Path.join(__dirname, filePath),
-            contents: fs.readFileSync(filePath),
-            base: base
-        });
-
-    };
 
     var join_path_url = function (prefix, path) {
         
@@ -241,9 +195,6 @@ module.exports = (function() {
 
     return {
         get_relative_path: get_relative_path,
-        write_glob_to_stream: write_glob_to_stream,
-        write_to_stream: write_to_stream,
-        get_file: get_file,
         md5: md5,
         is_binary_file: is_binary_file,
         join_path: join_path,

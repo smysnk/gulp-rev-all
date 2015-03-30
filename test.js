@@ -1,18 +1,40 @@
 var RevAll = require('./index');
 var Tool = require('./tool');
+
 var should = require('should');
 var Path = require('path');
-
-
+var glob = require('glob');
 var es = require('event-stream');
 var util = require('util');
 var Stream = require('stream');
 var assert = require('assert');
 var gutil = require('gulp-util');
 var sinon = require('sinon');
-var Q = require('q');
- 
+var fs = require('fs');
+
 require('mocha');
+
+var write_glob_to_stream = function (base, path, stream) {
+
+    glob(path, {}, function (er, pathsGlob) {
+        
+        pathsGlob.forEach(function (pathGlob) {
+            
+            // Not interested in directories
+            if (fs.lstatSync(pathGlob).isDirectory()) return;
+
+            stream.write(new gutil.File({
+                path: Path.resolve(pathGlob),
+                contents: fs.readFileSync(pathGlob),
+                base: base
+            }));
+
+        });
+
+        stream.end();
+    });
+
+};
 
 describe('gulp-rev-all', function () {
 
@@ -47,7 +69,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -70,7 +92,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -95,7 +117,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
     });
@@ -116,7 +138,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/index.html', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/index.html', streamRevision);
 
             });
 
@@ -142,7 +164,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -162,7 +184,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -180,7 +202,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -198,7 +220,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -215,7 +237,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
                 
 
             });
@@ -233,7 +255,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
                 
 
             });
@@ -258,7 +280,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -273,7 +295,7 @@ describe('gulp-rev-all', function () {
                 });
 
                 streamRevision.on('end', done);
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -291,7 +313,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });            
 
@@ -314,7 +336,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -333,7 +355,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -355,7 +377,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -373,7 +395,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -395,7 +417,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -411,7 +433,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -431,7 +453,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -447,7 +469,7 @@ describe('gulp-rev-all', function () {
                 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
  
         });
 
@@ -463,7 +485,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -481,7 +503,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -498,7 +520,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should resolve reference in single quotes', function (done) {
@@ -513,7 +535,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should replace srcset referencess', function (done) {
@@ -529,7 +551,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should replace multiple occurances of the same reference', function (done) {
@@ -545,7 +567,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
     });
@@ -569,7 +591,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -590,7 +612,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -611,7 +633,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
         it('should resolve references to angular includes', function (done) {
@@ -627,7 +649,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -653,7 +675,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -673,7 +695,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
         });
 
 
@@ -694,7 +716,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -711,7 +733,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -731,7 +753,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -749,7 +771,7 @@ describe('gulp-rev-all', function () {
 
             });            
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -766,7 +788,7 @@ describe('gulp-rev-all', function () {
 
             });            
 
-            Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
         });
 
@@ -786,7 +808,7 @@ describe('gulp-rev-all', function () {
 
                 });    
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
@@ -804,7 +826,7 @@ describe('gulp-rev-all', function () {
 
                 });    
 
-                Tool.write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
 
             });
 
