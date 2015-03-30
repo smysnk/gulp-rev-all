@@ -30,7 +30,7 @@ NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.
   - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
   - Reference dependency analysis has been greatly simplified, previous method was way too complex
   - No longer requires references to exist physically on disk, can now be piped through, embracing nature of gulp
-  - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored.
+  - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored
   - New Feature: Manifset and Version files can be created in the same gulp-rev-all run without issue
   - Bug Fix: References without quotes were not getting updated 
   - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
@@ -95,10 +95,10 @@ gulp.task('default', function () {
 ## Methods
 
 ### .revision()
-Returns a transform function that can be used to pipe assets through so that they may be revisioned.
+Returns a transform function that can be used to pipe files through so that they may be revisioned, also corrects refererences to said files.
 
 ### .manifestFile()
-Returns a transform function that will filter any existing files going through the pipe and emit a new manifest file.
+Returns a transform function that will filter out any existing files going through the pipe and will emit a new manifest file.  Must be called after `.revision()`.
 
 ```js
 var gulp = require('gulp');
@@ -127,7 +127,7 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 ```
 
 ### .versionFile()
-Returns a transform function that will filter any existing files going through the pipe and emit a new version file.
+Returns a transform function that will filter out any existing files going through the pipe and will emit a new version file.  Must be called after `.revision()`.
 
 ```js
 var gulp = require('gulp');
