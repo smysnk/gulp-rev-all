@@ -1,7 +1,5 @@
-var gracefulfs = require('graceful-fs');
-var crypto = require('crypto');
-var gutil = require('gulp-util');
-var merge = require('merge');
+var Gutil = require('gulp-util');
+var Merge = require('merge');
 var Path = require('path');
 var Tool = require('./tool');
 
@@ -9,7 +7,7 @@ var Revisioner = (function () {
 
     var Revisioner = function(options) {
 
-        this.options = merge({
+        this.options = Merge({
             'hashLength': 8,
             'dontGlobal': [ /^\/favicon.ico$/g ],
             'dontRenameFile': [],
@@ -32,7 +30,7 @@ var Revisioner = (function () {
         this.manifest = {};
 
         // Enable / Disable logger based on supplied options
-        this.log = (this.options.debug) ? gutil.log : function () {};
+        this.log = (this.options.debug) ? Gutil.log : function () {};
 
         // Make tools available client side callbacks supplied in options
         this.Tool = Tool;
@@ -46,7 +44,7 @@ var Revisioner = (function () {
             timestamp: new Date()
         };
     
-        return new gutil.File({
+        return new Gutil.File({
             cwd: this.pathCwd,
             base: this.pathBase,
             path: Path.join(this.pathBase, this.options.fileNameVersion),
@@ -57,7 +55,7 @@ var Revisioner = (function () {
 
     Revisioner.prototype.manifestFile = function () {
 
-        return new gutil.File({
+        return new Gutil.File({
             cwd: this.pathCwd,
             base: this.pathBase,
             path: Path.join(this.pathBase, this.options.fileNameManifest),
@@ -180,11 +178,11 @@ var Revisioner = (function () {
                             'file': reference.file,
                             'path': reference.path
                         };
-                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', gutil.colors.magenta(reference.path), '] -> [', gutil.colors.green(reference.file.path), '] in [', gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
+                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
                     } else if (fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
 
-                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', gutil.colors.red(fileResolveReferencesIn.revReferences[reference.path].path), ' (', fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal, ')] <-> [', gutil.colors.red(reference.path) ,'(', gutil.colors.red(reference.file.revPathOriginal), ')]');
+                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferences[reference.path].path), ' (', fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
 
                     }
                 
