@@ -98,45 +98,11 @@ module.exports = (function() {
         if (Path.dirname(file.path) != Path.dirname(fileCurrentReference.path) &&
             Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) == -1) {
 
-            var levelsCurrentReference = Path.dirname(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true));
-            var levelsFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal, true)); 
-
-            // Correct special case where 'Path.dirname' returns '.' , we want an empty string instead
-            levelsCurrentReference = (levelsCurrentReference == '.') ? '' : levelsCurrentReference.split('/');
-            levelsFile = (levelsFile == '.') ? '' : levelsFile.split('/');
-
-            // Ignore the common base directories between the current file and the current reference, 
-            // then build a list of the directories past.  The list is used to determine the number of "../" 
-            // (directory traversals) to prefix the path with.
-            // Also build up a list of current reference directories past the common directories.
-            
-            var common = 0;
-            var pathPastCommon = [];               
-            for (var level = 0, length = levelsCurrentReference.length; level < length; level++) {
-                
-                if (level < levelsCurrentReference.length && level < levelsFile.length
-                    && levelsCurrentReference[level] == levelsFile[level]) {
-                    common++;
-                    continue;
-                }
-
-                if (level < levelsCurrentReference.length) {
-                    pathPastCommon.push(levelsCurrentReference[level]);
-                }
-
-            }
-
-            // Add the directory traverals to the beginning of the path
-            var traversals = (levelsFile.length - common);
-            for (var i = 0; i < traversals; i++) {
-                pathPastCommon.unshift('..');
-            }
-
-            // Add the filename to the end
-            pathPastCommon.push(Path.basename(fileCurrentReference.revPathOriginal));
+            var pathCurrentReference = Path.dirname(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
+            var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal)); 
 
             // ../second/index.html
-            representations.push(pathPastCommon.join('/'));
+            representations.push(Path.relative(pathFile, pathCurrentReference) + '/' + Path.basename(fileCurrentReference.revPathOriginal));
 
         }
 

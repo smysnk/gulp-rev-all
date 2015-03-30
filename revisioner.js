@@ -16,12 +16,12 @@ var Revisioner = (function () {
             'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
-            'files': {},
             'debug': false
         }, options);
 
         // File pool, any file passed into the Revisioner is stored in this object
-        this.files = this.options.files;
+        this.files = {};
+        this.filesTemp = [];
 
         // Stores the combined hash of all processed files, used to create the version file
         this.hashCombined = '';
@@ -34,6 +34,7 @@ var Revisioner = (function () {
 
         // Make tools available client side callbacks supplied in options
         this.Tool = Tool;
+
 
     };
 
@@ -69,19 +70,40 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.processFile = function (file) {
 
-        if (!this.pathBase) this.pathBase = file.base;
         if (!this.pathCwd) this.pathCwd = file.cwd;
-
-        var path = this.Tool.get_relative_path(this.pathBase, file.path);
         
-        // Store original values before we do any processing
+        // Normalize the base common to all the files
+        if (!this.pathBase) {
+        
+            this.pathBase = file.base;
+        
+        } else if (file.base.indexOf(this.pathBase) == -1) {
+
+            var levelsBase = this.pathBase.split('/');
+            var levelsFile = file.base.split('/');
+            
+            var common = [];               
+            for (var level = 0, length = levelsFile.length; level < length; level++) {
+                
+                if (level < levelsBase.length && level < levelsFile.length
+                    && levelsBase[level] == levelsFile[level]) {
+                    common.push(levelsFile[level]);
+                    continue;
+                }
+            }
+
+            this.pathBase = common.join('/');            
+
+        }
+
+        // Set original values before any processing occurs
         file.revPathOriginal = file.revOrigPath = file.path;
         file.revFilenameExtOriginal = Path.extname(file.path);
         file.revFilenameOriginal = Path.basename(file.path, file.revFilenameExtOriginal);
         file.revHashOriginal = this.Tool.md5(String(file.contents));
         file.revContentsOriginal = file.contents;
 
-        this.files[path] = file;
+        this.filesTemp.push(file);
 
     };
 
@@ -92,6 +114,15 @@ var Revisioner = (function () {
     Revisioner.prototype.run = function () {
 
         this.hashCombined = '';
+
+        // Go through and correct the base path now that we have proccessed all the files coming in
+        for (var i = 0, length = this.filesTemp.length; i < length; i++) {
+
+            this.filesTemp[i].base = this.pathBase;           
+            var path = this.Tool.get_relative_path(this.pathBase, this.filesTemp[i].path);            
+            this.files[path] = this.filesTemp[i];
+
+        }
 
         // Resolve references to other files
         for (var path in this.files) {

@@ -302,27 +302,6 @@ gulp.task('default', function () {
 });
 ```
 
-#### base
-If you are including multiple paths you may need to use this option to set a common base.<br/>
-Type: `string`<br/>
-Default: `none`<br/>
-
-```js
-var gulp = require('gulp');
-var RevAll = require('gulp-rev-all');
-
-gulp.task('default', function () {
-
-    var revAll = new RevAll();
-
-    // by default, gulp would pick `assets/css` as the base,
-    return gulp.src(['assets/css/*.css', 'assets/js/*.js'], { base: 'assets' })
-        .pipe(gulp.dest('build/assets'))
-        .pipe(revAll.revision());
-
-});
-```
-
 #### debug
 If you set this options to true, verbose logging will be emitted to console.<br/>
 Type: `Boolean`<br/>
@@ -353,4 +332,4 @@ Make sure to set the files to [never expire](http://developer.yahoo.com/performa
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT) © [Joshua Bellamy-Henn](http://www.psidox.com)
+[MIT](http://opensource.org/licenses/MIT) © [Joshua Bellamy-Henn](http://www.joshuabellamyhenn.com)

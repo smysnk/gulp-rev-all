@@ -1,35 +1,12 @@
 var RevAll = require('./index');
 var Tool = require('./tool');
 var Path = require('path');
-var Glob = require('glob');
-var Stream = require('stream');
+var gulp = require('gulp');
 var Gutil = require('gulp-util');
-var fs = require('fs');
 
 require('should');
 require('mocha');
 
-var write_glob_to_stream = function (base, path, stream) {
-
-    Glob(path, {}, function (er, pathsGlob) {
-        
-        pathsGlob.forEach(function (pathGlob) {
-            
-            // Not interested in directories
-            if (fs.lstatSync(pathGlob).isDirectory()) return;
-
-            stream.write(new Gutil.File({
-                path: Path.resolve(pathGlob),
-                contents: fs.readFileSync(pathGlob),
-                base: base
-            }));
-
-        });
-
-        stream.end();
-    });
-
-};
 
 describe('gulp-rev-all', function () {
 
@@ -64,7 +41,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -87,7 +64,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -112,7 +89,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
     });
@@ -133,7 +110,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/index.html', streamRevision);
+                gulp.src(['test/fixtures/config1/index.html']).pipe(streamRevision);
 
             });
 
@@ -159,7 +136,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -179,7 +156,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -197,7 +174,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -215,7 +192,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -232,7 +209,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
                 
 
             });
@@ -250,7 +227,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
                 
 
             });
@@ -275,7 +252,7 @@ describe('gulp-rev-all', function () {
                     done();
 
                 });
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -290,7 +267,7 @@ describe('gulp-rev-all', function () {
                 });
 
                 streamRevision.on('end', done);
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -308,7 +285,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });            
 
@@ -331,7 +308,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -350,7 +327,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -372,7 +349,7 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -390,7 +367,47 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+            });
+
+        });
+
+    });
+
+    describe('globbing', function () {
+
+        describe('multiple globs', function () {
+
+            it('should set base to common directory', function (done) {
+
+                setup();
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+
+                    revisioner.pathBase.should.match(/\/test\/fixtures\/config1\/$/g);
+                    done();
+
+                });
+
+                gulp.src(['test/fixtures/config1/script/**', 'test/fixtures/config1/lib/**']).pipe(streamRevision);
+
+            });
+
+            it('should resolve references correctly', function (done) {
+
+                setup();
+
+                streamRevision.on('data', function (file) { });
+                streamRevision.on('end', function () {
+
+                    String(files['/script/main.js'].contents).should.containEql(Path.basename(files['/lib/angular.js'].revFilename, files['/lib/angular.js'].revFilenameExtOriginal));
+                    done();
+
+                });
+
+                gulp.src(['test/fixtures/config1/script/**', 'test/fixtures/config1/lib/**']).pipe(streamRevision);
 
             });
 
@@ -412,7 +429,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -428,7 +445,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -448,7 +465,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -464,7 +481,7 @@ describe('gulp-rev-all', function () {
                 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
  
         });
 
@@ -480,7 +497,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -498,7 +515,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -515,7 +532,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
         it('should resolve reference in single quotes', function (done) {
@@ -530,7 +547,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
         it('should replace srcset referencess', function (done) {
@@ -546,7 +563,7 @@ describe('gulp-rev-all', function () {
                 done();
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
         it('should replace multiple occurances of the same reference', function (done) {
@@ -562,7 +579,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
     });
@@ -586,7 +603,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -607,7 +624,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -628,7 +645,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
         it('should resolve references to angular includes', function (done) {
@@ -644,7 +661,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -670,7 +687,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -690,7 +707,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
         });
 
 
@@ -711,7 +728,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -728,7 +745,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -748,7 +765,7 @@ describe('gulp-rev-all', function () {
 
             });
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -766,7 +783,7 @@ describe('gulp-rev-all', function () {
 
             });            
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -783,7 +800,7 @@ describe('gulp-rev-all', function () {
 
             });            
 
-            write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
         });
 
@@ -803,7 +820,7 @@ describe('gulp-rev-all', function () {
 
                 });    
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
@@ -821,7 +838,7 @@ describe('gulp-rev-all', function () {
 
                 });    
 
-                write_glob_to_stream(base, 'test/fixtures/config1/**', streamRevision);
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
             });
 
