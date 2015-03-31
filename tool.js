@@ -31,8 +31,8 @@ module.exports = (function() {
         if (base === path) return '';
 
         // Sanitize inputs, convert windows to posix style slashes, remove trailing slash off base is there is one
-        base = base.replace(/\\/g, '/').replace(/\/$/g, '');
-        path = path.substr(base.length).replace(/\\/g, '/');
+        base = base.replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/').replace(/\/$/g, '');
+        path = path.replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/').substr(base.length);
 
         if (path.indexOf('/') == 0 && noStartingSlash) {
             path = path.substr(1);
@@ -102,17 +102,18 @@ module.exports = (function() {
             var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal)); 
 
             // ../second/index.html
-            representations.push(Path.relative(pathFile, pathCurrentReference) + '/' + Path.basename(fileCurrentReference.revPathOriginal));
-
+            var relPath = Path.relative(pathFile, pathCurrentReference);
+            relPath = relPath.replace(/\\/g, '/');
+            representations.push(relPath + '/' + Path.basename(fileCurrentReference.revPathOriginal));
         }
 
         // Only care about trying to match shorthand javascript includes in javascript file context
-        if (file.revPathOriginal.match(/.js$/ig)) {
+        if (file.revPathOriginal.match(/\.js$/ig)) {
             // Create alternative representations for javascript files for frameworks that omit the .js extension
             for (var i = 0, length = representations.length; i < length; i++) {
 
                 // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
-                if (!representations[i].match(/.js$/ig) || !representations[i].match(/\//ig)) continue;
+                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)) continue;
 
                 representations.push(representations[i].substr(0, representations[i].length - 3));
             }
@@ -143,12 +144,12 @@ module.exports = (function() {
         }
 
         // Only care about trying to match shorthand javascript includes in javascript file context
-        if (file.revPathOriginal.match(/.js$/ig)) {
+        if (file.revPathOriginal.match(/\.js$/ig)) {
             // Create alternative representations for javascript files for frameworks that omit the .js extension
             for (var i = 0, length = representations.length; i < length; i++) {
 
                 // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
-                if (!representations[i].match(/.js$/ig) || !representations[i].match(/\//ig)) continue;
+                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)) continue;
 
                 representations.push(representations[i].substr(0, representations[i].length - 3));
             }

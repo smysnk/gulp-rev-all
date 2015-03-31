@@ -281,7 +281,7 @@ var Revisioner = (function () {
 
             // Replace regular filename with revisioned version
             var pathReferenceReplace;
-            if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/.js$/)) {
+            if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/\.js$/)) {
                 pathReferenceReplace = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
                 pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);              
             } else {
