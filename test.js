@@ -151,7 +151,7 @@ describe('gulp-rev-all', function () {
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
 
-                    String(files['/index.html'].contents).should.not.match(/favicon\.[a-z0-9]{8}\.ico/g);
+                    String(files['/index.html'].contents).should.not.match(/"favicon\.[a-z0-9]{8}\.ico"/g);
                     done();
 
                 });
@@ -246,7 +246,7 @@ describe('gulp-rev-all', function () {
                 streamRevision.on('data', function (file) { });
                 streamRevision.on('end', function () {
 
-                    files['/nested/index.html'].path.should.not.match(/nested\/index\.html$/);
+                    files['/nested/index.html'].path.should.not.match(/\/nested\/index\.html$/);
                     files['/index.html'].path.should.not.match(/index\.[a-z0-9]{8}\.html$/);
 
                     done();
@@ -509,8 +509,8 @@ describe('gulp-rev-all', function () {
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
 
-                String(files['/index.html'].contents).match(/\/script\/main\.[a-z0-9]{8}\.js/g);
-                String(files['/index.html'].contents).match(/\/lib\/require\.[a-z0-9]{8}\.js/g);
+                String(files['/index.html'].contents).match(/"\/script\/main\.[a-z0-9]{8}\.js"/g);
+                String(files['/index.html'].contents).match(/"\/lib\/require\.[a-z0-9]{8}\.js"/g);
 
                 done();
             });
@@ -527,7 +527,7 @@ describe('gulp-rev-all', function () {
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
                 
-                String(files['/index.html'].contents).match(/\/img\/image1\.[a-z0-9]{8}\.jpg/g);
+                String(files['/index.html'].contents).match(/"\/img\/image1\.[a-z0-9]{8}\.jpg"/g);
                 done();
 
             });
@@ -542,7 +542,7 @@ describe('gulp-rev-all', function () {
             streamRevision.on('data', function () { });
             streamRevision.on('end', function () {
 
-                String(files['/index.html'].contents).match(/\/img\/image2\.[a-z0-9]{8}\.jpg/g);
+                String(files['/index.html'].contents).match(/'\/img\/image2\.[a-z0-9]{8}\.jpg'/g);
                 done();
 
             });
