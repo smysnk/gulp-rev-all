@@ -17,7 +17,7 @@ module.exports = (function() {
      */
     var join_path = function (directory, filename) {
         
-        var path = Path.join(directory, filename).replace(/\\/g, '/');
+        var path = Path.join(directory, filename).replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/');
         return (path.indexOf('/') == 0) ? path : '/' + path;
 
     };
