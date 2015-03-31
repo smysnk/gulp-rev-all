@@ -855,7 +855,7 @@ describe('gulp-rev-all', function () {
 
                 it('should correct slashes', function () {
 
-                    Tool.join_path('\\first\\second', 'images.png').should.equal('/first/second/images.png');
+                    Tool.join_path('d:\\first\\second', 'images.png').should.equal('/first/second/images.png');
 
                 });
 
@@ -891,22 +891,22 @@ describe('gulp-rev-all', function () {
 
                 it('should correct slashes', function () {
 
-                    Tool.get_relative_path('\\base', '\\base\\sub\\index.html').should.equal('/sub/index.html');
-                    Tool.get_relative_path('\\base\\', '\\base\\sub\\index.html').should.equal('/sub/index.html');
+                    Tool.get_relative_path('c:\\base', 'c:\\base\\sub\\index.html').should.equal('/sub/index.html');
+                    Tool.get_relative_path('c:\\base\\', 'c:\\base\\sub\\index.html').should.equal('/sub/index.html');
 
                 });
 
                 it('should remove starting slash', function () {
 
-                    Tool.get_relative_path('\\base', '\\base\\sub\\index.html', true).should.equal('sub/index.html');
-                    Tool.get_relative_path('\\base\\', '\\base\\sub\\index.html', true).should.equal('sub/index.html');
+                    Tool.get_relative_path('d:\\base', 'd:\\base\\sub\\index.html', true).should.equal('sub/index.html');
+                    Tool.get_relative_path('d:\\base\\', 'd:\\base\\sub\\index.html', true).should.equal('sub/index.html');
 
                 });
 
                 it('should work on base', function () {
 
-                    Tool.get_relative_path('\\base\\sub', '\\base\\sub\\index.html', true).should.equal('index.html');
-                    Tool.get_relative_path('\\base\\sub\\', '\\base\\sub\\index.html', true).should.equal('index.html');
+                    Tool.get_relative_path('e:\\base\\sub', 'e:\\base\\sub\\index.html', true).should.equal('index.html');
+                    Tool.get_relative_path('e:\\base\\sub\\', 'e:\\base\\sub\\index.html', true).should.equal('index.html');
 
                 });
 
