@@ -79,9 +79,9 @@ var Revisioner = (function () {
         
         } else if (file.base.indexOf(this.pathBase) == -1) {
 
-            var levelsBase = this.pathBase.split('/');
-            var levelsFile = file.base.split('/');
-            
+            var levelsBase = this.pathBase.split(/[\/|\\]/);
+            var levelsFile = file.base.split(/[\/|\\]/);
+
             var common = [];               
             for (var level = 0, length = levelsFile.length; level < length; level++) {
                 
@@ -92,7 +92,8 @@ var Revisioner = (function () {
                 }
             }
 
-            this.pathBase = common.join('/');            
+            if (common[common.length - 1] != '') common.push('');
+            this.pathBase = common.join('/');
 
         }
 

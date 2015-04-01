@@ -31,8 +31,8 @@ module.exports = (function() {
         if (base === path) return '';
 
         // Sanitize inputs, convert windows to posix style slashes, remove trailing slash off base is there is one
-        base = base.replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/').replace(/\/$/g, '');
-        path = path.replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/').substr(base.length);
+        base = base.replace(/^[a-z]:/i, '').replace(/\\/g, '/').replace(/\/$/g, '');
+        path = path.replace(/^[a-z]:/i, '').replace(/\\/g, '/').substr(base.length);
 
         if (path.indexOf('/') == 0 && noStartingSlash) {
             path = path.substr(1);
