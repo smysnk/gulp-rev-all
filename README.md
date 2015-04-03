@@ -31,7 +31,7 @@ NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.
   - Reference dependency analysis has been greatly simplified, previous method was way too complex
   - No longer requires references to exist physically on disk, can now be piped through, embracing nature of gulp
   - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference` which allows for more control and less ambiguity on what is being ignored
-  - New Feature: Manifset and Version files can be created in the same gulp-rev-all run without issue
+  - New Feature: Manifest and Version files can be created in the same gulp-rev-all run without issue
   - Bug Fix: References without quotes were not getting updated 
   - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
 
@@ -111,7 +111,7 @@ gulp.task('default', function () {
         .pipe(gulp.dest('build/assets'))  
         .pipe(revAll.revision())
         .pipe(gulp.dest('build/assets'))  
-        .pipe(revAll.manifsetFile())
+        .pipe(revAll.manifestFile())
         .pipe(gulp.dest('build/assets')); 
 
 });
@@ -167,9 +167,9 @@ Default: `rev-version.json`<br />
 Set the filename of the file created by revAll.versionFile()<br/>
 
 #### fileNameManifest
-Set the filename of the file created by revAll.manifsetFile()<br/>
+Set the filename of the file created by revAll.manifestFile()<br/>
 Type: `String`<br/>
-Default: `rev-manifset.json`
+Default: `rev-manifest.json`
 
 #### dontGlobal
 
