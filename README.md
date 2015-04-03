@@ -233,7 +233,7 @@ gulp.task('default', function () {
 ```
 
 #### prefix
-Prefixes matched files with a string (use `transformPath` for more complicated scenarios). Useful for adding a full url path to files.<br/>
+Prefixes absolute references with a string (use `transformPath` for more complicated scenarios). Useful for adding a full url path to files.<br/>
 Type: `prefix`<br/>
 Default: `none`<br/>
 

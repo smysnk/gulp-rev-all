@@ -292,7 +292,7 @@ var Revisioner = (function () {
 
             // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
             pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) : 
-                                   (this.options.prefix) ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
+                                   (this.options.prefix && pathReferenceReplace[0] == '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
                 contents = contents.replace(reference.regExp, '$1' + pathReferenceReplace + '$3');

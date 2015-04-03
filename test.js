@@ -96,6 +96,43 @@ describe('gulp-rev-all', function () {
 
     describe('options:', function () {
 
+        describe.only('prefix', function () {
+
+            it('should prefix absolute references', function (done) {
+
+                setup({ prefix: 'http://example.com/' });
+
+                streamRevision.on('data', function () { });
+                streamRevision.on('end', function () {
+
+                    String(files['/index.html'].contents).should.match(/'http:\/\/example\.com\/index\.[a-z0-9]{8}\.html'/);
+                    done();
+
+                });
+
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+            });
+
+            it('should not prefix relative references', function (done) {
+
+                setup({ prefix: 'http://example.com/' });
+
+                streamRevision.on('data', function () { });
+                streamRevision.on('end', function () {
+                    
+                    String(files['/index.html'].contents).should.not.match(/"http:\/\/example\.com\/img\/image1\.[a-z0-9]{8}\.jpg"/);
+                    done();
+
+                });
+
+                gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+            });        
+
+        });
+
+
         describe('filename', function () {
 
             it('should have proper hash length when specified', function (done) {
@@ -425,22 +462,6 @@ describe('gulp-rev-all', function () {
             streamRevision.on('end', function () {
 
                 String(files['/index.html'].contents).should.match(/'\/index\.[a-z0-9]{8}\.html'/);
-                done();
-
-            });
-
-            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
-
-        });
-
-        it('should prefix replaced references if a prefix is supplied', function (done) {
-
-            setup({ prefix: 'http://example.com/' });
-
-            streamRevision.on('data', function () { });
-            streamRevision.on('end', function () {
-
-                String(files['/index.html'].contents).should.match(/'http:\/\/example\.com\/index\.[a-z0-9]{8}\.html'/);
                 done();
 
             });
