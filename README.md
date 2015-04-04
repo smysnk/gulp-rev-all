@@ -5,11 +5,9 @@
 
 ## Purpose
 
-By using the Expires header you can make static assets cacheable for extended periods of time, returning visitors will have the resources cached.
-Also content distribution networks like [CloudFront](http://aws.amazon.com/cloudfront/) let you cache static assets in [Edge Locations](http://aws.amazon.com/about-aws/globalinfrastructure/) for extended periods of time.
+By using the HTTP server response header ``expires``, static assets can be made cacheable for extended periods of time. Returning visitors will have the assets cached for super fast load times.
 
-
-A solution to this problem is adding a revisioned number to the name your static assets.  In the case of this gulp plugin, the revision number is `md5( md5(file) + md5(reference1) + md5(reference2) + md5(reference..) ).substr(0, 8)`.  eg. unicorn.css => unicorn.098f6bcd.css
+Additionally, content distribution networks like [CloudFront](http://aws.amazon.com/cloudfront/) let you cache static assets in [Edge Locations](http://aws.amazon.com/about-aws/globalinfrastructure/) for extended periods of time.
 
 
 ## Why fork?
