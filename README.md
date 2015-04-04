@@ -5,7 +5,7 @@
 
 ## Purpose
 
-By using the HTTP server response header ``expires``, static assets can be made cacheable for extended periods of time. Returning visitors will have the assets cached for super fast load times.
+By using the HTTP server response header ``expires`` combined with filename revisioning, static assets can be made cacheable for extended periods of time. Returning visitors will have the assets cached for super fast load times.
 
 Additionally, content distribution networks like [CloudFront](http://aws.amazon.com/cloudfront/) let you cache static assets in [Edge Locations](http://aws.amazon.com/about-aws/globalinfrastructure/) for extended periods of time.
 
