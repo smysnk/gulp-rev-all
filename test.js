@@ -10,8 +10,6 @@ require('mocha');
 
 describe('gulp-rev-all', function () {
 
-    var base = Path.join(__dirname, 'test/fixtures/config1'); 
-
     var revAll, streamRevision, revisioner, files;
 
     var setup = function (options) {
