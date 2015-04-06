@@ -23,7 +23,7 @@ So to recap, `gulp-rev-all` not only handles reference re-writing but it also ta
 
 ## Upgrading to v0.8.x
 
-NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.0 that you should be aware of.
+NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.x that you should be aware of.
   - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
   - Reference dependency analysis has been greatly simplified, previous method was way too complex
   - No longer requires references to exist physically on disk, can now be piped through, embracing nature of gulp
