@@ -71,6 +71,11 @@ var Revisioner = (function () {
     Revisioner.prototype.processFile = function (file) {
 
         if (!this.pathCwd) this.pathCwd = file.cwd;
+
+        // Chnage relative paths to absolute
+        if (!Path.isAbsolute(file.base)) {
+            file.base = Tool.join_path(file.cwd, file.base);   
+        }
         
         // Normalize the base common to all the files
         if (!this.pathBase) {

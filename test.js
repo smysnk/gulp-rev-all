@@ -94,7 +94,7 @@ describe('gulp-rev-all', function () {
 
     describe('options:', function () {
 
-        describe.only('prefix', function () {
+        describe('prefix', function () {
 
             it('should prefix absolute references', function (done) {
 
@@ -733,6 +733,37 @@ describe('gulp-rev-all', function () {
     });
 
     describe('reference resolution', function () {
+
+        it('should resolve references when base is specified', function (done) {
+
+            revAll = new RevAll({
+                prefix: 'http://cdn.com/',
+                dontGlobal: [/\/favicon\.ico$/],
+                dontRenameFile: [/\.html$/]
+            });
+            revisioner = revAll.revisioner;
+            streamRevision = revAll.revision();
+            files = revisioner.files;            
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () { 
+
+                String(files['/view/main.html'].contents).should.match(/"http:\/\/cdn\.com\/css\/style\.[a-z0-9]{8}\.css"/);
+                done();
+
+            });
+
+            gulp.src([
+                'test/fixtures/config1/view/**',
+                'test/fixtures/config1/font/**',
+                'test/fixtures/config1/img/**',
+                'test/fixtures/config1/script/app.js',
+                'test/fixtures/config1/css/style.css'
+            ], { 
+                base: 'test/fixtures/config1' 
+            }).pipe(streamRevision);
+
+        });
 
         it('should not resolve arbitrarty text with the same name as a file', function (done) {
 
