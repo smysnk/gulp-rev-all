@@ -73,7 +73,7 @@ var Revisioner = (function () {
         if (!this.pathCwd) this.pathCwd = file.cwd;
 
         // Chnage relative paths to absolute
-        if (!Path.isAbsolute(file.base)) {
+        if (!file.base.match(/^(\/|[a-z]:)/i)) {
             file.base = Tool.join_path(file.cwd, file.base);   
         }
         
