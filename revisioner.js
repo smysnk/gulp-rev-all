@@ -44,7 +44,7 @@ var Revisioner = (function () {
             hash: this.hashCombined,
             timestamp: new Date()
         };
-    
+
         return new Gutil.File({
             cwd: this.pathCwd,
             base: this.pathBase,
@@ -74,22 +74,22 @@ var Revisioner = (function () {
 
         // Chnage relative paths to absolute
         if (!file.base.match(/^(\/|[a-z]:)/i)) {
-            file.base = Tool.join_path(file.cwd, file.base);   
+            file.base = Tool.join_path(file.cwd, file.base);
         }
-        
+
         // Normalize the base common to all the files
         if (!this.pathBase) {
-        
+
             this.pathBase = file.base;
-        
+
         } else if (file.base.indexOf(this.pathBase) == -1) {
 
             var levelsBase = this.pathBase.split(/[\/|\\]/);
             var levelsFile = file.base.split(/[\/|\\]/);
 
-            var common = [];               
+            var common = [];
             for (var level = 0, length = levelsFile.length; level < length; level++) {
-                
+
                 if (level < levelsBase.length && level < levelsFile.length
                     && levelsBase[level] == levelsFile[level]) {
                     common.push(levelsFile[level]);
@@ -114,7 +114,7 @@ var Revisioner = (function () {
     };
 
     /**
-     * Resolves references, renames files, updates references.  To be called after all the files 
+     * Resolves references, renames files, updates references.  To be called after all the files
      * have been fed into the Revisioner (ie. At the end of the file stream)
      */
     Revisioner.prototype.run = function () {
@@ -124,8 +124,8 @@ var Revisioner = (function () {
         // Go through and correct the base path now that we have proccessed all the files coming in
         for (var i = 0, length = this.filesTemp.length; i < length; i++) {
 
-            this.filesTemp[i].base = this.pathBase;           
-            var path = this.Tool.get_relative_path(this.pathBase, this.filesTemp[i].path);            
+            this.filesTemp[i].base = this.pathBase;
+            var path = this.Tool.get_relative_path(this.pathBase, this.filesTemp[i].path);
             this.files[path] = this.filesTemp[i];
 
         }
@@ -145,7 +145,7 @@ var Revisioner = (function () {
 
         // Update references to revisioned filenames
         for (var path in this.files) {
-            this.updateReferences(this.files[path]);            
+            this.updateReferences(this.files[path]);
         }
 
     };
@@ -165,13 +165,13 @@ var Revisioner = (function () {
         var referenceGroupRelative = [];
         var referenceGroupAbsolute = [];
         var referenceGroupsContainer = {
-            'relative': referenceGroupRelative, 
+            'relative': referenceGroupRelative,
             'absolute': referenceGroupAbsolute
         };
 
         // For the current file (fileResolveReferencesIn), look for references to any other file in the project
         for (var path in this.files) {
-            
+
             // Organize them by relative vs absolute reference types
             var fileCurrentReference = this.files[path];
             var references;
@@ -181,7 +181,7 @@ var Revisioner = (function () {
                 referenceGroupRelative.push({
                     'file': this.files[path],
                     'path': references[i]
-                });                
+                });
             }
 
             references = this.Tool.get_reference_representations_absolute(fileCurrentReference, fileResolveReferencesIn);
@@ -189,7 +189,7 @@ var Revisioner = (function () {
                 referenceGroupAbsolute.push({
                     'file': this.files[path],
                     'path': references[i]
-                });                
+                });
             }
 
         }
@@ -197,21 +197,21 @@ var Revisioner = (function () {
         // Priority relative references higher than absolute
         for (var referenceType in referenceGroupsContainer) {
             var referenceGroup = referenceGroupsContainer[referenceType];
-            
+
             for (var referenceIndex = 0, referenceGroupLength = referenceGroup.length; referenceIndex < referenceGroupLength; referenceIndex++) {
                 var reference = referenceGroup[referenceIndex];
 
                 // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
-                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_]|$)';                
+                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_]|$)';
                 regExp = new RegExp(regExp, 'g');
 
                 if (contents.match(regExp)) {
 
-                    // Only register this reference if we don't have one already by the same path            
+                    // Only register this reference if we don't have one already by the same path
                     if (!fileResolveReferencesIn.revReferences[reference.path]) {
 
-                        fileResolveReferencesIn.revReferences[reference.path] = { 
-                            'regExp': regExp, 
+                        fileResolveReferencesIn.revReferences[reference.path] = {
+                            'regExp': regExp,
                             'file': reference.file,
                             'path': reference.path
                         };
@@ -222,14 +222,14 @@ var Revisioner = (function () {
                         this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferences[reference.path].path), ' (', fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
 
                     }
-                
+
                 }
 
             }
-        }   
+        }
 
 
-    };  
+    };
 
 
     /**
@@ -282,27 +282,27 @@ var Revisioner = (function () {
 
         var contents = String(file.revContentsOriginal);
         for (var pathReference in file.revReferences) {
-            
+
             var reference = file.revReferences[pathReference];
 
             // Replace regular filename with revisioned version
             var pathReferenceReplace;
             if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/\.js$/)) {
                 pathReferenceReplace = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
-                pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);              
+                pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);
             } else {
                 pathReferenceReplace = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
                 pathReferenceReplace += reference.file.revFilename;
             }
 
             // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
-            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) : 
+            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) :
                                    (this.options.prefix && pathReferenceReplace[0] == '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
                 contents = contents.replace(reference.regExp, '$1' + pathReferenceReplace + '$3');
             }
-        
+
         }
 
         file.contents = new Buffer(contents);
@@ -383,7 +383,7 @@ var Revisioner = (function () {
     };
 
     return Revisioner;
-    
+
 
 })();
 
