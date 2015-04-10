@@ -5,7 +5,7 @@ module.exports = (function() {
     'use strict';
 
     var join_path_url = function (prefix, path) {
-        
+
         prefix = prefix.replace(/\/$/, '');
         path = path.replace(/^\//, '');
         return [ prefix, path ].join('/');
@@ -16,14 +16,14 @@ module.exports = (function() {
      * Joins a directory and a filename, replaces Windows forward-slash with a backslash.
      */
     var join_path = function (directory, filename) {
-        
+
         var path = Path.join(directory, filename).replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/');
         return (path.indexOf('/') == 0) ? path : '/' + path;
 
     };
 
     /**
-     * Given a base path and resource path, will return resource path relative to the base. 
+     * Given a base path and resource path, will return resource path relative to the base.
      * Also replaces Windows forward-slash with a backslash.
      */
     var get_relative_path = function (base, path, noStartingSlash) {
@@ -45,9 +45,9 @@ module.exports = (function() {
     };
 
     var md5 = function (str) {
-  
+
         return crypto.createHash('md5').update(str, 'utf8').digest('hex');
-  
+
     };
 
     var is_binary_file = function (file) {
@@ -63,7 +63,7 @@ module.exports = (function() {
     };
 
     /**
-     * Given a file (context) and a file reference, return all the possible representations of paths to get from 
+     * Given a file (context) and a file reference, return all the possible representations of paths to get from
      * the context to the reference file.
      *
      */
@@ -74,7 +74,7 @@ module.exports = (function() {
         //  Scenario 2: Current file is the same directory or lower than the reference
         //              (ie. file.path and the reference file.path are the same)
         //
-        //                  file.base = /user/project 
+        //                  file.base = /user/project
         //                  file.path = /user/project/second/current_file.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
@@ -91,7 +91,7 @@ module.exports = (function() {
         //  Scenario 3: Current file is in a different child directory than the reference
         //            (ie. file.path and the reference file.path are different, not in root directory)
         //
-        //                  file.base = /user/project 
+        //                  file.base = /user/project
         //                  file.path = /user/project/first/index.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
@@ -99,7 +99,7 @@ module.exports = (function() {
             Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) == -1) {
 
             var pathCurrentReference = Path.dirname(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
-            var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal)); 
+            var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal));
 
             // ../second/index.html
             var relPath = Path.relative(pathFile, pathCurrentReference);
@@ -124,7 +124,7 @@ module.exports = (function() {
     };
 
     /**
-     * Given a file (context) and a file reference, return all the possible representations of paths to get from 
+     * Given a file (context) and a file reference, return all the possible representations of paths to get from
      * the context to the reference file.
      *
      */
