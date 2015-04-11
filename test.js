@@ -70,7 +70,7 @@ describe('gulp-rev-all', function () {
          * Should resolve hash change, both ways
          * Context: https://github.com/smysnk/gulp-rev-all/pull/44
          */
-        it.only('should handle circle reference scenario both ways', function (done) {
+        it('should handle circle reference scenario both ways', function (done) {
 
             setup();
 
