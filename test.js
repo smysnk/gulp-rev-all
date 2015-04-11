@@ -66,6 +66,55 @@ describe('gulp-rev-all', function () {
 
         });
 
+        /**
+         * Should resolve hash change, both ways
+         * Context: https://github.com/smysnk/gulp-rev-all/pull/44
+         */
+        it.only('should handle circle reference scenario both ways', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () {
+
+                // Gather baseline paths
+                revisioner.run();
+                var pathGpsBaseline = files['/view/gps.html'].path;
+                var hashGpsBaseline = files['/view/gps.html'].revHashOriginal;
+
+                var pathMainBaseline = files['/view/main.html'].path;
+                var hashMainBaseline = files['/view/main.html'].revHashOriginal;
+
+                // Change one of the references
+                files['/view/gps.html'].revHashOriginal = 'changed';
+                revisioner.run();
+
+                // Both should be changed
+                files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
+                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
+
+                // Revert back
+                files['/view/gps.html'].revHashOriginal = hashGpsBaseline;
+                revisioner.run();
+                files['/view/gps.html'].path.should.equal(pathGpsBaseline);
+                files['/view/main.html'].path.should.equal(pathMainBaseline);
+
+                // Try the other reference
+                files['/view/main.html'].revHashOriginal = 'changed';
+                revisioner.run();
+
+                // Both should be changed
+                files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
+                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
+
+                done();
+
+            });
+
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+        });
+
     });
 
     describe('should process images', function () {
