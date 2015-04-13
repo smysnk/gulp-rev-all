@@ -234,27 +234,31 @@ var Revisioner = (function () {
     };
 
     /**
-     * Calculate hash based on references. // Final hash = hash(file hash + hash references 1 + hash reference N)
+     * Calculate hash based contents and references.
+     * hash = hash(file hash + hash(hash references 1 + hash reference N)..)
      */
     Revisioner.prototype.calculateHash = function (file, stack) {
 
         stack = stack || [];
-        var hash = file.revPathOriginal;
-        
-        if (file.revReferenceFiles.length > 0) {
+        var hash = file.revHashOriginal;
+
+        stack.push(file);
+
+        // Resolve hash for child references
+        if (Object.keys(file.revReferenceFiles).length > 0) {
 
             for (var key in file.revReferenceFiles) {
 
                 // Prevent infinite loops caused by circular references be preventing recursion if we've already encountered this file
                 if (stack.indexOf(file.revReferenceFiles[key]) == -1) {
-                    hash += this.calculateHash(file.resolveReferences[key].file);
+                    hash += this.calculateHash(file.revReferenceFiles[key], stack);
                 }
 
-                hash += file.revReferencePaths[key]['file'].revHashOriginal;
             }
 
             // Consolidate many hashes into one
             hash = this.Tool.md5(hash);
+            
         }
 
         return hash;
