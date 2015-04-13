@@ -94,24 +94,24 @@ describe('gulp-rev-all', function () {
 
                 // All 3 should have changed
                 files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
-                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
                 files['/view/about.html'].path.should.not.equal(pathAboutBaseline);
+                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
 
                 // Revert back
                 files['/view/gps.html'].revHashOriginal = hashGpsBaseline;
                 revisioner.run();
                 files['/view/gps.html'].path.should.equal(pathGpsBaseline);
-                files['/view/main.html'].path.should.equal(pathMainBaseline);
                 files['/view/about.html'].path.should.equal(pathAboutBaseline);
-
+                files['/view/main.html'].path.should.equal(pathMainBaseline);
+                
                 // Try the other reference
                 files['/view/main.html'].revHashOriginal = 'changed';
                 revisioner.run();
 
                 // All 3 should have changed
                 files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
-                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
                 files['/view/about.html'].path.should.not.equal(pathAboutBaseline);
+                files['/view/main.html'].path.should.not.equal(pathMainBaseline);
 
                 done();
 
