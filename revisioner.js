@@ -157,7 +157,8 @@ var Revisioner = (function () {
 
 
         var contents = String(fileResolveReferencesIn.revContentsOriginal);
-        fileResolveReferencesIn.revReferences = {};
+        fileResolveReferencesIn.revReferencePaths = {};
+        fileResolveReferencesIn.revReferenceFiles = {};
 
         // Don't try and resolve references in binary files or files that have been blacklisted
         if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchFile(fileResolveReferencesIn)) return;
@@ -208,18 +209,19 @@ var Revisioner = (function () {
                 if (contents.match(regExp)) {
 
                     // Only register this reference if we don't have one already by the same path
-                    if (!fileResolveReferencesIn.revReferences[reference.path]) {
+                    if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
 
-                        fileResolveReferencesIn.revReferences[reference.path] = {
+                        fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
+                        fileResolveReferencesIn.revReferencePaths[reference.path] = {
                             'regExp': regExp,
                             'file': reference.file,
                             'path': reference.path
                         };
                         this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
-                    } else if (fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
+                    } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
 
-                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferences[reference.path].path), ' (', fileResolveReferencesIn.revReferences[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
 
                     }
 
@@ -231,6 +233,34 @@ var Revisioner = (function () {
 
     };
 
+    /**
+     * Calculate hash based on references. // Final hash = hash(file hash + hash references 1 + hash reference N)
+     */
+    Revisioner.prototype.calculateHash = function (file, stack) {
+
+        stack = stack || [];
+        var hash = file.revPathOriginal;
+        
+        if (file.revReferenceFiles.length > 0) {
+
+            for (var key in file.revReferenceFiles) {
+
+                // Prevent infinite loops caused by circular references be preventing recursion if we've already encountered this file
+                if (stack.indexOf(file.revReferenceFiles[key]) == -1) {
+                    hash += this.calculateHash(file.resolveReferences[key].file);
+                }
+
+                hash += file.revReferencePaths[key]['file'].revHashOriginal;
+            }
+
+            // Consolidate many hashes into one
+            hash = this.Tool.md5(hash);
+        }
+
+        return hash;
+
+    }
+
 
     /**
      * Revision filename based on internal contents + references.
@@ -241,11 +271,7 @@ var Revisioner = (function () {
         var filename = file.revFilenameOriginal;
         var ext = file.revFilenameExtOriginal;
 
-        // Final hash = hash(file hash + hash references 1 + hash reference N)
-        for (var pathReference in file.revReferences) {
-            hash += file.revReferences[pathReference]['file'].revHashOriginal;
-        }
-        file.revHash = this.Tool.md5(hash);
+        file.revHash = this.calculateHash(file);
 
         // Allow the client to transform the final filename
         if (this.options.transformFilename) {
@@ -281,9 +307,9 @@ var Revisioner = (function () {
         if (this.Tool.is_binary_file(file)) return;
 
         var contents = String(file.revContentsOriginal);
-        for (var pathReference in file.revReferences) {
+        for (var pathReference in file.revReferencePaths) {
 
-            var reference = file.revReferences[pathReference];
+            var reference = file.revReferencePaths[pathReference];
 
             // Replace regular filename with revisioned version
             var pathReferenceReplace;
