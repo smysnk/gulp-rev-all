@@ -249,7 +249,7 @@ var Revisioner = (function () {
 
             for (var key in file.revReferenceFiles) {
 
-                // Prevent infinite loops caused by circular references be preventing recursion if we've already encountered this file
+                // Prevent infinite loops caused by circular references, don't recurse if we've already encountered this file
                 if (stack.indexOf(file.revReferenceFiles[key]) == -1) {
                     hash += this.calculateHash(file.revReferenceFiles[key], stack);
                 }
@@ -258,7 +258,7 @@ var Revisioner = (function () {
 
             // Consolidate many hashes into one
             hash = this.Tool.md5(hash);
-            
+
         }
 
         return hash;
