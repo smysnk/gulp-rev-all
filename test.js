@@ -70,7 +70,7 @@ describe('gulp-rev-all', function () {
          * Should resolve hash change, both ways
          * Context: https://github.com/smysnk/gulp-rev-all/pull/44
          */
-        it('should handle circle reference scenario both ways', function (done) {
+        it('should handle circular reference scenario both ways', function (done) {
 
             setup();
 
@@ -82,6 +82,9 @@ describe('gulp-rev-all', function () {
                 var pathGpsBaseline = files['/view/gps.html'].path;
                 var hashGpsBaseline = files['/view/gps.html'].revHashOriginal;
 
+                var pathAboutBaseline = files['/view/about.html'].path;
+                var hashAboutBaseline = files['/view/about.html'].revHashOriginal;
+
                 var pathMainBaseline = files['/view/main.html'].path;
                 var hashMainBaseline = files['/view/main.html'].revHashOriginal;
 
@@ -89,23 +92,26 @@ describe('gulp-rev-all', function () {
                 files['/view/gps.html'].revHashOriginal = 'changed';
                 revisioner.run();
 
-                // Both should be changed
+                // All 3 should have changed
                 files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
                 files['/view/main.html'].path.should.not.equal(pathMainBaseline);
+                files['/view/about.html'].path.should.not.equal(pathAboutBaseline);
 
                 // Revert back
                 files['/view/gps.html'].revHashOriginal = hashGpsBaseline;
                 revisioner.run();
                 files['/view/gps.html'].path.should.equal(pathGpsBaseline);
                 files['/view/main.html'].path.should.equal(pathMainBaseline);
+                files['/view/about.html'].path.should.equal(pathAboutBaseline);
 
                 // Try the other reference
                 files['/view/main.html'].revHashOriginal = 'changed';
                 revisioner.run();
 
-                // Both should be changed
+                // All 3 should have changed
                 files['/view/gps.html'].path.should.not.equal(pathGpsBaseline);
                 files['/view/main.html'].path.should.not.equal(pathMainBaseline);
+                files['/view/about.html'].path.should.not.equal(pathAboutBaseline);
 
                 done();
 
