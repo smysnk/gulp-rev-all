@@ -72,6 +72,9 @@ describe('gulp-rev-all', function () {
          */
         it('should handle circular reference scenario both ways', function (done) {
 
+            // Increase allowed time, so doesn't timeout on travis-ci
+            this.timeout(3000);
+
             setup();
 
             streamRevision.on('data', function (file) { });
