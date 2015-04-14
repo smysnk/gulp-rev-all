@@ -967,9 +967,9 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                it('should add starting slash', function () {
+                it('should not add starting slash', function () {
 
-                    Tool.join_path('first\\second', 'images.png').should.equal('/first/second/images.png');
+                    Tool.join_path('first\\second', 'images.png').should.equal('first/second/images.png');
 
                 });
 
@@ -983,9 +983,9 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                it('should add starting slash', function () {
+                it('should not add starting slash', function () {
 
-                    Tool.join_path('first/second', 'images.png').should.equal('/first/second/images.png');
+                    Tool.join_path('first/second', 'images.png').should.equal('first/second/images.png');
 
                 });
 

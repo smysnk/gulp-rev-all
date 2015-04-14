@@ -70,7 +70,9 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.processFile = function (file) {
 
-        if (!this.pathCwd) this.pathCwd = file.cwd;
+        if (!this.pathCwd){
+            this.pathCwd = file.cwd;
+        }
 
         // Chnage relative paths to absolute
         if (!file.base.match(/^(\/|[a-z]:)/i)) {
@@ -82,7 +84,7 @@ var Revisioner = (function () {
 
             this.pathBase = file.base;
 
-        } else if (file.base.indexOf(this.pathBase) == -1) {
+        } else if (file.base.indexOf(this.pathBase) === -1) {
 
             var levelsBase = this.pathBase.split(/[\/|\\]/);
             var levelsFile = file.base.split(/[\/|\\]/);
@@ -90,14 +92,16 @@ var Revisioner = (function () {
             var common = [];
             for (var level = 0, length = levelsFile.length; level < length; level++) {
 
-                if (level < levelsBase.length && level < levelsFile.length
-                    && levelsBase[level] == levelsFile[level]) {
+                if (level < levelsBase.length && level < levelsFile.length &&
+                        levelsBase[level] === levelsFile[level]) {
                     common.push(levelsFile[level]);
                     continue;
                 }
             }
 
-            if (common[common.length - 1] != '') common.push('');
+            if (common[common.length - 1] !== ''){
+                common.push('');
+            }
             this.pathBase = common.join('/');
 
         }
@@ -219,7 +223,7 @@ var Revisioner = (function () {
                         };
                         this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
-                    } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal != reference.file.revPathOriginal) {
+                    } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
 
                         this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
 
@@ -249,8 +253,8 @@ var Revisioner = (function () {
 
             for (var key in file.revReferenceFiles) {
 
-                // Prevent infinite loops caused by circular references, don't recurse if we've already encountered this file
-                if (stack.indexOf(file.revReferenceFiles[key]) == -1) {
+                // Prevent infinite loops caused by circular references be preventing recursion if we've already encountered this file
+                if (stack.indexOf(file.revReferenceFiles[key]) === -1) {
                     hash += this.calculateHash(file.revReferenceFiles[key], stack);
                 }
 
@@ -258,12 +262,12 @@ var Revisioner = (function () {
 
             // Consolidate many hashes into one
             hash = this.Tool.md5(hash);
-
+            
         }
 
         return hash;
 
-    }
+    };
 
 
     /**

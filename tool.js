@@ -17,9 +17,8 @@ module.exports = (function() {
      */
     var join_path = function (directory, filename) {
 
-        var path = Path.join(directory, filename).replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/');
-        return (path.indexOf('/') == 0) ? path : '/' + path;
-
+        return Path.join(directory, filename).replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/');
+        
     };
 
     /**
@@ -28,16 +27,21 @@ module.exports = (function() {
      */
     var get_relative_path = function (base, path, noStartingSlash) {
 
-        if (base === path) return '';
+        if (base === path) {
+            return '';
+        }
 
         // Sanitize inputs, convert windows to posix style slashes, remove trailing slash off base is there is one
         base = base.replace(/^[a-z]:/i, '').replace(/\\/g, '/').replace(/\/$/g, '');
-        path = path.replace(/^[a-z]:/i, '').replace(/\\/g, '/').substr(base.length);
+        path = path.replace(/^[a-z]:/i, '').replace(/\\/g, '/');
 
-        if (path.indexOf('/') == 0 && noStartingSlash) {
+        // Only truncate paths that overap with the base
+        if (base === path.substr(0, base.length)) {
+            path = path.substr(base.length);
+        }
+
+        if (path[0] === '/' && noStartingSlash) {
             path = path.substr(1);
-        } else if (path.indexOf('/') != 0 && noStartingSlash) {
-            path = '/' + path;
         }
 
         return path;
@@ -78,7 +82,7 @@ module.exports = (function() {
         //                  file.path = /user/project/second/current_file.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
-        if (Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) == 0) {
+        if (Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) === 0) {
 
             //  index.html
             representations.push(get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, true));
@@ -95,8 +99,8 @@ module.exports = (function() {
         //                  file.path = /user/project/first/index.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
-        if (Path.dirname(file.path) != Path.dirname(fileCurrentReference.path) &&
-            Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) == -1) {
+        if (Path.dirname(file.path) !== Path.dirname(fileCurrentReference.path) &&
+            Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) === -1) {
 
             var pathCurrentReference = Path.dirname(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
             var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal));
@@ -113,7 +117,9 @@ module.exports = (function() {
             for (var i = 0, length = representations.length; i < length; i++) {
 
                 // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
-                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)) continue;
+                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)){
+                    continue;
+                }
 
                 representations.push(representations[i].substr(0, representations[i].length - 3));
             }
@@ -131,14 +137,18 @@ module.exports = (function() {
     var get_reference_representations_absolute = function (fileCurrentReference, file) {
 
         var representations = [];
+        var representation;
 
         //  Scenario 1: Current file is anywhere
         //  /view/index.html  (reference: absolute)
-        representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
-
+        representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false);
+        if(representation){
+            representations.push(representation);
+        }
+        
         // Without starting slash, only if it contains a directory
         // view/index.html  (reference: absolute, without slash prefix)
-        var representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
+        representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
         if (representation.indexOf('/')) {
             representations.push(representation);
         }
