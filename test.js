@@ -995,9 +995,11 @@ describe('gulp-rev-all', function () {
 
         describe('get_relative_path', function () {
 
-            it('should not truncate a relative path', function () {
+            it('should only truncate paths that overap with the base', function () {
 
                 Tool.get_relative_path('/base/', 'sub/index.html').should.equal('sub/index.html');
+                Tool.get_relative_path('/base/', '/sub/index.html').should.equal('/sub/index.html');
+                Tool.get_relative_path('/base/', '/base/sub/index.html').should.equal('/sub/index.html');
 
             });
 
