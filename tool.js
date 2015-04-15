@@ -152,7 +152,9 @@ module.exports = (function() {
             for (var i = 0, length = representations.length; i < length; i++) {
 
                 // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
-                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)) continue;
+                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)) {
+                    continue;
+                }
 
                 representations.push(representations[i].substr(0, representations[i].length - 3));
             }
