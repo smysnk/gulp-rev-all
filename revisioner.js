@@ -200,7 +200,6 @@ var Revisioner = (function () {
         }
 
         var nonFileNameChar = '[^a-z0-9\\.\\-\\_\/]';
-        var nonFileNameCharWs = '[^a-z0-9\\.\\-\\_\/ \t\r\n\f]';
 
         // Priority relative references higher than absolute
         for (var referenceType in referenceGroupsContainer) {
