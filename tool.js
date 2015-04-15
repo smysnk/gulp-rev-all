@@ -100,10 +100,6 @@ module.exports = (function() {
 
             //  ./index.html   (reference: relative)
             representations.push('.' + get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, false));
-
-            //  /index.html
-            representations.push(get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, false));
-
         }
 
         //  Scenario 3: Current file is in a different child directory than the reference
@@ -141,7 +137,8 @@ module.exports = (function() {
 
         //  Scenario 1: Current file is anywhere
         //  /view/index.html  (reference: absolute)
-        representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
+        var r = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false);
+        representations.push(r);
         
         // Without starting slash, only if it contains a directory
         // view/index.html  (reference: absolute, without slash prefix)

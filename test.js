@@ -1125,10 +1125,9 @@ describe('gulp-rev-all', function () {
 
                         var references = Tool.get_reference_representations_relative(fileReference, file);
 
-                        references.length.should.equal(3);
+                        references.length.should.equal(2);
                         references[0].should.equal('script.js');
                         references[1].should.equal('./script.js');
-                        references[2].should.equal('./script');
 
                     });
 
