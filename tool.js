@@ -137,8 +137,7 @@ module.exports = (function() {
 
         //  Scenario 1: Current file is anywhere
         //  /view/index.html  (reference: absolute)
-        var r = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false);
-        representations.push(r);
+        representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
         
         // Without starting slash, only if it contains a directory
         // view/index.html  (reference: absolute, without slash prefix)
