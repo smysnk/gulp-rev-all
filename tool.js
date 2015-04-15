@@ -4,6 +4,11 @@ var crypto = require('crypto');
 module.exports = (function() {
     'use strict';
 
+    var path_without_ext = function(path) {
+        var ext = Path.extname(path);
+        return path.substr(0, path.length - ext.length);
+    };
+
     var join_path_url = function (prefix, path) {
 
         prefix = prefix.replace(/\/$/, '');
@@ -171,6 +176,7 @@ module.exports = (function() {
         get_relative_path: get_relative_path,
         md5: md5,
         is_binary_file: is_binary_file,
+        path_without_ext: path_without_ext,
         join_path: join_path,
         join_path_url: join_path_url,
         get_reference_representations_relative: get_reference_representations_relative,

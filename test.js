@@ -823,7 +823,24 @@ describe('gulp-rev-all', function () {
 
         });
 
-        it('should not resolve arbitrarty text with the same name as a file', function (done) {
+        it('should not add .js to short references', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () {
+
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.not.containEql('var short = require(' + files['/script/short.js'].revFilename + ');');
+                done();
+
+            });
+
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+        });
+
+        it('should not resolve arbitrary text with the same name as a file', function (done) {
 
             setup();
 
@@ -832,6 +849,7 @@ describe('gulp-rev-all', function () {
 
                 var contents = String(files['/script/app.js'].contents);
                 contents.should.not.containEql('var ' + files['/script/short.js'].revFilename);
+                contents.should.not.containEql('function (' + files['/script/app.js'].revFilename + ')');
                 done();
 
             });

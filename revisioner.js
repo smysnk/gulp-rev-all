@@ -199,6 +199,9 @@ var Revisioner = (function () {
 
         }
 
+        var nonFileNameChar = '[^a-z0-9\\.\\-\\_\/]';
+        var nonFileNameCharWs = '[^a-z0-9\\.\\-\\_\/ \t\r\n\f]';
+
         // Priority relative references higher than absolute
         for (var referenceType in referenceGroupsContainer) {
             var referenceGroup = referenceGroupsContainer[referenceType];
@@ -206,30 +209,49 @@ var Revisioner = (function () {
             for (var referenceIndex = 0, referenceGroupLength = referenceGroup.length; referenceIndex < referenceGroupLength; referenceIndex++) {
                 var reference = referenceGroup[referenceIndex];
 
-                // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
-                var regExp = '([^a-z0-9\\.\\-\\_/])(' + reference.path.replace(/([^0-9a-z])/ig, '\\$1') + ')([^a-z0-9\\.\\-\\_]|$)';
-                regExp = new RegExp(regExp, 'g');
+                var escapedRefPathBase = Tool.path_without_ext(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
+                var escapedRefPathExt = Path.extname(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
 
-                if (contents.match(regExp)) {
+                var regExps = [];
+                var isJSReference = reference.path.match(/\.js$/);
 
-                    // Only register this reference if we don't have one already by the same path
-                    if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
+                if(isJSReference){
+                    // expect js file references to be qouted
+                    ['\'', '"'].map(function(prefixSuffix){
+                        // Javascript files may be refered to without an extention
+                        var regExp = '('+ prefixSuffix +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ prefixSuffix + '|$)';
+                        regExps.push(new RegExp(regExp, 'g'));
+                    });
+                    
+                } else {
+                    // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
+                    var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
+                    regExps.push(new RegExp(regExp, 'g'));
+                }
 
-                        fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
-                        fileResolveReferencesIn.revReferencePaths[reference.path] = {
-                            'regExp': regExp,
-                            'file': reference.file,
-                            'path': reference.path
-                        };
-                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
+                self = this;
+                
+                regExps.map(function(regExp){
+                    if (contents.match(regExp)) {
+                        // Only register this reference if we don't have one already by the same path
+                        if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
 
-                    } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
+                            fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
+                            fileResolveReferencesIn.revReferencePaths[reference.path] = {
+                                'regExp': regExp,
+                                'file': reference.file,
+                                'path': reference.path
+                            };
+                            self.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
-                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+                        } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
+
+                            self.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+
+                        }
 
                     }
-
-                }
+                });
 
             }
         }
@@ -289,6 +311,7 @@ var Revisioner = (function () {
         }
 
         file.revFilename = filename;
+        file.revFilenameNoExt = Tool.path_without_ext(file.revFilename);
 
         if (this.shouldFileBeRenamed(file)) {
             file.path = this.Tool.join_path(Path.dirname(file.path), filename);
@@ -334,7 +357,9 @@ var Revisioner = (function () {
                                    (this.options.prefix && pathReferenceReplace[0] == '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
-                contents = contents.replace(reference.regExp, '$1' + pathReferenceReplace + '$3');
+                // The extention should remain constant so we dont add extentions to references without extentions
+                var noExtReplace = Tool.path_without_ext(pathReferenceReplace);
+                contents = contents.replace(reference.regExp, '$1' + noExtReplace + '$3' + '$4');
             }
 
         }
