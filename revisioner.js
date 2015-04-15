@@ -4,7 +4,7 @@ var Path = require('path');
 var Tool = require('./tool');
 
 var Revisioner = (function () {
-
+    'use strict';
     var Revisioner = function(options) {
 
         this.options = Merge({
@@ -165,7 +165,9 @@ var Revisioner = (function () {
         fileResolveReferencesIn.revReferenceFiles = {};
 
         // Don't try and resolve references in binary files or files that have been blacklisted
-        if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchFile(fileResolveReferencesIn)) return;
+        if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchFile(fileResolveReferencesIn)) {
+            return;
+        }
 
         var referenceGroupRelative = [];
         var referenceGroupAbsolute = [];
@@ -217,7 +219,7 @@ var Revisioner = (function () {
                 if(isJSReference){
                     // expect js file references to be qouted
                     ['\'', '"'].map(function(prefixSuffix){
-                        // Javascript files may be refered to without an extention
+                        // Javascript files may be refered to without an extension
                         var regExp = '('+ prefixSuffix +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ prefixSuffix + '|$)';
                         regExps.push(new RegExp(regExp, 'g'));
                     });
@@ -228,7 +230,7 @@ var Revisioner = (function () {
                     regExps.push(new RegExp(regExp, 'g'));
                 }
 
-                self = this;
+                var self = this;
                 
                 regExps.map(function(regExp){
                     if (contents.match(regExp)) {
@@ -296,7 +298,6 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.revisionFilename = function (file) {
 
-        var hash = file.revHashOriginal;
         var filename = file.revFilenameOriginal;
         var ext = file.revFilenameExtOriginal;
 
@@ -334,7 +335,9 @@ var Revisioner = (function () {
     Revisioner.prototype.updateReferences = function (file) {
 
         // Don't try and update references in binary files
-        if (this.Tool.is_binary_file(file)) return;
+        if (this.Tool.is_binary_file(file)){
+            return;
+        }
 
         var contents = String(file.revContentsOriginal);
         for (var pathReference in file.revReferencePaths) {
@@ -343,7 +346,7 @@ var Revisioner = (function () {
 
             // Replace regular filename with revisioned version
             var pathReferenceReplace;
-            if (reference.file.revFilenameExtOriginal == '.js' && !reference.path.match(/\.js$/)) {
+            if (reference.file.revFilenameExtOriginal === '.js' && !reference.path.match(/\.js$/)) {
                 pathReferenceReplace = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
                 pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);
             } else {
@@ -353,7 +356,7 @@ var Revisioner = (function () {
 
             // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
             pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) :
-                                   (this.options.prefix && pathReferenceReplace[0] == '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
+                                   (this.options.prefix && pathReferenceReplace[0] === '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
                 // The extention should remain constant so we dont add extentions to references without extentions

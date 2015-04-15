@@ -45,8 +45,14 @@ module.exports = (function() {
             path = path.substr(base.length);
         }
 
-        if (path[0] === '/' && noStartingSlash) {
-            path = path.substr(1);
+        var modifyStartingSlash = noStartingSlash !== undefined;
+
+        if(modifyStartingSlash) {
+            if (path[0] === '/' && noStartingSlash) {
+                path = path.substr(1);
+            } else if (path[0] !== '/' && !noStartingSlash){
+                path = '/' + path;
+            }
         }
 
         return path;
@@ -95,6 +101,9 @@ module.exports = (function() {
             //  ./index.html   (reference: relative)
             representations.push('.' + get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, false));
 
+            //  /index.html
+            representations.push(get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, false));
+
         }
 
         //  Scenario 3: Current file is in a different child directory than the reference
@@ -114,20 +123,6 @@ module.exports = (function() {
             var relPath = Path.relative(pathFile, pathCurrentReference);
             relPath = relPath.replace(/\\/g, '/');
             representations.push(relPath + '/' + Path.basename(fileCurrentReference.revPathOriginal));
-        }
-
-        // Only care about trying to match shorthand javascript includes in javascript file context
-        if (file.revPathOriginal.match(/\.js$/ig)) {
-            // Create alternative representations for javascript files for frameworks that omit the .js extension
-            for (var i = 0, length = representations.length; i < length; i++) {
-
-                // Skip non-javascript files, also ensure the folder has at least one directory in it (so we don't end up with super short single words)
-                if (!representations[i].match(/\.js$/ig) || !representations[i].match(/\//ig)){
-                    continue;
-                }
-
-                representations.push(representations[i].substr(0, representations[i].length - 3));
-            }
         }
 
         return representations;
