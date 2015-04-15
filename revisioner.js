@@ -232,7 +232,7 @@ var Revisioner = (function () {
                     // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
                     var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
                     regExps.push(new RegExp(regExp, 'g'));
-                    
+
                 }
 
                 var self = this;
@@ -316,7 +316,6 @@ var Revisioner = (function () {
         }
 
         file.revFilename = filename;
-        file.revFilenameNoExt = Tool.path_without_ext(file.revFilename);
 
         if (this.shouldFileBeRenamed(file)) {
             file.path = this.Tool.join_path(Path.dirname(file.path), filename);
