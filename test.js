@@ -995,6 +995,12 @@ describe('gulp-rev-all', function () {
 
         describe('get_relative_path', function () {
 
+            it('should not truncate a relative path', function () {
+
+                Tool.get_relative_path('/base/', 'sub/index.html').should.equal('sub/index.html');
+
+            });
+
             describe('windows', function () {
 
                 it('should correct slashes', function () {
