@@ -365,7 +365,7 @@ var Revisioner = (function () {
             if (this.shouldUpdateReference(reference.file)) {
                 // The extention should remain constant so we dont add extentions to references without extentions
                 var noExtReplace = Tool.path_without_ext(pathReferenceReplace);
-                contents = contents.replace(reference.regExp, '$1' + noExtReplace + '$3' + '$4');
+                contents = contents.replace(reference.regExp, '$1' + noExtReplace + '$3$4');
             }
 
         }
