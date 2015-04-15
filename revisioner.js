@@ -217,17 +217,22 @@ var Revisioner = (function () {
                 var isJSReference = reference.path.match(/\.js$/);
 
                 if(isJSReference){
+
                     // expect js file references to be qouted
                     ['\'', '"'].map(function(prefixSuffix){
+
                         // Javascript files may be refered to without an extension
                         var regExp = '('+ prefixSuffix +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ prefixSuffix + '|$)';
                         regExps.push(new RegExp(regExp, 'g'));
+
                     });
                     
                 } else {
+
                     // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
                     var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
                     regExps.push(new RegExp(regExp, 'g'));
+                    
                 }
 
                 var self = this;
