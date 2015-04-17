@@ -350,9 +350,9 @@ options.annotater = function(contents, path){
 
 The replacer function's job is to replace references to revisioned files. The paremeters are as folows:<br/>
 
-```fragment```: is a file fragment as created in the annotator function.<br/>
+```fragment```: a file fragment as created in the annotator function.<br/>
 ```replaceRegExp```: parameter is a regular expression that can be used to match the part of the fragement to be replaced. The regular expression has 4 capture groups. $1 & $4 are what precedes and follows the reference. $2 is the file path without the extension, and $3 is the file extension.<br/>
-```newReference```: is what gulp-rev-all wants to replace the file path without the extension ($2) with.<br/>
+```newReference```: what gulp-rev-all wants to replace the file path without the extension ($2) with.<br/>
 ```referencedFile```: contains additional properties of the file reference thats being replaced. See the 'Additional Properties' section for more information.<br/>
 
 The default replacer function is as follows:
