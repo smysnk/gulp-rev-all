@@ -326,6 +326,7 @@ require('xyz.123');
 angular.controller('myController', ['xyz.123', function(xyz){
    ...
 }]);
+```
 
 This behaviour can be avoided by passing custom ```annotator``` and ```replacer``` functions in as options.
 
