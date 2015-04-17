@@ -214,6 +214,7 @@ var Revisioner = (function () {
         }
 
         var nonFileNameChar = '[^a-z0-9\\.\\-\\_\/]';
+        var qoutes = '\'|"';
 
         // Priority relative references higher than absolute
         for (var referenceType in referenceGroupsContainer) {
@@ -230,12 +231,9 @@ var Revisioner = (function () {
 
                 if(isJSReference){
                     // expect js file references to be qouted
-                    ['\'', '"'].map(function(prefixSuffix){
-                        // Javascript files may be refered to without an extension
-                        var regExp = '('+ prefixSuffix +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ prefixSuffix + '|$)';
-                        regExps.push(new RegExp(regExp, 'g'));
-                    });
-                    
+                    // Javascript files may be refered to without an extension
+                    var regExp = '('+ qoutes +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ qoutes + '|$)';
+                    regExps.push(new RegExp(regExp, 'g'));
                 } else {
                     // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
                     var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
