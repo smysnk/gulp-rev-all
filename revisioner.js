@@ -7,7 +7,7 @@ var Revisioner = (function () {
     'use strict';
     var Revisioner = function(options) {
 
-        this.options = Merge({
+        var defaults = {
             'hashLength': 8,
             'dontGlobal': [ /^\/favicon.ico$/g ],
             'dontRenameFile': [],
@@ -16,8 +16,20 @@ var Revisioner = (function () {
             'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
+            'annotater': null,
+            'replacer': null,
             'debug': false
-        }, options);
+        };
+
+        defaults.annotater = function(contents, path){
+            return [{'contents': contents}];
+        };
+
+        defaults.replacer = function(fragment, replaceRegExp, newReference, referencedFile){
+             fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
+        };
+
+        this.options = Merge(defaults, options);
 
         // File pool, any file passed into the Revisioner is stored in this object
         this.files = {};
@@ -217,22 +229,17 @@ var Revisioner = (function () {
                 var isJSReference = reference.path.match(/\.js$/);
 
                 if(isJSReference){
-
                     // expect js file references to be qouted
                     ['\'', '"'].map(function(prefixSuffix){
-
                         // Javascript files may be refered to without an extension
                         var regExp = '('+ prefixSuffix +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ prefixSuffix + '|$)';
                         regExps.push(new RegExp(regExp, 'g'));
-
                     });
                     
                 } else {
-
                     // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
                     var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
                     regExps.push(new RegExp(regExp, 'g'));
-
                 }
 
                 var self = this;
@@ -316,6 +323,7 @@ var Revisioner = (function () {
         }
 
         file.revFilename = filename;
+        // file.revFilenameNoExt = Tool.path_without_ext(file.revFilename);
 
         if (this.shouldFileBeRenamed(file)) {
             file.path = this.Tool.join_path(Path.dirname(file.path), filename);
@@ -344,32 +352,38 @@ var Revisioner = (function () {
         }
 
         var contents = String(file.revContentsOriginal);
+        var annotatedContent = this.options.annotater(contents, file.revPathOriginal);
+
         for (var pathReference in file.revReferencePaths) {
 
             var reference = file.revReferencePaths[pathReference];
 
             // Replace regular filename with revisioned version
-            var pathReferenceReplace;
-            if (reference.file.revFilenameExtOriginal === '.js' && !reference.path.match(/\.js$/)) {
-                pathReferenceReplace = reference.path.substr(0, reference.path.length - reference.file.revFilenameOriginal.length);
-                pathReferenceReplace += reference.file.revFilename.substr(0, reference.file.revFilename.length - 3);
-            } else {
-                pathReferenceReplace = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
-                pathReferenceReplace += reference.file.revFilename;
+            var referencePath = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
+            var pathReferenceReplace = referencePath + reference.file.revFilename;
+
+            
+            if(this.options.transformPath){
+                // Transform path using client supplied transformPath callback,
+                pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file);
+            } else if (this.options.prefix && pathReferenceReplace[0] === '/'){
+                // Append with user supplied prefix
+                pathReferenceReplace = this.Tool.join_path_url(this.options.prefix, pathReferenceReplace);
             }
 
-            // Transform path using client supplied transformPath callback, if none try and append with user supplied prefix (defaults to '')
-            pathReferenceReplace = (this.options.transformPath) ? this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file) :
-                                   (this.options.prefix && pathReferenceReplace[0] === '/') ? this.Tool.join_path_url(this.options.prefix, pathReferenceReplace) : pathReferenceReplace;
 
             if (this.shouldUpdateReference(reference.file)) {
                 // The extention should remain constant so we dont add extentions to references without extentions
                 var noExtReplace = Tool.path_without_ext(pathReferenceReplace);
-                contents = contents.replace(reference.regExp, '$1' + noExtReplace + '$3$4');
+
+                for(var i = 0; i < annotatedContent.length; i++){
+                    this.options.replacer(annotatedContent[i], reference.regExp, noExtReplace, reference.file);
+                }
             }
 
         }
 
+        contents = annotatedContent.map(function(annotation){return annotation.contents;}).join('');
         file.contents = new Buffer(contents);
 
     };
