@@ -16,12 +16,12 @@ var Revisioner = (function () {
             'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
-            'annotater': null,
+            'annotator': null,
             'replacer': null,
             'debug': false
         };
 
-        defaults.annotater = function(contents, path){
+        defaults.annotator = function(contents, path){
             return [{'contents': contents}];
         };
 
@@ -352,7 +352,7 @@ var Revisioner = (function () {
         }
 
         var contents = String(file.revContentsOriginal);
-        var annotatedContent = this.options.annotater(contents, file.revPathOriginal);
+        var annotatedContent = this.options.annotator(contents, file.revPathOriginal);
 
         for (var pathReference in file.revReferencePaths) {
 

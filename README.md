@@ -340,7 +340,7 @@ The file will be reassembled in order. <br/>
 The default annotator returns one fragment with no annotations:
 
 ```js
-options.annotater = function(contents, path){
+options.annotator = function(contents, path){
     var fragments = [{'contents': contents}];
     return fragments;
 };
