@@ -226,43 +226,41 @@ var Revisioner = (function () {
                 var escapedRefPathBase = Tool.path_without_ext(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
                 var escapedRefPathExt = Path.extname(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
 
-                var regExps = [];
+                var regExp;
                 var isJSReference = reference.path.match(/\.js$/);
 
                 if(isJSReference){
-                    // expect js file references to be qouted
+                    // Javascript file references has to to be qouted
                     // Javascript files may be refered to without an extension
-                    var regExp = '('+ qoutes +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ qoutes + '|$)';
-                    regExps.push(new RegExp(regExp, 'g'));
+                    regExp = '('+ qoutes +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')?('+ qoutes + '|$)';
+
                 } else {
                     // Expect left and right sides of the reference to be a non-filename type character, escape special regex chars
-                    var regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
-                    regExps.push(new RegExp(regExp, 'g'));
+                    regExp = '('+ nonFileNameChar +')(' + escapedRefPathBase + ')(' +  escapedRefPathExt + ')('+ nonFileNameChar + '|$)';
                 }
 
-                var self = this;
-                
-                regExps.map(function(regExp){
-                    if (contents.match(regExp)) {
-                        // Only register this reference if we don't have one already by the same path
-                        if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
+                regExp = new RegExp(regExp, 'g');
 
-                            fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
-                            fileResolveReferencesIn.revReferencePaths[reference.path] = {
-                                'regExp': regExp,
-                                'file': reference.file,
-                                'path': reference.path
-                            };
-                            self.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
+                if (contents.match(regExp)) {
+                    // Only register this reference if we don't have one already by the same path
+                    if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
 
-                        } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
+                        fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
+                        fileResolveReferencesIn.revReferencePaths[reference.path] = {
+                            'regExp': regExp,
+                            'file': reference.file,
+                            'path': reference.path
+                        };
+                        this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
 
-                            self.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+                    } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
 
-                        }
+                        this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
 
                     }
-                });
+
+                }
+
 
             }
         }

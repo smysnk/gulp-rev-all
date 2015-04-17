@@ -1389,11 +1389,9 @@ describe('gulp-rev-all', function () {
 
                         var references = Tool.get_reference_representations_absolute(fileReference, file);
 
-                        references.length.should.equal(4);
+                        references.length.should.equal(2);
                         references[0].should.equal('/third/script.js');
                         references[1].should.equal('third/script.js');
-                        references[2].should.equal('/third/script');
-                        references[3].should.equal('third/script');
 
                     });
 
