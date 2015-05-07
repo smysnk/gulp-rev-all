@@ -41,7 +41,7 @@ var Revisioner = (function () {
         this.Tool = Tool;
 
 
-        var nonFileNameChar = '[^a-z0-9\\.\\-\\_\/]';
+        var nonFileNameChar = '[^a-zA-Z0-9\\.\\-\\_\/]';
         var qoutes = '\'|"';
 
         function referenceToRegexs(reference){
