@@ -304,6 +304,67 @@ If you set this options to true, verbose logging will be emitted to console.<br/
 Type: `Boolean`<br/>
 Default: `false`<br/>
 
+## Annotater & Replacer
+
+In some cases content that is not a file reference may be incorrectly be replaced with a file reference.<br/>
+
+In the example below the 2nd instance of 'xyz' is not reference to the file xyz.js:
+
+```js
+require('xyz');
+
+angular.controller('myController', ['xyz', function(xyz){
+   ...
+}]);
+```
+
+It will hoever still be replaced resulting in file corruption:
+
+```js
+require('xyz.123');
+
+angular.controller('myController', ['xyz.123', function(xyz){
+   ...
+}]);
+```
+
+This behaviour can be avoided by passing custom ```annotator``` and ```replacer``` functions in as options.
+
+### Annotator
+
+The annotator function is called with the original file content and path.
+Annotator function should return a list of objects that contain fragments of the file content in order.
+You may split the file up into as many fragments as necessary and attach any other metadata to the fragments.
+The file will be reassembled in order. <br/>
+
+The default annotator returns one fragment with no annotations:
+
+```js
+options.annotator = function(contents, path){
+    var fragments = [{'contents': contents}];
+    return fragments;
+};
+```
+
+### Replacer
+
+The replacer function's job is to replace references to revisioned files. The paremeters are as folows:<br/>
+
+```fragment```: a file fragment as created in the annotator function.<br/>
+```replaceRegExp```: parameter is a regular expression that can be used to match the part of the fragement to be replaced. The regular expression has 4 capture groups. $1 & $4 are what precedes and follows the reference. $2 is the file path without the extension, and $3 is the file extension.<br/>
+```newReference```: what gulp-rev-all wants to replace the file path without the extension ($2) with.<br/>
+```referencedFile```: contains additional properties of the file reference thats being replaced. See the 'Additional Properties' section for more information.<br/>
+
+The default replacer function is as follows:
+
+```js
+options.replacer = function(fragment, replaceRegExp, newReference, referencedFile){
+     fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
+};
+```
+
+You can overide the default annotator and replacer to change the behaviour of gulp-rev-all and deal with problematic edge cases.
+
 ## Additional Properties
 
 ### file.revPathOriginal 

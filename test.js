@@ -823,7 +823,24 @@ describe('gulp-rev-all', function () {
 
         });
 
-        it('should not resolve arbitrarty text with the same name as a file', function (done) {
+        it('should not add .js to short references', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () {
+
+                var contents = String(files['/script/app.js'].contents);
+                contents.should.not.containEql('var short = require(' + files['/script/short.js'].revFilename + ');');
+                done();
+
+            });
+
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+        });
+
+        it('should not resolve arbitrary text with the same name as a file', function (done) {
 
             setup();
 
@@ -832,6 +849,7 @@ describe('gulp-rev-all', function () {
 
                 var contents = String(files['/script/app.js'].contents);
                 contents.should.not.containEql('var ' + files['/script/short.js'].revFilename);
+                contents.should.not.containEql('function (' + files['/script/app.js'].revFilename + ')');
                 done();
 
             });
@@ -967,9 +985,9 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                it('should add starting slash', function () {
+                it('should not add starting slash', function () {
 
-                    Tool.join_path('first\\second', 'images.png').should.equal('/first/second/images.png');
+                    Tool.join_path('first\\second', 'images.png').should.equal('first/second/images.png');
 
                 });
 
@@ -983,9 +1001,9 @@ describe('gulp-rev-all', function () {
 
                 });
 
-                it('should add starting slash', function () {
+                it('should not add starting slash', function () {
 
-                    Tool.join_path('first/second', 'images.png').should.equal('/first/second/images.png');
+                    Tool.join_path('first/second', 'images.png').should.equal('first/second/images.png');
 
                 });
 
@@ -994,6 +1012,14 @@ describe('gulp-rev-all', function () {
         });
 
         describe('get_relative_path', function () {
+
+            it('should only truncate paths that overap with the base', function () {
+
+                Tool.get_relative_path('/base/', 'sub/index.html').should.equal('sub/index.html');
+                Tool.get_relative_path('/base/', '/sub/index.html').should.equal('/sub/index.html');
+                Tool.get_relative_path('/base/', '/base/sub/index.html').should.equal('/sub/index.html');
+
+            });
 
             describe('windows', function () {
 
@@ -1099,10 +1125,9 @@ describe('gulp-rev-all', function () {
 
                         var references = Tool.get_reference_representations_relative(fileReference, file);
 
-                        references.length.should.equal(3);
+                        references.length.should.equal(2);
                         references[0].should.equal('script.js');
                         references[1].should.equal('./script.js');
-                        references[2].should.equal('./script');
 
                     });
 
@@ -1364,11 +1389,9 @@ describe('gulp-rev-all', function () {
 
                         var references = Tool.get_reference_representations_absolute(fileReference, file);
 
-                        references.length.should.equal(4);
+                        references.length.should.equal(2);
                         references[0].should.equal('/third/script.js');
                         references[1].should.equal('third/script.js');
-                        references[2].should.equal('/third/script');
-                        references[3].should.equal('third/script');
 
                     });
 
