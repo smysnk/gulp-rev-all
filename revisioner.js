@@ -364,12 +364,11 @@ var Revisioner = (function () {
             
             if (this.options.transformPath) {
                 // Transform path using client supplied transformPath callback,
-                pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file);
+                pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file, file);
             } else if (this.options.prefix && pathReferenceReplace[0] === '/') {
                 // Append with user supplied prefix
                 pathReferenceReplace = this.Tool.join_path_url(this.options.prefix, pathReferenceReplace);
             }
-
 
             if (this.shouldUpdateReference(reference.file)) {
                 // The extention should remain constant so we dont add extentions to references without extentions
