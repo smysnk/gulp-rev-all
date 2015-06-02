@@ -2,7 +2,7 @@
 
 var layout = require('./layout.js');
 var short = require('./short');
-
+var shortDuplicate = require('./shortDuplicate');
 
 var items = ['short'];
 var short = function() {

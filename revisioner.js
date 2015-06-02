@@ -245,7 +245,7 @@ var Revisioner = (function () {
                 var reference = referenceGroup[referenceIndex];
                 var regExps = this.options.referenceToRegexs(reference);
 
-                for(var j = 0; j < regExps.length; j++) {
+                for (var j = 0; j < regExps.length; j++) {
                     if (contents.match(regExps[j])) {
                         // Only register this reference if we don't have one already by the same path
                         if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
