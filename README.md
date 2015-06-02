@@ -306,7 +306,7 @@ Default: `false`<br/>
 
 ## Annotater & Replacer
 
-In some cases, false-positives may occur.  Strings that are similar to a file reference may be incorrectly be replaced.<br/>
+In some cases, false-positives may occur.  Strings that are similar to a file reference may be incorrectly replaced.<br/>
 
 In the example below, the 2nd instance of 'xyz' is not reference to the file xyz.js:
 
