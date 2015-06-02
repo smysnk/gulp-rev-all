@@ -362,7 +362,7 @@ var Revisioner = (function () {
             var pathReferenceReplace = referencePath + reference.file.revFilename;
 
             
-            if(this.options.transformPath) {
+            if (this.options.transformPath) {
                 // Transform path using client supplied transformPath callback,
                 pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file);
             } else if (this.options.prefix && pathReferenceReplace[0] === '/') {

@@ -306,24 +306,24 @@ Default: `false`<br/>
 
 ## Annotater & Replacer
 
-In some cases content that is not a file reference may be incorrectly be replaced with a file reference.<br/>
+In some cases, false-positives may occur.  Strings that are similar to a file reference may be incorrectly be replaced.<br/>
 
-In the example below the 2nd instance of 'xyz' is not reference to the file xyz.js:
+In the example below, the 2nd instance of 'xyz' is not reference to the file xyz.js:
 
 ```js
 require('xyz');
 
-angular.controller('myController', ['xyz', function(xyz){
+angular.controller('myController', ['xyz', function(xyz) {
    ...
 }]);
 ```
 
-It will hoever still be replaced resulting in file corruption:
+It will still however be replaced resulting in file corruption:
 
 ```js
 require('xyz.123');
 
-angular.controller('myController', ['xyz.123', function(xyz){
+angular.controller('myController', ['xyz.123', function(xyz) {
    ...
 }]);
 ```
@@ -358,7 +358,7 @@ The replacer function's job is to replace references to revisioned files. The pa
 The default replacer function is as follows:
 
 ```js
-options.replacer = function(fragment, replaceRegExp, newReference, referencedFile){
+options.replacer = function(fragment, replaceRegExp, newReference, referencedFile) {
      fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
 };
 ```
