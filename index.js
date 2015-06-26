@@ -4,6 +4,10 @@ var Revisioner = require('./revisioner');
 var RevAll = (function () {
 
     var RevAll = function (options) {
+        
+        if (!(this instanceof RevAll)) {
+            return new RevAll(options);
+        }
 
         this.revisioner = new Revisioner(options);
 
