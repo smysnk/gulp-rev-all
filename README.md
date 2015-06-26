@@ -64,11 +64,13 @@ var awspublish = require('gulp-awspublish');
 var cloudfront = require("gulp-cloudfront");
 
 var aws = {
-    "key": "AKIAI3Z7CUAFHG53DMJA",
-    "secret": "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",
-    "bucket": "bucket-name",
-    "region": "us-standard",
-    "distributionId": "E1SYAKGEMSK3OD"
+  "params": {
+    "Bucket": "bucket-name"
+  },
+  "accessKeyId": "AKIAI3Z7CUAFHG53DMJA",
+  "secretAccessKey": "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",
+  "distributionId": "E1SYAKGEMSK3OD",
+  "region": "us-standard",
 };
 
 var publisher = awspublish.create(aws);
