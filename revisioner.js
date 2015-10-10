@@ -345,8 +345,8 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.updateReferences = function (file) {
 
-        // Don't try and update references in binary files
-        if (this.Tool.is_binary_file(file)) {
+        // Don't try and update references in binary files or blacklisted files
+        if (this.Tool.is_binary_file(file) || !this.shouldSearchFile(file)) {
             return;
         }
 
