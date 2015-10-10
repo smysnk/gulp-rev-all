@@ -44,7 +44,7 @@ var Revisioner = (function () {
         var nonFileNameChar = '[^a-zA-Z0-9\\.\\-\\_\\/]';
         var qoutes = '\'|"';
 
-        function referenceToRegexs(reference){
+        function referenceToRegexs(reference) {
             var escapedRefPathBase = Tool.path_without_ext(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
             var escapedRefPathExt = Path.extname(reference.path).replace(/([^0-9a-z])/ig, '\\$1');
 
@@ -52,7 +52,7 @@ var Revisioner = (function () {
             var isJSReference = reference.path.match(/\.js$/);
 
             // Extensionless javascript file references has to to be qouted
-            if(isJSReference){
+            if (isJSReference) {
                 regExp = '('+ qoutes +')(' + escapedRefPathBase + ')()('+ qoutes + '|$)';
                 regExps.push(new RegExp(regExp, 'g'));
             }
@@ -64,11 +64,11 @@ var Revisioner = (function () {
             return regExps;
         }
 
-        function annotator(contents, path){
+        function annotator(contents, path) {
             return [{'contents': contents}];
         }
 
-        function replacer(fragment, replaceRegExp, newReference, referencedFile){
+        function replacer(fragment, replaceRegExp, newReference, referencedFile) {
              fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
         }
 
@@ -106,7 +106,7 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.processFile = function (file) {
 
-        if (!this.pathCwd){
+        if (!this.pathCwd) {
             this.pathCwd = file.cwd;
         }
 
@@ -135,7 +135,7 @@ var Revisioner = (function () {
                 }
             }
 
-            if (common[common.length - 1] !== ''){
+            if (common[common.length - 1] !== '') {
                 common.push('');
             }
             this.pathBase = common.join('/');
@@ -245,7 +245,7 @@ var Revisioner = (function () {
                 var reference = referenceGroup[referenceIndex];
                 var regExps = this.options.referenceToRegexs(reference);
 
-                for(var j = 0; j < regExps.length; j++){
+                for (var j = 0; j < regExps.length; j++) {
                     if (contents.match(regExps[j])) {
                         // Only register this reference if we don't have one already by the same path
                         if (!fileResolveReferencesIn.revReferencePaths[reference.path]) {
@@ -346,7 +346,7 @@ var Revisioner = (function () {
     Revisioner.prototype.updateReferences = function (file) {
 
         // Don't try and update references in binary files
-        if (this.Tool.is_binary_file(file)){
+        if (this.Tool.is_binary_file(file)) {
             return;
         }
 
@@ -362,14 +362,13 @@ var Revisioner = (function () {
             var pathReferenceReplace = referencePath + reference.file.revFilename;
 
             
-            if(this.options.transformPath){
+            if (this.options.transformPath) {
                 // Transform path using client supplied transformPath callback,
-                pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file);
-            } else if (this.options.prefix && pathReferenceReplace[0] === '/'){
+                pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file, file);
+            } else if (this.options.prefix && pathReferenceReplace[0] === '/') {
                 // Append with user supplied prefix
                 pathReferenceReplace = this.Tool.join_path_url(this.options.prefix, pathReferenceReplace);
             }
-
 
             if (this.shouldUpdateReference(reference.file)) {
                 // The extention should remain constant so we dont add extentions to references without extentions
@@ -384,7 +383,7 @@ var Revisioner = (function () {
 
         }
 
-        contents = annotatedContent.map(function(annotation){return annotation.contents;}).join('');
+        contents = annotatedContent.map(function(annotation) {return annotation.contents;}).join('');
         file.contents = new Buffer(contents);
 
     };

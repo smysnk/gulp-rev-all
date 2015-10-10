@@ -887,6 +887,9 @@ describe('gulp-rev-all', function () {
                 // Rebuild include as we should expect it, eg.  require('./short.abcdef');
                 var reference = './' + files['/script/short.js'].revFilename.substr(0, files['/script/short.js'].revFilename.length - 3);
                 contents.should.containEql(reference);
+
+                reference = './' + files['/script/shortDuplicate.js'].revFilename.substr(0, files['/script/shortDuplicate.js'].revFilename.length - 3);
+                contents.should.containEql(reference);
                 done();
 
             });

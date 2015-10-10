@@ -13,7 +13,7 @@ Additionally, content distribution networks like [CloudFront](http://aws.amazon.
 ## Why fork?
 
 This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.  
-It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and re-writing references to those files.  `gulp-rev-all` does not agree with this, we believe you need analyze each revisioned files' references, to calculate a final hash for caching purposes.  
+It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and re-writing references to those files.  `gulp-rev-all` does not agree with this, we believe you need to analyze each revisioned files' references, to calculate a final hash for caching purposes.  
 
 ### Consider the following example:
 A css file makes reference to an image.  If the image changes, the hash of the css file remains the same since its contents have not changed.  Web clients that have previously cached this css file will not correctly resolve the new image.
@@ -64,11 +64,13 @@ var awspublish = require('gulp-awspublish');
 var cloudfront = require("gulp-cloudfront");
 
 var aws = {
-    "key": "AKIAI3Z7CUAFHG53DMJA",
-    "secret": "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",
-    "bucket": "bucket-name",
-    "region": "us-standard",
-    "distributionId": "E1SYAKGEMSK3OD"
+  "params": {
+    "Bucket": "bucket-name"
+  },
+  "accessKeyId": "AKIAI3Z7CUAFHG53DMJA",
+  "secretAccessKey": "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",
+  "distributionId": "E1SYAKGEMSK3OD",
+  "region": "us-standard",
 };
 
 var publisher = awspublish.create(aws);
@@ -306,24 +308,24 @@ Default: `false`<br/>
 
 ## Annotater & Replacer
 
-In some cases content that is not a file reference may be incorrectly be replaced with a file reference.<br/>
+In some cases, false-positives may occur.  Strings that are similar to a file reference may be incorrectly replaced.<br/>
 
-In the example below the 2nd instance of 'xyz' is not reference to the file xyz.js:
+In the example below, the 2nd instance of 'xyz' is not reference to the file xyz.js:
 
 ```js
 require('xyz');
 
-angular.controller('myController', ['xyz', function(xyz){
+angular.controller('myController', ['xyz', function(xyz) {
    ...
 }]);
 ```
 
-It will hoever still be replaced resulting in file corruption:
+It will still however be replaced resulting in file corruption:
 
 ```js
 require('xyz.123');
 
-angular.controller('myController', ['xyz.123', function(xyz){
+angular.controller('myController', ['xyz.123', function(xyz) {
    ...
 }]);
 ```
@@ -340,7 +342,7 @@ The file will be reassembled in order. <br/>
 The default annotator returns one fragment with no annotations:
 
 ```js
-options.annotator = function(contents, path){
+options.annotator = function(contents, path) {
     var fragments = [{'contents': contents}];
     return fragments;
 };
@@ -358,7 +360,7 @@ The replacer function's job is to replace references to revisioned files. The pa
 The default replacer function is as follows:
 
 ```js
-options.replacer = function(fragment, replaceRegExp, newReference, referencedFile){
+options.replacer = function(fragment, replaceRegExp, newReference, referencedFile) {
      fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
 };
 ```
