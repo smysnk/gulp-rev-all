@@ -41,7 +41,7 @@ var Revisioner = (function () {
         this.Tool = Tool;
 
 
-        var nonFileNameChar = '[^a-zA-Z0-9\\.\\-\\_\/]';
+        var nonFileNameChar = '[^a-zA-Z0-9\\.\\-\\_\\/]';
         var qoutes = '\'|"';
 
         function referenceToRegexs(reference) {
@@ -252,16 +252,16 @@ var Revisioner = (function () {
 
                             fileResolveReferencesIn.revReferenceFiles[reference.file.path] = reference.file;
                             fileResolveReferencesIn.revReferencePaths[reference.path] = {
-                                'regExp': regExps[j],
+                                'regExps': [regExps[j]],
                                 'file': reference.file,
                                 'path': reference.path
                             };
-                            this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal) ,']');
-
-                        } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal !== reference.file.revPathOriginal) {
-
-                            this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path) ,'(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
-
+                            this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal), ']');
+                        } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal === reference.file.revPathOriginal) {
+                            // Append the other regexes to account for inconsitent use
+                            fileResolveReferencesIn.revReferencePaths[reference.path].regExps.push(regExps[j]);
+                        } else {
+                            this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path), '(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
                         }
                     }
                 }
@@ -374,8 +374,10 @@ var Revisioner = (function () {
                 // The extention should remain constant so we dont add extentions to references without extentions
                 var noExtReplace = Tool.path_without_ext(pathReferenceReplace);
 
-                for(var i = 0; i < annotatedContent.length; i++) {
-                    this.options.replacer(annotatedContent[i], reference.regExp, noExtReplace, reference.file);
+                for(var i = 0; i < annotatedContent.length; i++){
+                    for(var j = 0; j < reference.regExps.length; j++){
+                        this.options.replacer(annotatedContent[i], reference.regExps[j], noExtReplace, reference.file);
+                    }
                 }
             }
 
