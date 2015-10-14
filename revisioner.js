@@ -393,7 +393,7 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.shouldFileBeRenamed = function (file) {
 
-        var filename = this.Tool.get_relative_path(file.base, file.path);
+        var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
         for (var i = this.options.dontGlobal.length; i--;) {
             var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
@@ -418,7 +418,7 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.shouldUpdateReference = function (file) {
 
-        var filename = this.Tool.get_relative_path(file.base, file.path);
+        var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
         for (var i = this.options.dontGlobal.length; i--;) {
             var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
@@ -442,7 +442,7 @@ var Revisioner = (function () {
      */
     Revisioner.prototype.shouldSearchFile = function (file) {
 
-        var filename = this.Tool.get_relative_path(file.base, file.path);
+        var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
         for (var i = this.options.dontGlobal.length; i--;) {
             var regex = (this.options.dontGlobal[i] instanceof RegExp) ? this.options.dontGlobal[i] : new RegExp(this.options.dontGlobal[i] + '$', 'ig');
