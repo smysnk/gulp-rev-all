@@ -383,7 +383,7 @@ var Revisioner = (function () {
 
         }
 
-        contents = annotatedContent.map(function(annotation) {return annotation.contents;}).join('');
+        contents = annotatedContent.map(function(annotation) { return annotation.contents; }).join('');
         file.contents = new Buffer(contents);
 
     };
