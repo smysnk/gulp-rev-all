@@ -261,7 +261,7 @@ var Revisioner = (function () {
                             // Append the other regexes to account for inconsitent use
                             fileResolveReferencesIn.revReferencePaths[reference.path].regExps.push(regExps[j]);
                         } else {
-                            this.log('gulp-rev-all:', 'Possible ambiguous refrence detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path), '(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+                            this.log('gulp-rev-all:', 'Possible ambiguous reference detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path), '(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
                         }
                     }
                 }
