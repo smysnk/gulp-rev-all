@@ -191,6 +191,11 @@ Don't search for references in files matching these rules<br/>
 Type: `Array of (Regex and/or String)`<br/>
 Default: `[]`
 
+#### dontReferenceFile
+Don't count files matching these rules as references<br/>
+Type: `Array of (Regex and/or String)`<br/>
+Default: `[]`
+
 In some cases, you may not want to rev your `*.html` files:
 
 ```js
