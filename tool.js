@@ -8,6 +8,10 @@ module.exports = (function() {
         var ext = Path.extname(path);
         return path.substr(0, path.length - ext.length);
     };
+    
+    var dirname_with_sep = function(path) {
+        return Path.dirname(path) + '/';
+    }
 
     var join_path_url = function (prefix, path) {
 
@@ -36,13 +40,13 @@ module.exports = (function() {
             return '';
         }
 
-        // Sanitize inputs, convert windows to posix style slashes, remove trailing slash off base is there is one
-        base = base.replace(/^[a-z]:/i, '').replace(/\\/g, '/').replace(/\/$/g, '');
+        // Sanitize inputs, convert windows to posix style slashes, ensure trailing slash for base
+        base = base.replace(/^[a-z]:/i, '').replace(/\\/g, '/').replace(/\/$/g, '') + '/';
         path = path.replace(/^[a-z]:/i, '').replace(/\\/g, '/');
 
         // Only truncate paths that overap with the base
         if (base === path.substr(0, base.length)) {
-            path = path.substr(base.length);
+            path = '/' + path.substr(base.length);
         }
 
         var modifyStartingSlash = noStartingSlash !== undefined;
@@ -93,7 +97,7 @@ module.exports = (function() {
         //                  file.path = /user/project/second/current_file.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
-        if (Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) === 0) {
+        if (dirname_with_sep(fileCurrentReference.path).indexOf(dirname_with_sep(file.path)) === 0) {
 
             //  index.html
             representations.push(get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, true));
@@ -109,11 +113,11 @@ module.exports = (function() {
         //                  file.path = /user/project/first/index.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
-        if (Path.dirname(file.path) !== Path.dirname(fileCurrentReference.path) &&
-            Path.dirname(fileCurrentReference.path).indexOf(Path.dirname(file.path)) === -1) {
+        if (dirname_with_sep(file.path) !== dirname_with_sep(fileCurrentReference.path) &&
+            dirname_with_sep(fileCurrentReference.path).indexOf(dirname_with_sep(file.path)) === -1) {
 
-            var pathCurrentReference = Path.dirname(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
-            var pathFile = Path.dirname(get_relative_path(file.base, file.revPathOriginal));
+            var pathCurrentReference = dirname_with_sep(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
+            var pathFile = dirname_with_sep(get_relative_path(file.base, file.revPathOriginal));
 
             // ../second/index.html
             var relPath = Path.relative(pathFile, pathCurrentReference);
