@@ -66,6 +66,29 @@ describe('gulp-rev-all', function () {
 
         });
 
+        it('should change if the prefix changed and it has absolute references', function (done) {
+
+            setup();
+
+            streamRevision.on('data', function (file) { });
+            streamRevision.on('end', function () {
+
+                var pathBaseline = files['/index.html'].path;
+
+                // Apply a prefix to absolute references.
+                revisioner.options.prefix = 'http://example.com/';
+
+                // Re-run the revisioner to re-calculate the filename hash
+                revisioner.run();
+                files['/index.html'].path.should.not.equal(pathBaseline);
+
+                done();
+            });
+
+            gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+        });
+
         /**
          * Should resolve hash change, both ways
          * Context: https://github.com/smysnk/gulp-rev-all/pull/44
@@ -106,7 +129,7 @@ describe('gulp-rev-all', function () {
                 files['/view/gps.html'].path.should.equal(pathGpsBaseline);
                 files['/view/about.html'].path.should.equal(pathAboutBaseline);
                 files['/view/main.html'].path.should.equal(pathMainBaseline);
-                
+
                 // Try the other reference
                 files['/view/main.html'].revHashOriginal = 'changed';
                 revisioner.run();

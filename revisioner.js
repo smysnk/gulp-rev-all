@@ -199,18 +199,17 @@ var Revisioner = (function () {
         var contents = String(fileResolveReferencesIn.revContentsOriginal);
         fileResolveReferencesIn.revReferencePaths = {};
         fileResolveReferencesIn.revReferenceFiles = {};
+        var referenceGroupRelative = [];
+        var referenceGroupAbsolute = [];
+        fileResolveReferencesIn.referenceGroupsContainer = {
+            'relative': referenceGroupRelative,
+            'absolute': referenceGroupAbsolute
+        };
 
         // Don't try and resolve references in binary files or files that have been blacklisted
         if (this.Tool.is_binary_file(fileResolveReferencesIn) || !this.shouldSearchFile(fileResolveReferencesIn)) {
             return;
         }
-
-        var referenceGroupRelative = [];
-        var referenceGroupAbsolute = [];
-        var referenceGroupsContainer = {
-            'relative': referenceGroupRelative,
-            'absolute': referenceGroupAbsolute
-        };
 
         // For the current file (fileResolveReferencesIn), look for references to any other file in the project
         for (var path in this.files) {
@@ -238,8 +237,8 @@ var Revisioner = (function () {
         }
 
         // Priority relative references higher than absolute
-        for (var referenceType in referenceGroupsContainer) {
-            var referenceGroup = referenceGroupsContainer[referenceType];
+        for (var referenceType in fileResolveReferencesIn.referenceGroupsContainer) {
+            var referenceGroup = fileResolveReferencesIn.referenceGroupsContainer[referenceType];
 
             for (var referenceIndex = 0, referenceGroupLength = referenceGroup.length; referenceIndex < referenceGroupLength; referenceIndex++) {
                 var reference = referenceGroup[referenceIndex];
@@ -292,6 +291,12 @@ var Revisioner = (function () {
                     hash += this.calculateHash(file.revReferenceFiles[key], stack);
                 }
 
+            }
+
+            // This file's hash should change if any of its references will be prefixed.
+            if (this.options.prefix &&
+                    Object.keys(file.referenceGroupsContainer.absolute).length) {
+              hash += this.options.prefix;
             }
 
             // Consolidate many hashes into one
@@ -361,7 +366,7 @@ var Revisioner = (function () {
             var referencePath = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
             var pathReferenceReplace = referencePath + reference.file.revFilename;
 
-            
+
             if (this.options.transformPath) {
                 // Transform path using client supplied transformPath callback,
                 pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file, file);
