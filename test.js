@@ -1263,6 +1263,30 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep to similar directory', function () {
+
+                        var base = '/first/second';
+
+                        var file = new Gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: '/first/second/thirder/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../thirder/index.html');
+
+                    });
+
                     it('2 deep', function () {
 
                         var base = '/first/second';
@@ -1526,6 +1550,31 @@ describe('gulp-rev-all', function () {
                         references.length.should.equal(2);
                         references[0].should.equal('/other/index.html');
                         references[1].should.equal('other/index.html');
+
+                    });
+
+                    it('1 deep to similar directory', function () {
+
+                        var base = '/first/second';
+
+                        var file = new Gutil.File({
+                            path: '/first/second/thirder/index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: '/first/second/third/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/index.html');
+                        references[1].should.equal('third/index.html');
 
                     });
 
