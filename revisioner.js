@@ -361,7 +361,7 @@ var Revisioner = (function () {
             var referencePath = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
             var pathReferenceReplace = referencePath + reference.file.revFilename;
 
-            
+
             if (this.options.transformPath) {
                 // Transform path using client supplied transformPath callback,
                 pathReferenceReplace = this.options.transformPath.call(this, pathReferenceReplace, reference.path, reference.file, file);
@@ -433,6 +433,11 @@ var Revisioner = (function () {
                 return false;
             }
         }
+
+        if (!this.shouldFileBeRenamed(file)) {
+          return false;
+        }
+        
         return true;
 
     };
