@@ -438,10 +438,6 @@ var Revisioner = (function () {
                 return false;
             }
         }
-
-        if (!this.shouldFileBeRenamed(file)) {
-          return false;
-        }
         
         return true;
 
