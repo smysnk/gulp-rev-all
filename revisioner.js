@@ -13,6 +13,9 @@ var Revisioner = (function () {
             'dontRenameFile': [],
             'dontUpdateReference': [],
             'dontSearchFile': [],
+
+            'dontReferenceFile': [],
+
             'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
             'prefix': '',
@@ -242,6 +245,12 @@ var Revisioner = (function () {
 
             for (var referenceIndex = 0, referenceGroupLength = referenceGroup.length; referenceIndex < referenceGroupLength; referenceIndex++) {
                 var reference = referenceGroup[referenceIndex];
+
+                if(!this.shouldReferenceFile(reference.file)){
+                    this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal), '], but it matches `dontReferenceFile` rules, skipping.');
+                    continue;
+                }
+
                 var regExps = this.options.referenceToRegexs(reference);
 
                 for (var j = 0; j < regExps.length; j++) {
@@ -459,6 +468,24 @@ var Revisioner = (function () {
 
         for (var i = this.options.dontSearchFile.length; i--;) {
             var regex = (this.options.dontSearchFile[i] instanceof RegExp) ? this.options.dontSearchFile[i] : new RegExp(this.options.dontSearchFile[i] + '$', 'ig');
+            if (filename.match(regex)) {
+                return false;
+            }
+        }
+        return true;
+
+    };
+
+    /**
+     * Determines if a particular file should be count as reference.
+     */
+    Revisioner.prototype.shouldReferenceFile = function (file) {
+
+        var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
+
+        for (var i = this.options.dontReferenceFile.length; i--;) {
+            var item = this.options.dontReferenceFile[i];
+            var regex = (item instanceof RegExp) ? item : new RegExp(item + '$', 'ig');
             if (filename.match(regex)) {
                 return false;
             }
