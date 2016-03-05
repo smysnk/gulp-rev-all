@@ -10,7 +10,9 @@ module.exports = (function() {
     };
     
     var dirname_with_sep = function(path) {
-        return Path.dirname(path) + '/';
+        var sep = (path.indexOf('\\') >=0) ? '\\' : '/'; 
+        var dirName = Path.dirname(path);
+        return dirName === sep ? dirName : dirName + sep;
     }
 
     var join_path_url = function (prefix, path) {
@@ -96,8 +98,11 @@ module.exports = (function() {
         //                  file.base = /user/project
         //                  file.path = /user/project/second/current_file.html
         //  fileCurrentReference.path = /user/project/second/index.html
-
-        if (dirname_with_sep(fileCurrentReference.path).indexOf(dirname_with_sep(file.path)) === 0) {
+        
+        var fileCurrentReferencePathWithSep = dirname_with_sep(fileCurrentReference.path);
+        var filePathWithSep = dirname_with_sep(file.path);
+              
+        if (fileCurrentReferencePathWithSep.indexOf(filePathWithSep) === 0) {
 
             //  index.html
             representations.push(get_relative_path(Path.dirname(file.path), fileCurrentReference.revPathOriginal, true));
@@ -113,8 +118,8 @@ module.exports = (function() {
         //                  file.path = /user/project/first/index.html
         //  fileCurrentReference.path = /user/project/second/index.html
 
-        if (dirname_with_sep(file.path) !== dirname_with_sep(fileCurrentReference.path) &&
-            dirname_with_sep(fileCurrentReference.path).indexOf(dirname_with_sep(file.path)) === -1) {
+        if (filePathWithSep !== fileCurrentReferencePathWithSep &&
+            fileCurrentReferencePathWithSep.indexOf(filePathWithSep) === -1) {
 
             var pathCurrentReference = dirname_with_sep(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal));
             var pathFile = dirname_with_sep(get_relative_path(file.base, file.revPathOriginal));

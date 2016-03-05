@@ -1051,8 +1051,8 @@ describe('gulp-rev-all', function () {
 
                 it('should correct slashes', function () {
 
-                    Tool.get_relative_path('c:\\base', 'c:\\base\\sub\\index.html').should.equal('/sub/index.html');
-                    Tool.get_relative_path('c:\\base\\', 'c:\\base\\sub\\index.html').should.equal('/sub/index.html');
+                    Tool.get_relative_path('\\base', '\\base\\sub\\index.html').should.equal('/sub/index.html');
+                    Tool.get_relative_path('\\base\\', '\\base\\sub\\index.html').should.equal('/sub/index.html');
 
                 });
 
@@ -1185,6 +1185,31 @@ describe('gulp-rev-all', function () {
                         references[1].should.equal('./other.html');
 
                     });
+                    
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('other.html');
+                        references[1].should.equal('./other.html');
+
+                    });
 
                     it('1 deep', function () {
 
@@ -1211,6 +1236,81 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('fourth/other.html');
+                        references[1].should.equal('./fourth/other.html');
+
+                    });
+
+                    it('2 deep file at root', function () {
+
+                        var base = '/';
+
+                        var file = new Gutil.File({
+                            path: '/index.js',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: '/first/second/other.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('first/second/other.js');
+                        references[1].should.equal('./first/second/other.js');
+
+                    });
+
+                    it('2 deep file on windows', function () {
+
+                        var base = '\\tmp\\';
+
+                        var file = new Gutil.File({
+                            path: '\\tmp\\index.js',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: '\\tmp\\first\\second\\other.js',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+                        references.length.should.equal(2);
+
+                        references[0].should.equal('first/second/other.js');
+                        references[1].should.equal('./first/second/other.js');
+
+                    });
+
                 });
 
                 describe('should resolve references that have 1 traversals', function () {
@@ -1226,6 +1326,30 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../index.html');
+
+                    });
+                    
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\index.html',
                             base: base
                         });
 
@@ -1263,6 +1387,30 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../other/index.html');
+
+                    });
+
                     it('1 deep to similar directory', function () {
 
                         var base = '/first/second';
@@ -1287,6 +1435,30 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep to similar directory on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\thirder\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../thirder/index.html');
+
+                    });
+
                     it('2 deep', function () {
 
                         var base = '/first/second';
@@ -1298,6 +1470,30 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/other/advanced/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../other/advanced/index.html');
+
+                    });
+
+                    it('2 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\advanced\\index.html',
                             base: base
                         });
 
@@ -1339,6 +1535,30 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../index.html');
+
+                    });
+
                     it('1 deep', function () {
 
                         var base = '/first/second';
@@ -1363,6 +1583,30 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../other/index.html');
+
+                    });
+
                     it('2 deep', function () {
 
                         var base = '/first/second';
@@ -1374,6 +1618,30 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_relative(fileReference, file);
+
+                        references.length.should.equal(1);
+                        references[0].should.equal('../../../other/index.html');
+
+                    });
+
+                    it('2 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\fifth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
                             base: base
                         });
 
@@ -1473,6 +1741,31 @@ describe('gulp-rev-all', function () {
                         references[1].should.equal('third/other.html');
 
                     });
+                    
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/other.html');
+                        references[1].should.equal('third/other.html');
+
+                    });
 
                     it('1 deep', function () {
 
@@ -1485,6 +1778,31 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/third/fourth/other.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/fourth/other.html');
+                        references[1].should.equal('third/fourth/other.html');
+
+                    });
+
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\other.html',
                             base: base
                         });
 
@@ -1528,6 +1846,31 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/index.html');
+                        references[1].should.equal('index.html');
+
+                    });
+
                     it('1 deep', function () {
 
                         var base = '/first/second';
@@ -1539,6 +1882,31 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
+                    });
+
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
                             base: base
                         });
 
@@ -1578,6 +1946,31 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep to similar directory on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\thirder\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/third/index.html');
+                        references[1].should.equal('third/index.html');
+
+                    });
+
                     it('2 deep', function () {
 
                         var base = '/first/second';
@@ -1589,6 +1982,31 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/other/advanced/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/advanced/index.html');
+                        references[1].should.equal('other/advanced/index.html');
+
+                    });
+
+                    it('2 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\advanced\\index.html',
                             base: base
                         });
 
@@ -1632,6 +2050,31 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('0 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/index.html');
+                        references[1].should.equal('index.html');
+
+                    });
+
                     it('1 deep', function () {
 
                         var base = '/first/second';
@@ -1657,6 +2100,31 @@ describe('gulp-rev-all', function () {
 
                     });
 
+                    it('1 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
+                    });
+
                     it('2 deep', function () {
 
                         var base = '/first/second';
@@ -1668,6 +2136,31 @@ describe('gulp-rev-all', function () {
 
                         var fileReference = new Gutil.File({
                             path: '/first/second/other/index.html',
+                            base: base
+                        });
+
+                        file.revPathOriginal = file.path;
+                        fileReference.revPathOriginal = fileReference.path;
+
+                        var references = Tool.get_reference_representations_absolute(fileReference, file);
+
+                        references.length.should.equal(2);
+                        references[0].should.equal('/other/index.html');
+                        references[1].should.equal('other/index.html');
+
+                    });
+
+                    it('2 deep on windows', function () {
+
+                        var base = 'c:\\first\\second';
+
+                        var file = new Gutil.File({
+                            path: 'c:\\first\\second\\third\\fourth\\fifth\\index.html',
+                            base: base
+                        });
+
+                        var fileReference = new Gutil.File({
+                            path: 'c:\\first\\second\\other\\index.html',
                             base: base
                         });
 
