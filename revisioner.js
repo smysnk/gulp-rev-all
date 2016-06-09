@@ -365,7 +365,7 @@ var Revisioner = (function () {
 
             // Replace regular filename with revisioned version
             var referencePath = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
-            var pathReferenceReplace = referencePath + reference.file.revFilename;
+            var pathReferenceReplace = this.Tool.join_path(this.options.prefixManifestPathRevisioned, referencePath + reference.file.revFilename);
 
 
             if (this.options.transformPath) {
