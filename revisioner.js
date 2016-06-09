@@ -15,6 +15,7 @@ var Revisioner = (function () {
             'dontSearchFile': [],
             'fileNameVersion': 'rev-version.json',
             'fileNameManifest': 'rev-manifest.json',
+            'prefixManifestPathRevisioned': '',
             'prefix': '',
             'referenceToRegexs': referenceToRegexs,
             'annotator': annotator,
@@ -338,7 +339,7 @@ var Revisioner = (function () {
 
         // Maintain the manifset file
         var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
-        var pathRevisioned = this.Tool.get_relative_path(file.base, file.path, true);
+        var pathRevisioned = this.Tool.join_path(this.options.prefixManifestPathRevisioned, this.Tool.get_relative_path(file.base, file.path, true));
         this.manifest[pathOriginal] = pathRevisioned;
 
         file.revPath = pathRevisioned;
@@ -364,7 +365,7 @@ var Revisioner = (function () {
 
             // Replace regular filename with revisioned version
             var referencePath = reference.path.substr(0, reference.path.length - (reference.file.revFilenameOriginal.length + reference.file.revFilenameExtOriginal.length));
-            var pathReferenceReplace = referencePath + reference.file.revFilename;
+            var pathReferenceReplace = this.Tool.join_path(this.options.prefixManifestPathRevisioned, referencePath + reference.file.revFilename);
 
 
             if (this.options.transformPath) {
