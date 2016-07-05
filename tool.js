@@ -8,7 +8,7 @@ module.exports = (function() {
         var ext = Path.extname(path);
         return path.substr(0, path.length - ext.length);
     };
-    
+
     var dirname_with_sep = function(path) {
         return Path.dirname(path) + '/';
     }
@@ -26,8 +26,8 @@ module.exports = (function() {
      */
     var join_path = function (directory, filename) {
 
-        return Path.join(directory, filename).replace(/^[a-z]:\\/i, '/').replace(/\\/g, '/');
-        
+        return Path.join(directory, filename).replace(/\\/g, '/');
+
     };
 
     /**
@@ -142,7 +142,7 @@ module.exports = (function() {
         //  Scenario 1: Current file is anywhere
         //  /view/index.html  (reference: absolute)
         representations.push(get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, false));
-        
+
         // Without starting slash, only if it contains a directory
         // view/index.html  (reference: absolute, without slash prefix)
         representation = get_relative_path(fileCurrentReference.base, fileCurrentReference.revPathOriginal, true);
