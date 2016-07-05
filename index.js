@@ -4,7 +4,7 @@ var Revisioner = require('./revisioner');
 var RevAll = (function () {
 
     var RevAll = function (options) {
-
+        
         if (!(this instanceof RevAll)) {
             return new RevAll(options);
         }
@@ -54,8 +54,8 @@ var RevAll = (function () {
             callback();
 
         }, function (callback) {
-            if (revisioner.files.length > 0)
-                this.push(revisioner.versionFile());
+
+            this.push(revisioner.versionFile());
             callback();
 
         });
@@ -72,8 +72,8 @@ var RevAll = (function () {
             callback();
 
         }, function (callback) {
-            if (revisioner.files.length > 0)
-                this.push(revisioner.manifestFile());
+
+            this.push(revisioner.manifestFile());
             callback();
 
         });
