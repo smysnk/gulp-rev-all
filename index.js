@@ -1,86 +1,80 @@
 var Through = require('through2');
 var Revisioner = require('./revisioner');
 
-var RevAll = (function () {
+module.exports = {
+  
+  revision: function(options) {
 
-    var RevAll = function (options) {
-        
-        if (!(this instanceof RevAll)) {
-            return new RevAll(options);
-        }
+    var revisioner = new Revisioner(options);
 
-        this.revisioner = new Revisioner(options);
+    // Feed the RevAll Revisioner with all the files in the stream, don't emit them until all of them have been processed
+    return Through.obj(function (file, enc, callback) {
 
-    };
+      if (file.isStream()) {
+        throw new Error('Streams are not supported!');
+      }
 
-    RevAll.prototype.revision = function () {
+      if (file.isBuffer()) {
+        revisioner.processFile(file);
+      }
 
-        var revisioner = this.revisioner;
+      file.revisioner = revisioner;
 
-        // Feed the RevAll Revisioner with all the files in the stream, don't emit them until all of them have been processed
-        return Through.obj(function (file, enc, callback) {
+      callback();
 
-            if (file.isStream()) {
-                throw new Error('Streams are not supported!');
-            }
-            if (file.isBuffer()) {
-                revisioner.processFile(file);
-            }
+    }, function (callback) {
 
-            callback();
+      revisioner.run();
 
-        }, function (callback) {
+      var files = revisioner.files;
+      for (var filename in files) {
+        this.push(files[filename]);
+      }
+      callback();
 
-            revisioner.run();
+    });
 
-            var files = revisioner.files;
-            for (var filename in files) {
-                this.push(files[filename]);
-            }
-            callback();
+  },
 
-        });
+  versionFile: function() {
 
-    };
+    let revisioner;
 
-    RevAll.prototype.versionFile = function () {
+    // Drop any existing files off the stream, push the generated version file
+    return Through.obj(function (file, enc, callback) {
 
-        var revisioner = this.revisioner;
+      revisioner = file.revisioner;
 
-        // Drop any existing files off the stream, push the generated version file
-        return Through.obj(function (file, enc, callback) {
+      // Drop any existing files off the stream
+      callback();
 
-            // Drop any existing files off the stream
-            callback();
+    }, function (callback) {
 
-        }, function (callback) {
+      this.push(revisioner.versionFile());
+      callback();
 
-            this.push(revisioner.versionFile());
-            callback();
+    });
 
-        });
 
-    };
+  },
 
-    RevAll.prototype.manifestFile = function () {
+  manifestFile: function() {
 
-        var revisioner = this.revisioner;
+    var revisioner;
 
-        // Drop any existing files off the stream, push the generated manifest file
-        return Through.obj(function (file, enc, callback) {
+    // Drop any existing files off the stream, push the generated manifest file
+    return Through.obj(function (file, enc, callback) {
 
-            callback();
+      revisioner = file.revisioner;
+      callback();
 
-        }, function (callback) {
+    }, function (callback) {
 
-            this.push(revisioner.manifestFile());
-            callback();
+      this.push(revisioner.manifestFile());
+      callback();
 
-        });
-    };
+    });    
 
-    return RevAll;
+  }
 
-})();
-
-module.exports = RevAll;
+};

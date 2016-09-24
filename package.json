@@ -1,54 +1,54 @@
 {
-    "name": "gulp-rev-all",
-    "version": "0.8.24",
-    "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
-    "main": "index.js",
-    "dependencies": {
-        "chalk": "~0.4.0",
-        "gulp-util": "~2.2.14",
-        "merge": "^1.2.0",
-        "through2": "~0.4.0"
-    },
-    "devDependencies": {
-        "gulp": "~3.5.5",
-        "gulp-jshint": "~1.5.1",
-        "gulp-mocha": "~2.2.0",
-        "mocha": "~2.2.1",
-        "should": "*"
-    },
-    "scripts": {
-        "test": "mocha test.js"
-    },
-    "repository": {
-        "type": "git",
-        "url": "git://github.com/smysnk/gulp-rev-all.git"
-    },
-    "keywords": [
-        "gulpplugin",
-        "rev",
-        "all",
-        "revision",
-        "hash",
-        "optimize",
-        "version",
-        "versioning",
-        "cache",
-        "expire",
-        "static",
-        "asset",
-        "assets",
-        "aws",
-        "s3",
-        "cloudfront",
-        "cdn"
-    ],
-    "homepage": "https://github.com/smysnk/gulp-rev-all",
-    "author": "Joshua Bellamy-Henn <josh@psidox.com>",
-    "license": "MIT",
-    "bugs": {
-        "url": "https://github.com/smysnk/gulp-rev-all/issues"
-    },
-    "engines": {
-        "node": ">=0.10"
-    }
+  "name": "gulp-rev-all",
+  "version": "0.9.0",
+  "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
+  "main": "index.js",
+  "dependencies": {
+    "chalk": "~0.4.0",
+    "gulp-util": "~2.2.14",
+    "merge": "^1.2.0",
+    "through2": "~0.4.0"
+  },
+  "devDependencies": {
+    "gulp": "~3.5.5",
+    "gulp-jshint": "~1.5.1",
+    "gulp-mocha": "~2.2.0",
+    "mocha": "~2.2.1",
+    "should": "*"
+  },
+  "scripts": {
+    "test": "mocha test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/smysnk/gulp-rev-all.git"
+  },
+  "keywords": [
+    "gulpplugin",
+    "rev",
+    "all",
+    "revision",
+    "hash",
+    "optimize",
+    "version",
+    "versioning",
+    "cache",
+    "expire",
+    "static",
+    "asset",
+    "assets",
+    "aws",
+    "s3",
+    "cloudfront",
+    "cdn"
+  ],
+  "homepage": "https://github.com/smysnk/gulp-rev-all",
+  "author": "Joshua Bellamy-Henn <josh@psidox.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smysnk/gulp-rev-all/issues"
+  },
+  "engines": {
+    "node": ">=0.10"
+  }
 }

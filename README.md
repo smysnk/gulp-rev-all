@@ -21,17 +21,6 @@ If we take in to consideration the dependency graph while calculating the css fi
 
 So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
 
-## Upgrading to v0.8.x
-
-NOTICE: Major breaking changes occured between the last release v0.7.6 and v0.8.x that you should be aware of.
-  - It is now required to instantiate a `var revAll = new RevAll()` instance before piping through revAll.revision()
-  - Reference dependency analysis has been greatly simplified, previous method was way too complex
-  - No longer requires references to exist physically on disk, can now be piped through, embracing nature of gulp
-  - New Feature: Ignoring files has changed, `ignore` option has been removed and has been replaced with `dontGlobal, dontRenameFile, dontUpdateReference, dontSearchFile` which allows for more control and less ambiguity on what is being ignored
-  - New Feature: Manifest and Version files can be created in the same gulp-rev-all run without issue
-  - Bug Fix: References without quotes were not getting updated 
-  - Change: `silent` & `quiet` options, renamed to `debug` to control logging output
-
 ## Install
 
 Install with [npm](https://npmjs.org/)
@@ -48,10 +37,10 @@ var RevAll = require('gulp-rev-all');
 
 gulp.task('default', function () {
 
-    var revAll = new RevAll();
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'));
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision())
+    .pipe(gulp.dest('cdn'));
 
 });
 ```
@@ -65,7 +54,7 @@ var cloudfront = require("gulp-cloudfront");
 
 var aws = {
   "params": {
-    "Bucket": "bucket-name"
+  "Bucket": "bucket-name"
   },
   "accessKeyId": "AKIAI3Z7CUAFHG53DMJA",
   "secretAccessKey": "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",
@@ -78,14 +67,14 @@ var headers = {'Cache-Control': 'max-age=315360000, no-transform, public'};
 
 gulp.task('default', function () {
 
-    var revAll = new RevAll();
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(awspublish.gzip())
-        .pipe(publisher.publish(headers))
-        .pipe(publisher.cache())
-        .pipe(awspublish.reporter())
-        .pipe(cloudfront(aws));
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision())
+    .pipe(awspublish.gzip())
+    .pipe(publisher.publish(headers))
+    .pipe(publisher.cache())
+    .pipe(awspublish.reporter())
+    .pipe(cloudfront(aws));
 
 });
 ```
@@ -105,13 +94,13 @@ var RevAll = require('gulp-rev-all');
 
 gulp.task('default', function () {
 
-    var revAll = new RevAll();
-    return gulp.src(['assets/**'])
-        .pipe(gulp.dest('build/assets'))  
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('build/assets'))  
-        .pipe(revAll.manifestFile())
-        .pipe(gulp.dest('build/assets')); 
+  return gulp
+    .src(['assets/**'])
+    .pipe(gulp.dest('build/assets'))  
+    .pipe(RevAll.revision())
+    .pipe(gulp.dest('build/assets'))  
+    .pipe(RevAll.manifestFile())
+    .pipe(gulp.dest('build/assets')); 
 
 });
 ```
@@ -120,8 +109,8 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 
 ```json
 {
-    "css/unicorn.css": "css/unicorn.098f6bcd.css",
-    "js/unicorn.js": "js/unicorn.273c2cin.js"
+  "css/unicorn.css": "css/unicorn.098f6bcd.css",
+  "js/unicorn.js": "js/unicorn.273c2cin.js"
 }
 ```
 
@@ -134,13 +123,13 @@ var RevAll = require('gulp-rev-all');
 
 gulp.task('default', function () {
 
-    var revAll = new RevAll();
-    return gulp.src(['assets/**'])
-        .pipe(gulp.dest('build/assets'))
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('build/assets'))
-        .pipe(revAll.versionFile())
-        .pipe(gulp.dest('build/assets'));
+  return gulp
+    .src(['assets/**'])
+    .pipe(gulp.dest('build/assets'))
+    .pipe(RevAll.revision())
+    .pipe(gulp.dest('build/assets'))
+    .pipe(RevAll.versionFile())
+    .pipe(gulp.dest('build/assets'));
 
 });
 ```
@@ -149,15 +138,16 @@ The version file will contain the build date and a combined hash of all the revi
 
 ```json
 {
-    "hash": "c969a1154f2a5c0689d8ec4b0eafd584",
-    "timestamp": "2014-10-11T12:13:48.466Z"
+  "hash": "c969a1154f2a5c0689d8ec4b0eafd584",
+  "timestamp": "2014-10-11T12:13:48.466Z"
 }
 ```
 
 
 ## Options
 ```js
-var revAll = new RevAll({ options });
+gulp.src('dist/**')
+  .pipe(RevAll.revision({ options }))
 ```
 
 #### fileNameVersion
@@ -196,10 +186,10 @@ In some cases, you may not want to rev your `*.html` files:
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({ dontRenameFile: [/^\/favicon.ico$/g, '.html'] });
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'))
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({ dontRenameFile: [/^\/favicon.ico$/g, '.html'] }))
+    .pipe(gulp.dest('cdn'))
 
 });
 ```
@@ -209,10 +199,11 @@ Every html file except the root `/index.html` file:
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] });
-    gulp.src('dist/**')
-        .pipe(revAll.revision()))
-        .pipe(gulp.dest('cdn'))
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] })))
+    .pipe(gulp.dest('cdn'))
+
 });
 ```
 
@@ -224,10 +215,11 @@ Default: `8`<br/>
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({ hashLength: 4 });
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'))
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({ hashLength: 4 }))
+    .pipe(gulp.dest('cdn'))
+
 });
 ```
 
@@ -239,10 +231,10 @@ Default: `none`<br/>
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({ prefix: 'http://1234.cloudfront.net/' });
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'))
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({ prefix: 'http://1234.cloudfront.net/' }))
+    .pipe(gulp.dest('cdn'))
 
 });
 ```
@@ -261,16 +253,15 @@ The function takes three arguments:
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({
-        transformPath: function (rev, source, path) {
-            // on the remote server, image files are served from `/images`
-            return rev.replace('/img', '/images');
-        }
-    });
-
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'))
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({
+      transformPath: function (rev, source, path) {
+      // on the remote server, image files are served from `/images`
+      return rev.replace('/img', '/images');
+      }
+    }))
+    .pipe(gulp.dest('cdn'))
 
 });
 ```
@@ -287,17 +278,16 @@ The function takes one argument:
 ```js
 gulp.task('default', function () {
 
-    var revAll = new RevAll({
-        transformFilename: function (file, hash) {
-            var ext = path.extname(file.path);
-            return hash.substr(0, 5) + '.'  + path.basename(file.path, ext) + ext; // 3410c.filename.ext
-        }
-    });
-
-    gulp.src('dist/**')
-        .pipe(revAll.revision())
-        .pipe(gulp.dest('cdn'))
-        
+  gulp
+    .src('dist/**')
+    .pipe(RevAll.revision({
+      transformFilename: function (file, hash) {
+        var ext = path.extname(file.path);
+        return hash.substr(0, 5) + '.'  + path.basename(file.path, ext) + ext; // 3410c.filename.ext
+      }
+    }))
+    .pipe(gulp.dest('cdn'))
+    
 });
 ```
 
@@ -343,8 +333,8 @@ The default annotator returns one fragment with no annotations:
 
 ```js
 options.annotator = function(contents, path) {
-    var fragments = [{'contents': contents}];
-    return fragments;
+  var fragments = [{'contents': contents}];
+  return fragments;
 };
 ```
 
@@ -361,7 +351,7 @@ The default replacer function is as follows:
 
 ```js
 options.replacer = function(fragment, replaceRegExp, newReference, referencedFile) {
-     fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
+   fragment.contents = fragment.contents.replace(replaceRegExp, '$1' + newReference + '$3$4');
 };
 ```
 
