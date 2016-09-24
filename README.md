@@ -82,7 +82,7 @@ gulp.task('default', function () {
 
 ## Methods
 
-### .revision()
+### .revision({ options })
 Returns a transform function that can be used to pipe files through so that they may be revisioned, also corrects refererences to said files.
 
 ### .manifestFile()
