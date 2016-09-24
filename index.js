@@ -43,7 +43,7 @@ module.exports = {
 
   versionFile: function() {
 
-    let revisioner;
+    var revisioner;
 
     // Drop any existing files off the stream, push the generated version file
     return Through.obj(function (file, enc, callback) {
