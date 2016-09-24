@@ -1,5 +1,9 @@
 var Through = require('through2');
 var Revisioner = require('./revisioner');
+var gutil = require('gulp-util');
+var PluginError = gutil.PluginError;
+
+var PLUGIN_NAME = 'gulp-rev-all';
 
 module.exports = {
   
@@ -11,7 +15,8 @@ module.exports = {
     return Through.obj(function (file, enc, callback) {
 
       if (file.isStream()) {
-        throw new Error('Streams are not supported!');
+        this.emit('error', new PluginError(PLUGIN_NAME, 'Streams not supported!'));      
+        return callback();
       }
 
       if (file.isBuffer()) {
@@ -43,12 +48,19 @@ module.exports = {
     // Drop any existing files off the stream, push the generated version file
     return Through.obj(function (file, enc, callback) {
 
-      revisioner = file.revisioner;
+      if (!revisioner) {
+        revisioner = file.revisioner;
+      }
 
       // Drop any existing files off the stream
       callback();
 
     }, function (callback) {
+
+      if (!revisioner) {
+        this.emit('error', new PluginError(PLUGIN_NAME, 'revision() must be called first!'));
+        return callback('abc');
+      }
 
       this.push(revisioner.versionFile());
       callback();
@@ -65,10 +77,17 @@ module.exports = {
     // Drop any existing files off the stream, push the generated manifest file
     return Through.obj(function (file, enc, callback) {
 
-      revisioner = file.revisioner;
+      if (!revisioner) {
+        revisioner = file.revisioner;
+      }
       callback();
 
     }, function (callback) {
+
+      if (!revisioner) {
+        this.emit('error', new PluginError(PLUGIN_NAME, 'revision() must be called first!'));
+        return callback();
+      }
 
       this.push(revisioner.manifestFile());
       callback();
