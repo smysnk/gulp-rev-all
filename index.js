@@ -59,7 +59,7 @@ module.exports = {
 
       if (!revisioner) {
         this.emit('error', new PluginError(PLUGIN_NAME, 'revision() must be called first!'));
-        return callback('abc');
+        return callback();
       }
 
       this.push(revisioner.versionFile());
@@ -92,7 +92,7 @@ module.exports = {
       this.push(revisioner.manifestFile());
       callback();
 
-    });    
+    });
 
   }
 

@@ -81,23 +81,30 @@ var Revisioner = (function () {
       timestamp: new Date()
     };
 
-    return new Gutil.File({
+    var file = new Gutil.File({
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameVersion),
-      contents: new Buffer(JSON.stringify(out, null, 2))
+      contents: new Buffer(JSON.stringify(out, null, 2)),
+      revisioner: this
     });
+
+    file.revisioner = this;
+    return file;
 
   };
 
   Revisioner.prototype.manifestFile = function () {
 
-    return new Gutil.File({
+    var file = new Gutil.File({
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameManifest),
-      contents: new Buffer(JSON.stringify(this.manifest, null, 2))
+      contents: new Buffer(JSON.stringify(this.manifest, null, 2)),
     });
+
+    file.revisioner = this;
+    return file;
 
   };
 

@@ -4,6 +4,7 @@ var Tool = require('./tool');
 var Path = require('path');
 var gulp = require('gulp');
 var Gutil = require('gulp-util');
+var es = require('event-stream');
 
 require('should');
 require('mocha');
@@ -22,6 +23,58 @@ describe('gulp-rev-all', function () {
     });
 
   };
+
+   describe('basic usage', function () {
+
+    it('should be able to call all methods', function (done) {
+
+      gulp
+        .src(['test/fixtures/config1/**'])
+        .pipe(RevAll.revision())
+        .pipe(RevAll.versionFile())
+        .pipe(es.map(function(file, callback) {
+          Path.basename(file.path).should.equal('rev-version.json');
+          return callback(null, file);
+        }))        
+        .pipe(RevAll.manifestFile())
+        .pipe(es.map(function(file, callback) {
+          Path.basename(file.path).should.equal('rev-manifest.json');
+          done();
+          return callback(null, file);
+        }));
+    });
+
+    it('should throw an error when versionFile() is called before revision()', function (done) {
+
+      gulp
+        .src(['test/fixtures/config1/**'])
+        .pipe(RevAll.versionFile())
+        .on('error', function(err) {
+          err.message.should.equal('revision() must be called first!');
+          done();
+        })
+        .pipe(es.map(function(file, callback) {
+          done('shouldnt get here');
+        }));
+
+    });
+
+    it('should throw an error when manifestFile() is called before revision()', function (done) {
+
+      gulp
+        .src(['test/fixtures/config1/**'])
+        .pipe(RevAll.manifestFile())
+        .on('error', function(err) {
+          err.message.should.equal('revision() must be called first!');
+          done();
+        })
+        .pipe(es.map(function(file, callback) {
+          done('shouldnt get here');
+        }));
+
+    });
+
+  });
 
   describe('resource hash calculation', function () {
 
