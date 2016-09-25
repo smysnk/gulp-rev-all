@@ -160,6 +160,11 @@ Set the filename of the file created by revAll.manifestFile()<br/>
 Type: `String`<br/>
 Default: `rev-manifest.json`
 
+#### includeFilesInManifest
+Add only specific file types to the manifest file<br/>
+Type: `Array of strings`<br/>
+Default: `['.css', '.js']`
+
 #### dontGlobal
 
 Don't rename, search or update refrences in files matching these rules<br/>

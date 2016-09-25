@@ -19,7 +19,8 @@ var Revisioner = (function () {
       'referenceToRegexs': referenceToRegexs,
       'annotator': annotator,
       'replacer': replacer,
-      'debug': false
+      'debug': false,
+      'includeFilesInManifest': ['.css', '.js']
     };
 
     this.options = Merge(defaults, options);
@@ -346,7 +347,10 @@ var Revisioner = (function () {
     // Maintain the manifset file
     var pathOriginal = this.Tool.get_relative_path(this.pathBase, file.revPathOriginal, true);
     var pathRevisioned = this.Tool.get_relative_path(file.base, file.path, true);
-    this.manifest[pathOriginal] = pathRevisioned;
+    // Add only specific file types to the manifest file
+    if (this.options.includeFilesInManifest.indexOf(ext) !== -1) {
+        this.manifest[pathOriginal] = pathRevisioned;
+    }
 
     file.revPath = pathRevisioned;
 
