@@ -10,7 +10,7 @@ module.exports = (function() {
   };
   
   var dirname_with_sep = function(path) {
-    return Path.dirname(path) + '/';
+    return Path.dirname(path).replace(/\\/g, '/') + '/';
   }
 
   var join_path_url = function (prefix, path) {
@@ -50,8 +50,7 @@ module.exports = (function() {
     }
 
     var modifyStartingSlash = noStartingSlash !== undefined;
-
-    if(modifyStartingSlash) {
+    if (modifyStartingSlash) {
       if (path[0] === '/' && noStartingSlash) {
         path = path.substr(1);
       } else if (path[0] !== '/' && !noStartingSlash){

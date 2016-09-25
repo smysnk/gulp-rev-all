@@ -1262,9 +1262,36 @@ describe('gulp-rev-all', function () {
 
             references.length.should.equal(2);
             references[0].should.equal('fourth/other.html');
-            references[1].should.equal('./fourth/other.html');
+            references[1].should.equal('./fourth/other.html');      
 
           });
+
+          if (/^win/.test(process.platform)) {
+            it('windows path', function () {
+
+              var base = 'c:\\first\\second';
+
+              var file = new Gutil.File({
+                path: 'c:\\first\\second\\third\\index.html',
+                base: base
+              });
+
+              var fileReference = new Gutil.File({
+                path: 'c:\\first\\second\\third\\fourth\\other.html',
+                base: base
+              });
+
+              file.revPathOriginal = file.path;
+              fileReference.revPathOriginal = fileReference.path;
+
+              var references = Tool.get_reference_representations_relative(fileReference, file);
+
+              references.length.should.equal(2);
+              references[0].should.equal('fourth/other.html');
+              references[1].should.equal('./fourth/other.html');
+
+            });
+          }
 
         });
 
