@@ -51,9 +51,10 @@ var Revisioner = (function () {
 
       var regExp, regExps = [];
       var isJSReference = reference.path.match(/\.js$/);
+      var isTSReference = reference.path.match(/\.ts$/);
 
-      // Extensionless javascript file references has to to be qouted
-      if (isJSReference) {
+      // Extensionless javascript and typescript file references have to be quoted
+      if (isJSReference || isTSReference) {
         regExp = '('+ qoutes +')(' + escapedRefPathBase + ')()('+ qoutes + '|$)';
         regExps.push(new RegExp(regExp, 'g'));
       }
