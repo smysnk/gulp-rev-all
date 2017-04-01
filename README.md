@@ -1,4 +1,4 @@
-# [gulp](https://github.com/wearefractal/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
+# [gulp](https://github.com/gulpjs/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
 
 > Static asset revisioning with dependency considerations, appends content hash to each filename (eg. unicorn.css => unicorn.098f6bcd.css), re-writes references.
 
@@ -27,6 +27,12 @@ Install with [npm](https://npmjs.org/)
 
 ```
 npm install --save-dev gulp-rev-all
+```
+
+Or [yarn](https://yarnpkg.com/):
+
+```
+yarn add --dev gulp-rev-all
 ```
 
 ## Usage
