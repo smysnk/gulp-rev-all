@@ -288,15 +288,17 @@ var Revisioner = (function () {
     var hash = file.revHashOriginal;
 
     stack.push(file);
-
+    
+    var hashArray = [];
     // Resolve hash for child references
     if (Object.keys(file.revReferenceFiles).length > 0) {
-
+      
+      hashArray.push(hash);
       for (var key in file.revReferenceFiles) {
 
         // Prevent infinite loops caused by circular references, don't recurse if we've already encountered this file
         if (stack.indexOf(file.revReferenceFiles[key]) === -1) {
-          hash += this.calculateHash(file.revReferenceFiles[key], stack);
+          hashArray.push(this.calculateHash(file.revReferenceFiles[key], stack));
         }
 
       }
@@ -304,11 +306,14 @@ var Revisioner = (function () {
       // This file's hash should change if any of its references will be prefixed.
       if (this.options.prefix &&
           Object.keys(file.referenceGroupsContainer.absolute).length) {
-        hash += this.options.prefix;
+        hashArray.push(this.options.prefix);
       }
-
+      
+      hashArray.sort(function(a, b){
+        return a > b;
+      });
       // Consolidate many hashes into one
-      hash = this.Tool.md5(hash);
+      hash = this.Tool.md5(hashArray.join(""));
 
     }
 
