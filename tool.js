@@ -1,5 +1,6 @@
 var Path = require('path');
 var crypto = require('crypto');
+var isbinaryfile = require('isbinaryfile');
 
 module.exports = (function() {
   'use strict';
@@ -62,21 +63,13 @@ module.exports = (function() {
 
   };
 
-  var md5 = function (str) {
-
-    return crypto.createHash('md5').update(str, 'utf8').digest('hex');
-
+  var md5 = function (buf) {
+    return crypto.createHash('md5').update(buf).digest('hex');
   };
 
   var is_binary_file = function (file) {
 
-    var length = (file.contents.length > 50) ? 50 : file.contents.length;
-    for (var i = 0; i < length; i++) {
-      if (file.contents[i] === 0) {
-        return true;
-      }
-    }
-    return false;
+    return isbinaryfile.sync(file.contents,file.contents.length);
 
   };
 
