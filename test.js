@@ -3,7 +3,7 @@ var Revisioner = require('./revisioner');
 var Tool = require('./tool');
 var Path = require('path');
 var gulp = require('gulp');
-var Gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var es = require('event-stream');
 
 require('should');
@@ -1166,12 +1166,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/script.js',
               base: base
             });
@@ -1191,12 +1191,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/other.js',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/script.js',
               base: base
             });
@@ -1220,12 +1220,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/other.html',
               base: base
             });
@@ -1245,12 +1245,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/fourth/other.html',
               base: base
             });
@@ -1271,12 +1271,12 @@ describe('gulp-rev-all', function () {
 
               var base = 'c:\\first\\second';
 
-              var file = new Gutil.File({
+              var file = new Vinyl({
                 path: 'c:\\first\\second\\third\\index.html',
                 base: base
               });
 
-              var fileReference = new Gutil.File({
+              var fileReference = new Vinyl({
                 path: 'c:\\first\\second\\third\\fourth\\other.html',
                 base: base
               });
@@ -1301,12 +1301,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/index.html',
               base: base
             });
@@ -1325,12 +1325,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
@@ -1349,12 +1349,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/thirder/index.html',
               base: base
             });
@@ -1373,12 +1373,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/advanced/index.html',
               base: base
             });
@@ -1401,12 +1401,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/index.html',
               base: base
             });
@@ -1425,12 +1425,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
@@ -1449,12 +1449,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/fifth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
@@ -1481,12 +1481,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/script.js',
               base: base
             });
@@ -1506,12 +1506,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/other.js',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/script.js',
               base: base
             });
@@ -1535,12 +1535,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/other.html',
               base: base
             });
@@ -1560,12 +1560,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/fourth/other.html',
               base: base
             });
@@ -1589,12 +1589,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/index.html',
               base: base
             });
@@ -1614,12 +1614,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
@@ -1639,12 +1639,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/thirder/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
@@ -1664,12 +1664,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/advanced/index.html',
               base: base
             });
@@ -1693,12 +1693,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/index.html',
               base: base
             });
@@ -1718,12 +1718,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
@@ -1743,12 +1743,12 @@ describe('gulp-rev-all', function () {
 
             var base = '/first/second';
 
-            var file = new Gutil.File({
+            var file = new Vinyl({
               path: '/first/second/third/fourth/fifth/index.html',
               base: base
             });
 
-            var fileReference = new Gutil.File({
+            var fileReference = new Vinyl({
               path: '/first/second/other/index.html',
               base: base
             });
