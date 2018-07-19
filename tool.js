@@ -62,10 +62,8 @@ module.exports = (function() {
 
   };
 
-  var md5 = function (str) {
-
-    return crypto.createHash('md5').update(str, 'utf8').digest('hex');
-
+  var md5 = function (buf) {
+    return crypto.createHash('md5').update(buf).digest('hex');
   };
 
   var is_binary_file = function (file) {

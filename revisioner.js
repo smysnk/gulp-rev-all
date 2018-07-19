@@ -156,7 +156,7 @@ var Revisioner = (function () {
     file.revPathOriginal = file.revOrigPath = file.path;
     file.revFilenameExtOriginal = Path.extname(file.path);
     file.revFilenameOriginal = Path.basename(file.path, file.revFilenameExtOriginal);
-    file.revHashOriginal = this.Tool.md5(String(file.contents));
+    file.revHashOriginal = this.Tool.md5(file.contents);
     file.revContentsOriginal = file.contents;
 
     this.filesTemp.push(file);
