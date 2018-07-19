@@ -88,7 +88,7 @@ var Revisioner = (function () {
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameVersion),
-      contents: new Buffer(JSON.stringify(out, null, 2)),
+      contents: Buffer.from(JSON.stringify(out, null, 2)),
       revisioner: this
     });
 
@@ -103,7 +103,7 @@ var Revisioner = (function () {
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameManifest),
-      contents: new Buffer(JSON.stringify(this.manifest, null, 2)),
+      contents: Buffer.from(JSON.stringify(this.manifest, null, 2)),
     });
 
     file.revisioner = this;
@@ -402,7 +402,7 @@ var Revisioner = (function () {
     }
 
     contents = annotatedContent.map(function(annotation) { return annotation.contents; }).join('');
-    file.contents = new Buffer(contents);
+    file.contents = Buffer.from(contents);
 
   };
 
@@ -451,7 +451,7 @@ var Revisioner = (function () {
         return false;
       }
     }
-    
+
     return true;
 
   };
