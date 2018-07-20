@@ -5,6 +5,7 @@ var Path = require('path');
 var gulp = require('gulp');
 var Vinyl = require('vinyl');
 var es = require('event-stream');
+var crypto = require('crypto');
 
 require('should');
 require('mocha');
@@ -225,6 +226,28 @@ describe('gulp-rev-all', function () {
       gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
 
     });
+  });
+
+  describe('should process pdf documents', function () {
+
+      it('should not corrupt them', function (done) {
+
+          setup();
+
+          streamRevision.on('data', function (file) { });
+          streamRevision.on('end', function () {
+
+              var file = files['/pdf/file.pdf'];
+              var md5sum = crypto.createHash('md5').update(file.contents).digest('hex');
+              md5sum.should.equal('c0bd1ef1ddc413b21eff81e705012bfc');
+
+              done();
+
+          });
+
+          gulp.src(['test/fixtures/config1/**']).pipe(streamRevision);
+
+      });
   });
 
   describe('options:', function () {
