@@ -1,4 +1,6 @@
-var Gutil = require('gulp-util');
+var Vinyl = require('vinyl');
+var fancyLog = require('fancy-log');
+var chalk = require('chalk');
 var Merge = require('merge');
 var Path = require('path');
 var Tool = require('./tool');
@@ -36,7 +38,7 @@ var Revisioner = (function () {
     this.manifest = {};
 
     // Enable / Disable logger based on supplied options
-    this.log = (this.options.debug) ? Gutil.log : function () {};
+    this.log = (this.options.debug) ? fancyLog : function () {};
 
     // Make tools available client side callbacks supplied in options
     this.Tool = Tool;
@@ -82,11 +84,11 @@ var Revisioner = (function () {
       timestamp: new Date()
     };
 
-    var file = new Gutil.File({
+    var file = new Vinyl({
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameVersion),
-      contents: new Buffer(JSON.stringify(out, null, 2)),
+      contents: Buffer.from(JSON.stringify(out, null, 2)),
       revisioner: this
     });
 
@@ -97,11 +99,11 @@ var Revisioner = (function () {
 
   Revisioner.prototype.manifestFile = function () {
 
-    var file = new Gutil.File({
+    var file = new Vinyl({
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameManifest),
-      contents: new Buffer(JSON.stringify(this.manifest, null, 2)),
+      contents: Buffer.from(JSON.stringify(this.manifest, null, 2)),
     });
 
     file.revisioner = this;
@@ -263,12 +265,12 @@ var Revisioner = (function () {
                 'file': reference.file,
                 'path': reference.path
               };
-              this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', Gutil.colors.magenta(reference.path), '] -> [', Gutil.colors.green(reference.file.path), '] in [', Gutil.colors.blue(fileResolveReferencesIn.revPathOriginal), ']');
+              this.log('gulp-rev-all:', 'Found', referenceType, 'reference [', chalk.magenta(reference.path), '] -> [', chalk.green(reference.file.path), '] in [', chalk.blue(fileResolveReferencesIn.revPathOriginal), ']');
             } else if (fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal === reference.file.revPathOriginal) {
               // Append the other regexes to account for inconsitent use
               fileResolveReferencesIn.revReferencePaths[reference.path].regExps.push(regExps[j]);
             } else {
-              this.log('gulp-rev-all:', 'Possible ambiguous reference detected [', Gutil.colors.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', Gutil.colors.red(reference.path), '(', Gutil.colors.red(reference.file.revPathOriginal), ')]');
+              this.log('gulp-rev-all:', 'Possible ambiguous reference detected [', chalk.red(fileResolveReferencesIn.revReferencePaths[reference.path].path), ' (', fileResolveReferencesIn.revReferencePaths[reference.path].file.revPathOriginal, ')] <-> [', chalk.red(reference.path), '(', chalk.red(reference.file.revPathOriginal), ')]');
             }
           }
         }
@@ -400,7 +402,7 @@ var Revisioner = (function () {
     }
 
     contents = annotatedContent.map(function(annotation) { return annotation.contents; }).join('');
-    file.contents = new Buffer(contents);
+    file.contents = Buffer.from(contents);
 
   };
 
@@ -449,7 +451,7 @@ var Revisioner = (function () {
         return false;
       }
     }
-    
+
     return true;
 
   };

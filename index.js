@@ -1,7 +1,6 @@
 var Through = require('through2');
 var Revisioner = require('./revisioner');
-var gutil = require('gulp-util');
-var PluginError = gutil.PluginError;
+var PluginError = require('plugin-error');
 
 var PLUGIN_NAME = 'gulp-rev-all';
 
