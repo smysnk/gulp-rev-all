@@ -82,11 +82,11 @@ var Revisioner = (function() {
       return regExps;
     }
 
-    function annotator(contents, path) {
+    function annotator(contents) {
       return [{ contents: contents }];
     }
 
-    function replacer(fragment, replaceRegExp, newReference, referencedFile) {
+    function replacer(fragment, replaceRegExp, newReference) {
       fragment.contents = fragment.contents.replace(
         replaceRegExp,
         "$1" + newReference + "$3$4"
@@ -141,8 +141,8 @@ var Revisioner = (function() {
     if (!this.pathBase) {
       this.pathBase = file.base;
     } else if (file.base.indexOf(this.pathBase) === -1) {
-      var levelsBase = this.pathBase.split(/[\/|\\]/);
-      var levelsFile = file.base.split(/[\/|\\]/);
+      var levelsBase = this.pathBase.split(/[/|\\]/);
+      var levelsFile = file.base.split(/[/|\\]/);
 
       var common = [];
       for (var level = 0, length = levelsFile.length; level < length; level++) {
@@ -193,12 +193,12 @@ var Revisioner = (function() {
     }
 
     // Resolve references to other files
-    for (var path in this.files) {
+    for (path in this.files) {
       this.resolveReferences(this.files[path]);
     }
 
     // Resolve and set revisioned filename based on hash + reference hashes and ignore rules
-    for (var path in this.files) {
+    for (path in this.files) {
       this.revisionFilename(this.files[path]);
     }
 
@@ -206,7 +206,7 @@ var Revisioner = (function() {
     this.hashCombined = this.Tool.md5(this.hashCombined);
 
     // Update references to revisioned filenames
-    for (var path in this.files) {
+    for (path in this.files) {
       this.updateReferences(this.files[path]);
     }
   };
@@ -254,7 +254,7 @@ var Revisioner = (function() {
         fileCurrentReference,
         fileResolveReferencesIn
       );
-      for (var i = 0, length = references.length; i < length; i++) {
+      for (i = 0, length = references.length; i < length; i++) {
         referenceGroupAbsolute.push({
           file: this.files[path],
           path: references[i]
@@ -494,8 +494,8 @@ var Revisioner = (function() {
       }
     }
 
-    for (var i = this.options.dontRenameFile.length; i--; ) {
-      var regex =
+    for (i = this.options.dontRenameFile.length; i--; ) {
+      regex =
         this.options.dontRenameFile[i] instanceof RegExp
           ? this.options.dontRenameFile[i]
           : new RegExp(this.options.dontRenameFile[i] + "$", "ig");
@@ -522,8 +522,8 @@ var Revisioner = (function() {
       }
     }
 
-    for (var i = this.options.dontUpdateReference.length; i--; ) {
-      var regex =
+    for (i = this.options.dontUpdateReference.length; i--; ) {
+      regex =
         this.options.dontUpdateReference[i] instanceof RegExp
           ? this.options.dontUpdateReference[i]
           : new RegExp(this.options.dontUpdateReference[i] + "$", "ig");
@@ -551,8 +551,8 @@ var Revisioner = (function() {
       }
     }
 
-    for (var i = this.options.dontSearchFile.length; i--; ) {
-      var regex =
+    for (i = this.options.dontSearchFile.length; i--; ) {
+      regex =
         this.options.dontSearchFile[i] instanceof RegExp
           ? this.options.dontSearchFile[i]
           : new RegExp(this.options.dontSearchFile[i] + "$", "ig");

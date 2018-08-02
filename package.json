@@ -13,6 +13,7 @@
     "vinyl": "^2.1.0"
   },
   "devDependencies": {
+    "eslint": "^5.2.0",
     "event-stream": "^3.3.4",
     "gulp": "~3.9.1",
     "gulp-jshint": "^2.1.0",
