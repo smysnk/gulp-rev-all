@@ -15,12 +15,12 @@
   "devDependencies": {
     "eslint": "^5.2.0",
     "event-stream": "^3.3.4",
-    "gulp": "~3.9.1",
+    "gulp": "^3.9.1",
     "gulp-jshint": "^2.1.0",
     "gulp-mocha": "^6.0.0",
     "mocha": "^5.2.0",
     "prettier": "^1.14.0",
-    "should": "*"
+    "should": "^13.2.3"
   },
   "scripts": {
     "test": "mocha test.js"
