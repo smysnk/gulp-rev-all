@@ -1,5 +1,4 @@
 var RevAll = require("./index");
-var Revisioner = require("./revisioner");
 var Tool = require("./tool");
 var Path = require("path");
 var gulp = require("gulp");
@@ -52,7 +51,7 @@ describe("gulp-rev-all", function() {
           done();
         })
         .pipe(
-          es.map(function(file, callback) {
+          es.map(function() {
             done("shouldnt get here");
           })
         );
@@ -67,7 +66,7 @@ describe("gulp-rev-all", function() {
           done();
         })
         .pipe(
-          es.map(function(file, callback) {
+          es.map(function() {
             done("shouldnt get here");
           })
         );
@@ -94,7 +93,7 @@ describe("gulp-rev-all", function() {
     it("should change if child reference changes", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var pathBaseline = files["/css/style.css"].path;
 
@@ -114,7 +113,7 @@ describe("gulp-rev-all", function() {
     it("should change if the prefix changed and it has absolute references", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var pathBaseline = files["/index.html"].path;
 
@@ -141,7 +140,7 @@ describe("gulp-rev-all", function() {
 
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         // Gather baseline paths
         revisioner.run();
@@ -149,10 +148,8 @@ describe("gulp-rev-all", function() {
         var hashGpsBaseline = files["/view/gps.html"].revHashOriginal;
 
         var pathAboutBaseline = files["/view/about.html"].path;
-        var hashAboutBaseline = files["/view/about.html"].revHashOriginal;
 
         var pathMainBaseline = files["/view/main.html"].path;
-        var hashMainBaseline = files["/view/main.html"].revHashOriginal;
 
         // Change one of the references
         files["/view/gps.html"].revHashOriginal = "changed";
@@ -190,7 +187,7 @@ describe("gulp-rev-all", function() {
     it("should not corrupt them", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var file = files["/img/image1.jpg"];
         file.contents[0].should.equal(255);
@@ -209,7 +206,7 @@ describe("gulp-rev-all", function() {
     it("should not corrupt them", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var file = files["/pdf/file.pdf"];
         var md5sum = crypto
@@ -260,7 +257,7 @@ describe("gulp-rev-all", function() {
       it("should have proper hash length when specified", function(done) {
         setup({ hashLength: 4 });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           files["/index.html"].path.should.match(/\.[a-z0-9]{4}\.[a-z]{2,4}$/);
           done();
@@ -280,7 +277,7 @@ describe("gulp-rev-all", function() {
           }
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           for (var path in files) {
             Path.basename(files[path].path).should.match(
@@ -298,7 +295,7 @@ describe("gulp-rev-all", function() {
       it("should not update favicon.ico reference by default", function(done) {
         setup();
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /"favicon\.[a-z0-9]{8}\.ico"/g
@@ -314,7 +311,7 @@ describe("gulp-rev-all", function() {
           dontGlobal: [".html"]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\.html/g
@@ -330,7 +327,7 @@ describe("gulp-rev-all", function() {
           dontGlobal: [/.html$/g]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\.html/g
@@ -346,10 +343,10 @@ describe("gulp-rev-all", function() {
           dontGlobal: [".js"]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.match(
-            /\"[a-z0-9\/]*\.js\"/
+            /"[a-z0-9/]*\.js"/
           );
           done();
         });
@@ -361,10 +358,10 @@ describe("gulp-rev-all", function() {
           dontGlobal: [/.js$/g]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.match(
-            /\"[a-z0-9\/]*\.js\"/
+            /"[a-z0-9/]*\.js"/
           );
           done();
         });
@@ -378,7 +375,7 @@ describe("gulp-rev-all", function() {
           dontRenameFile: [/^\/index.html/g]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           files["/nested/index.html"].path.should.not.match(
             /\/nested\/index\.html$/
@@ -410,7 +407,7 @@ describe("gulp-rev-all", function() {
           dontRenameFile: [".html"]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.match(
             /[a-z0-9]*\.[a-z0-9]{8}\.[a-z]{2,4}/
@@ -428,7 +425,7 @@ describe("gulp-rev-all", function() {
           dontUpdateReference: [".html"]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\.html/g
@@ -447,7 +444,7 @@ describe("gulp-rev-all", function() {
           dontUpdateReference: [/.html$/g]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\.html/g
@@ -468,7 +465,7 @@ describe("gulp-rev-all", function() {
           dontSearchFile: [".html"]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\./g
@@ -484,7 +481,7 @@ describe("gulp-rev-all", function() {
           dontSearchFile: [/.html$/g]
         });
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/index.html"].contents).should.not.match(
             /\.[a-z0-9]{8}\./g
@@ -502,7 +499,7 @@ describe("gulp-rev-all", function() {
       it("should set base to common directory", function(done) {
         setup();
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           revisioner.pathBase.should.match(/\/test\/fixtures\/config1\/$/g);
           done();
@@ -519,7 +516,7 @@ describe("gulp-rev-all", function() {
       it("should resolve references correctly", function(done) {
         setup();
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           String(files["/script/main.js"].contents).should.containEql(
             Path.basename(
@@ -557,7 +554,7 @@ describe("gulp-rev-all", function() {
 
     it("should replaced references using transform if it is supplied", function(done) {
       setup({
-        transformPath: function(reved, source, path) {
+        transformPath: function(reved) {
           return this.Tool.join_path_url(
             "//images.example.com/",
             reved.replace("img/", "")
@@ -754,7 +751,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references to fonts", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/css/style.css"].contents);
 
@@ -772,7 +769,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references to images", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/css/style.css"].contents);
 
@@ -825,7 +822,7 @@ describe("gulp-rev-all", function() {
     it("should not add .js to short references", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
         contents.should.not.containEql(
@@ -840,7 +837,7 @@ describe("gulp-rev-all", function() {
     it("should not resolve arbitrary text with the same name as a file", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
         contents.should.not.containEql(
@@ -858,7 +855,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references to regular commonjs include", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
         contents.should.containEql(files["/script/layout.js"].revFilename);
@@ -871,7 +868,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references to short style commonjs include", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
 
@@ -900,7 +897,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references to angularjs views", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
         contents.should.containEql(files["/view/gps.html"].revFilename);
@@ -913,7 +910,7 @@ describe("gulp-rev-all", function() {
     it("should resolve references in angularjs inline templates", function(done) {
       setup();
 
-      streamRevision.on("data", function(file) {});
+      streamRevision.on("data", function() {});
       streamRevision.on("end", function() {
         var contents = String(files["/script/app.js"].contents);
         contents.should.containEql(files["/img/image1.jpg"].revFilename);
@@ -927,7 +924,7 @@ describe("gulp-rev-all", function() {
       it("should resolve reference with spaces after map statement", function(done) {
         setup();
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           var contents = String(files["/script/app.js"].contents);
           contents.should.containEql(
@@ -942,7 +939,7 @@ describe("gulp-rev-all", function() {
       it("should resolve reference with no characters after map statement", function(done) {
         setup();
 
-        streamRevision.on("data", function(file) {});
+        streamRevision.on("data", function() {});
         streamRevision.on("end", function() {
           var contents = String(
             files["/script/no_space_after_map.js"].contents

@@ -157,10 +157,7 @@ module.exports = (function() {
    * the context to the reference file.
    *
    */
-  var get_reference_representations_absolute = function(
-    fileCurrentReference,
-    file
-  ) {
+  var get_reference_representations_absolute = function(fileCurrentReference) {
     var representations = [];
     var representation;
 
