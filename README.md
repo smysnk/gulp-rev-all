@@ -1,4 +1,4 @@
-# [gulp](https://github.com/gulpjs/gulp)-rev-all [![Build Status](https://travis-ci.org/smysnk/gulp-rev-all.png?branch=master)](https://travis-ci.org/smysnk/gulp-rev-all)
+# gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Build Status](https://img.shields.io/travis/smysnk/gulp-rev-all.svg)](https://travis-ci.org/smysnk/gulp-rev-all) [![Dependency Status](https://img.shields.io/david/smysnk/gulp-rev-all.svg)](https://david-dm.org/smysnk/gulp-rev-all)
 
 > Static asset revisioning with dependency considerations, appends content hash to each filename (eg. unicorn.css => unicorn.098f6bcd.css), re-writes references.
 
@@ -10,7 +10,7 @@ Additionally, content distribution networks like [CloudFront](http://aws.amazon.
 
 ## Why fork?
 
-This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.  
+This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.
 It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and re-writing references to those files. `gulp-rev-all` does not agree with this, we believe you need to analyze each revisioned files' references, to calculate a final hash for caching purposes.
 
 ### Consider the following example:
