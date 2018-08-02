@@ -1,17 +1,17 @@
 /* jshint node:true */
 
-'use strict';
+"use strict";
 
-var gulp = require('gulp');
-var jshint = require('gulp-jshint');
-var mocha = require('gulp-mocha');
+var gulp = require("gulp");
+var jshint = require("gulp-jshint");
+var mocha = require("gulp-mocha");
 
-gulp.task('lint', function() {
+gulp.task("lint", function() {
   return gulp
-    .src('test.js')
+    .src("test.js")
     .pipe(jshint())
-    .pipe(jshint.reporter('default'))
+    .pipe(jshint.reporter("default"))
     .pipe(mocha());
 });
 
-gulp.task('default', ['lint']);
+gulp.task("default", ["lint"]);
