@@ -434,7 +434,7 @@ var Revisioner = (function() {
           (reference.file.revFilenameOriginal.length +
             reference.file.revFilenameExtOriginal.length)
       );
-      var pathReferenceReplace = referencePath + reference.file.revFilename;
+      var pathReferenceReplace = referencePath + (this.shouldFileBeRenamed(reference.file) ? reference.file.revFilename : reference.file.revFilenameOriginal);
 
       if (this.options.transformPath) {
         // Transform path using client supplied transformPath callback,
