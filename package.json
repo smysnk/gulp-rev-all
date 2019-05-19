@@ -18,7 +18,9 @@
     "gulp": "^3.9.1",
     "gulp-jshint": "^2.1.0",
     "gulp-mocha": "^6.0.0",
+    "jshint": "^2.10.2",
     "mocha": "^5.2.0",
+    "natives": "^1.1.6",
     "prettier": "^1.14.0",
     "should": "^13.2.3"
   },
