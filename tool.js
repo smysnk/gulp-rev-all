@@ -1,6 +1,6 @@
 var Path = require("path");
 var crypto = require("crypto");
-var isbinaryfile = require("isbinaryfile");
+var isBinaryFileSync = require("isbinaryfile").isBinaryFileSync;
 
 module.exports = (function() {
   "use strict";
@@ -71,7 +71,7 @@ module.exports = (function() {
   };
 
   var is_binary_file = function(file) {
-    return isbinaryfile.sync(file.contents, file.contents.length);
+    return isBinaryFileSync(file.contents, file.contents.length);
   };
 
   /**
