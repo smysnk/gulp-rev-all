@@ -16,14 +16,12 @@
     "eslint": "^5.2.0",
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
-    "gulp-jshint": "^2.1.0",
-    "gulp-mocha": "^6.0.0",
     "mocha": "^6.1.4",
     "prettier": "^1.14.0",
     "should": "^13.2.3"
   },
   "scripts": {
-    "test": "mocha test.js"
+    "test": "mocha test.js && eslint ."
   },
   "repository": {
     "type": "git",
