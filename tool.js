@@ -145,7 +145,7 @@ module.exports = (function() {
       var relPath = Path.relative(pathFile, pathCurrentReference);
       relPath = relPath.replace(/\\/g, "/");
       representations.push(
-        Path.join(relPath, Path.basename(fileCurrentReference.revPathOriginal))
+        join_path(relPath, Path.basename(fileCurrentReference.revPathOriginal))
       );
     }
 
