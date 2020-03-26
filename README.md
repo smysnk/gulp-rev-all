@@ -40,11 +40,8 @@ yarn add --dev gulp-rev-all
 var gulp = require("gulp");
 var RevAll = require("gulp-rev-all");
 
-gulp.task("default", function() {
-  gulp
-    .src("dist/**")
-    .pipe(RevAll.revision())
-    .pipe(gulp.dest("cdn"));
+gulp.task("default", function () {
+  gulp.src("dist/**").pipe(RevAll.revision()).pipe(gulp.dest("cdn"));
 });
 ```
 
@@ -56,18 +53,18 @@ var cloudfront = require("gulp-cloudfront");
 
 var aws = {
   params: {
-    Bucket: "bucket-name"
+    Bucket: "bucket-name",
   },
   accessKeyId: "AKIAI3Z7CUAFHG53DMJA",
   secretAccessKey: "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",
   distributionId: "E1SYAKGEMSK3OD",
-  region: "us-standard"
+  region: "us-standard",
 };
 
 var publisher = awspublish.create(aws);
 var headers = { "Cache-Control": "max-age=315360000, no-transform, public" };
 
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(RevAll.revision())
@@ -95,7 +92,7 @@ Returns a transform function that will filter out any existing files going throu
 var gulp = require("gulp");
 var RevAll = require("gulp-rev-all");
 
-gulp.task("default", function() {
+gulp.task("default", function () {
   return gulp
     .src(["assets/**"])
     .pipe(gulp.dest("build/assets"))
@@ -123,7 +120,7 @@ Returns a transform function that will filter out any existing files going throu
 var gulp = require("gulp");
 var RevAll = require("gulp-rev-all");
 
-gulp.task("default", function() {
+gulp.task("default", function () {
   return gulp
     .src(["assets/**"])
     .pipe(gulp.dest("build/assets"))
@@ -194,7 +191,7 @@ Default: `[]`
 In some cases, you may not want to rev your `*.html` files:
 
 ```js
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(RevAll.revision({ dontRenameFile: [/^\/favicon.ico$/g, ".html"] }))
@@ -222,7 +219,7 @@ Type: `hashLength`<br/>
 Default: `8`<br/>
 
 ```js
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(RevAll.revision({ hashLength: 4 }))
@@ -237,7 +234,7 @@ Type: `prefix`<br/>
 Default: `none`<br/>
 
 ```js
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(RevAll.revision({ prefix: "http://1234.cloudfront.net/" }))
@@ -258,15 +255,15 @@ The function takes three arguments:
 - `path` - path to the file
 
 ```js
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(
       RevAll.revision({
-        transformPath: function(rev, source, path) {
+        transformPath: function (rev, source, path) {
           // on the remote server, image files are served from `/images`
           return rev.replace("/img", "/images");
-        }
+        },
       })
     )
     .pipe(gulp.dest("cdn"));
@@ -285,15 +282,15 @@ The function takes one argument:
 - `hash` - calculated hash of the file
 
 ```js
-gulp.task("default", function() {
+gulp.task("default", function () {
   gulp
     .src("dist/**")
     .pipe(
       RevAll.revision({
-        transformFilename: function(file, hash) {
+        transformFilename: function (file, hash) {
           var ext = path.extname(file.path);
           return hash.substr(0, 5) + "." + path.basename(file.path, ext) + ext; // 3410c.filename.ext
-        }
+        },
       })
     )
     .pipe(gulp.dest("cdn"));
@@ -342,7 +339,7 @@ The file will be reassembled in order. <br/>
 The default annotator returns one fragment with no annotations:
 
 ```js
-options.annotator = function(contents, path) {
+options.annotator = function (contents, path) {
   var fragments = [{ contents: contents }];
   return fragments;
 };
@@ -354,13 +351,13 @@ The replacer function's job is to replace references to revisioned files. The pa
 
 `fragment`: a file fragment as created in the annotator function.<br/>
 `replaceRegExp`: parameter is a regular expression that can be used to match the part of the fragement to be replaced. The regular expression has 4 capture groups. $1 & $4 are what precedes and follows the reference. $2 is the file path without the extension, and $3 is the file extension.<br/>
-`newReference`: what gulp-rev-all wants to replace the file path without the extension ($2) with.<br/>
+`newReference`: what gulp-rev-all wants to replace the file path without the extension (\$2) with.<br/>
 `referencedFile`: contains additional properties of the file reference thats being replaced. See the 'Additional Properties' section for more information.<br/>
 
 The default replacer function is as follows:
 
 ```js
-options.replacer = function(
+options.replacer = function (
   fragment,
   replaceRegExp,
   newReference,

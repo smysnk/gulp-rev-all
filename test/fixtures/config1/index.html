@@ -1,26 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en" data-framework="angularjs">
+  <head>
+    <title>gulp-rev-all</title>
+    <link rel="stylesheet" href=css/style.css />
+    <link rel="shortcut icon" href="favicon.ico" />
+  </head>
 
-    <head>
-        <title>gulp-rev-all</title>
-        <link rel="stylesheet" href=css/style.css />
-        <link rel="shortcut icon" href="favicon.ico" />
-    </head>
+  <body class="ng-cloak" ng-controller="Principle">
+    <ng-include src="'view/main.html'"></ng-include>
+    <script data-main="/script/main.js" src="lib/require.js"></script>
 
-    <body class="ng-cloak" ng-controller="Principle">
-        <ng-include src="'view/main.html'"></ng-include>
-        <script data-main="/script/main.js" src="lib/require.js"></script>
+    <img src="img/image1.jpg" />
+    <img src="img/image2.jpg" />
+    <img src="img/image3.jpg" /> <img src="img/image3.jpg" />
+    <!-- Intentionally duplicated for 'replace all references test' -->
+    <img src=img/image4.jpg />
 
-        <img src="img/image1.jpg" />
-        <img src='img/image2.jpg' />
-        <img src='img/image3.jpg' /> <img src='img/image3.jpg' /> <!-- Intentionally duplicated for 'replace all references test' -->
-        <img src=img/image4.jpg />
+    <img
+      src="img/image-src.png"
+      srcset="
+        img/image-1x.png 1x,
+        img/image-2x.png 2x,
+        img/image-3x.png 3x,
+        img/image-4x.png 4x
+      "
+    />
 
-        <img src="img/image-src.png" srcset="img/image-1x.png 1x, img/image-2x.png 2x, img/image-3x.png 3x, img/image-4x.png 4x">
-
-        <a href ='/nested/index.html'>Nested Site</a>
-        <a href ='/index.html'>Home</a>
-
-    </body>
-
+    <a href="/nested/index.html">Nested Site</a>
+    <a href="/index.html">Home</a>
+  </body>
 </html>

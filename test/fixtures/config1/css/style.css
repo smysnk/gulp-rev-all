@@ -1,11 +1,15 @@
 @font-face {
-  font-family: 'Glyphicons Halflings';
-  src: url("../font/font1.eot?#iefix") format("embedded-opentype"), url("../font/font1.woff") format("woff"), url("../font/font1 space.ttf") format("truetype"), url("../font/font1.svg#glyphicons_halflingsregular") format("svg"); }
-
-.cat {
-    background-image:url('img/image1.jpg');
+  font-family: "Glyphicons Halflings";
+  src: url("../font/font1.eot?#iefix") format("embedded-opentype"),
+    url("../font/font1.woff") format("woff"),
+    url("../font/font1 space.ttf") format("truetype"),
+    url("../font/font1.svg#glyphicons_halflingsregular") format("svg");
 }
 
 .cat {
-    background-image:url(img/image2.jpg);
+  background-image: url("img/image1.jpg");
+}
+
+.cat {
+  background-image: url(img/image2.jpg);
 }

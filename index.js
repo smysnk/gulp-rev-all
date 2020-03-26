@@ -5,12 +5,12 @@ var PluginError = require("plugin-error");
 var PLUGIN_NAME = "gulp-rev-all";
 
 module.exports = {
-  revision: function(options) {
+  revision: function (options) {
     var revisioner = new Revisioner(options);
 
     // Feed the RevAll Revisioner with all the files in the stream, don't emit them until all of them have been processed
     return Through.obj(
-      function(file, enc, callback) {
+      function (file, enc, callback) {
         if (file.isStream()) {
           this.emit(
             "error",
@@ -27,7 +27,7 @@ module.exports = {
 
         callback();
       },
-      function(callback) {
+      function (callback) {
         revisioner.run();
 
         var files = revisioner.files;
@@ -39,12 +39,12 @@ module.exports = {
     );
   },
 
-  versionFile: function() {
+  versionFile: function () {
     var revisioner;
 
     // Drop any existing files off the stream, push the generated version file
     return Through.obj(
-      function(file, enc, callback) {
+      function (file, enc, callback) {
         if (!revisioner) {
           revisioner = file.revisioner;
         }
@@ -52,7 +52,7 @@ module.exports = {
         // Drop any existing files off the stream
         callback();
       },
-      function(callback) {
+      function (callback) {
         if (!revisioner) {
           this.emit(
             "error",
@@ -67,18 +67,18 @@ module.exports = {
     );
   },
 
-  manifestFile: function() {
+  manifestFile: function () {
     var revisioner;
 
     // Drop any existing files off the stream, push the generated manifest file
     return Through.obj(
-      function(file, enc, callback) {
+      function (file, enc, callback) {
         if (!revisioner) {
           revisioner = file.revisioner;
         }
         callback();
       },
-      function(callback) {
+      function (callback) {
         if (!revisioner) {
           this.emit(
             "error",
@@ -91,5 +91,5 @@ module.exports = {
         callback();
       }
     );
-  }
+  },
 };

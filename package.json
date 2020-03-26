@@ -17,11 +17,11 @@
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
     "mocha": "^6.1.4",
-    "prettier": "^1.14.0",
+    "prettier": "^2.0.2",
     "should": "^13.2.3"
   },
   "scripts": {
-    "test": "mocha test.js && eslint ."
+    "test": "mocha test.js && eslint . && prettier . -c"
   },
   "repository": {
     "type": "git",

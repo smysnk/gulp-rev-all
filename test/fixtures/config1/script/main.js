@@ -6,7 +6,7 @@ require.config({
     angular: "../lib/angular",
     bootstrap: "/lib/bootstrap",
     jquery: "../lib/jquery",
-    lodash: "lodash"
+    lodash: "lodash",
 
     // bootstrap: '//maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min',
     // jquery: '//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min',
@@ -17,10 +17,10 @@ require.config({
     lodash: { exports: "_" },
     jquery: { exports: "jQuery" },
     angular: { deps: ["jquery"], exports: "angular" },
-    bootstrap: { deps: ["jquery"] }
-  }
+    bootstrap: { deps: ["jquery"] },
+  },
 });
 
-require(["angular", "app"], function(angular) {
+require(["angular", "app"], function (angular) {
   angular.bootstrap(document, ["app"]);
 });

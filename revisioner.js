@@ -5,9 +5,9 @@ var Merge = require("merge");
 var Path = require("path");
 var Tool = require("./tool");
 
-var Revisioner = (function() {
+var Revisioner = (function () {
   "use strict";
-  var Revisioner = function(options) {
+  var Revisioner = function (options) {
     var defaults = {
       hashLength: 8,
       dontGlobal: [/^\/favicon.ico$/g],
@@ -21,7 +21,7 @@ var Revisioner = (function() {
       annotator: annotator,
       replacer: replacer,
       debug: false,
-      includeFilesInManifest: [".css", ".js"]
+      includeFilesInManifest: [".css", ".js"],
     };
 
     this.options = Merge(defaults, options);
@@ -37,7 +37,7 @@ var Revisioner = (function() {
     this.manifest = {};
 
     // Enable / Disable logger based on supplied options
-    this.log = this.options.debug ? fancyLog : function() {};
+    this.log = this.options.debug ? fancyLog : function () {};
 
     // Make tools available client side callbacks supplied in options
     this.Tool = Tool;
@@ -94,10 +94,10 @@ var Revisioner = (function() {
     }
   };
 
-  Revisioner.prototype.versionFile = function() {
+  Revisioner.prototype.versionFile = function () {
     var out = {
       hash: this.hashCombined,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     var file = new Vinyl({
@@ -105,19 +105,19 @@ var Revisioner = (function() {
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameVersion),
       contents: Buffer.from(JSON.stringify(out, null, 2)),
-      revisioner: this
+      revisioner: this,
     });
 
     file.revisioner = this;
     return file;
   };
 
-  Revisioner.prototype.manifestFile = function() {
+  Revisioner.prototype.manifestFile = function () {
     var file = new Vinyl({
       cwd: this.pathCwd,
       base: this.pathBase,
       path: Path.join(this.pathBase, this.options.fileNameManifest),
-      contents: Buffer.from(JSON.stringify(this.manifest, null, 2))
+      contents: Buffer.from(JSON.stringify(this.manifest, null, 2)),
     });
 
     file.revisioner = this;
@@ -127,7 +127,7 @@ var Revisioner = (function() {
   /**
    * Used to feed files into the Revisioner, sets up the original filename and hash.
    */
-  Revisioner.prototype.processFile = function(file) {
+  Revisioner.prototype.processFile = function (file) {
     if (!this.pathCwd) {
       this.pathCwd = file.cwd;
     }
@@ -179,7 +179,7 @@ var Revisioner = (function() {
    * Resolves references, renames files, updates references.  To be called after all the files
    * have been fed into the Revisioner (ie. At the end of the file stream)
    */
-  Revisioner.prototype.run = function() {
+  Revisioner.prototype.run = function () {
     this.hashCombined = "";
 
     // Go through and correct the base path now that we have proccessed all the files coming in
@@ -214,7 +214,7 @@ var Revisioner = (function() {
   /**
    * Go through each file in the file pool, search for references to any other file in the pool.
    */
-  Revisioner.prototype.resolveReferences = function(fileResolveReferencesIn) {
+  Revisioner.prototype.resolveReferences = function (fileResolveReferencesIn) {
     var contents = String(fileResolveReferencesIn.revContentsOriginal);
     fileResolveReferencesIn.revReferencePaths = {};
     fileResolveReferencesIn.revReferenceFiles = {};
@@ -222,7 +222,7 @@ var Revisioner = (function() {
     var referenceGroupAbsolute = [];
     fileResolveReferencesIn.referenceGroupsContainer = {
       relative: referenceGroupRelative,
-      absolute: referenceGroupAbsolute
+      absolute: referenceGroupAbsolute,
     };
 
     // Don't try and resolve references in binary files or files that have been blacklisted
@@ -246,7 +246,7 @@ var Revisioner = (function() {
       for (var i = 0, length = references.length; i < length; i++) {
         referenceGroupRelative.push({
           file: this.files[path],
-          path: references[i]
+          path: references[i],
         });
       }
 
@@ -257,7 +257,7 @@ var Revisioner = (function() {
       for (i = 0, length = references.length; i < length; i++) {
         referenceGroupAbsolute.push({
           file: this.files[path],
-          path: references[i]
+          path: references[i],
         });
       }
     }
@@ -284,7 +284,7 @@ var Revisioner = (function() {
               fileResolveReferencesIn.revReferencePaths[reference.path] = {
                 regExps: [regExps[j]],
                 file: reference.file,
-                path: reference.path
+                path: reference.path,
               };
               this.log(
                 "gulp-rev-all:",
@@ -333,7 +333,7 @@ var Revisioner = (function() {
    * Calculate hash based contents and references.
    * hash = hash(file hash + hash(hash references 1 + hash reference N)..)
    */
-  Revisioner.prototype.calculateHash = function(file, stack) {
+  Revisioner.prototype.calculateHash = function (file, stack) {
     stack = stack || [];
     var hash = file.revHashOriginal;
 
@@ -366,7 +366,7 @@ var Revisioner = (function() {
   /**
    * Revision filename based on internal contents + references.
    */
-  Revisioner.prototype.revisionFilename = function(file) {
+  Revisioner.prototype.revisionFilename = function (file) {
     var filename = file.revFilenameOriginal;
     var ext = file.revFilenameExtOriginal;
 
@@ -412,7 +412,7 @@ var Revisioner = (function() {
   /**
    * Update the contents of a file with the revisioned filenames of its references.
    */
-  Revisioner.prototype.updateReferences = function(file) {
+  Revisioner.prototype.updateReferences = function (file) {
     // Don't try and update references in binary files or blacklisted files
     if (this.Tool.is_binary_file(file) || !this.shouldSearchFile(file)) {
       return;
@@ -471,7 +471,7 @@ var Revisioner = (function() {
     }
 
     contents = annotatedContent
-      .map(function(annotation) {
+      .map(function (annotation) {
         return annotation.contents;
       })
       .join("");
@@ -481,7 +481,7 @@ var Revisioner = (function() {
   /**
    * Determines if a file should be renamed based on dontRenameFile supplied in options.
    */
-  Revisioner.prototype.shouldFileBeRenamed = function(file) {
+  Revisioner.prototype.shouldFileBeRenamed = function (file) {
     var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
     for (var i = this.options.dontGlobal.length; i--; ) {
@@ -509,7 +509,7 @@ var Revisioner = (function() {
   /**
    * Determines if a particular reference should be updated across assets based on dontUpdateReference supplied in options.
    */
-  Revisioner.prototype.shouldUpdateReference = function(file) {
+  Revisioner.prototype.shouldUpdateReference = function (file) {
     var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
     for (var i = this.options.dontGlobal.length; i--; ) {
@@ -538,7 +538,7 @@ var Revisioner = (function() {
   /**
    * Determines if a particular reference should be updated across assets based on dontUpdateReference supplied in options.
    */
-  Revisioner.prototype.shouldSearchFile = function(file) {
+  Revisioner.prototype.shouldSearchFile = function (file) {
     var filename = this.Tool.get_relative_path(file.base, file.revPathOriginal);
 
     for (var i = this.options.dontGlobal.length; i--; ) {

@@ -2,19 +2,19 @@ var Path = require("path");
 var crypto = require("crypto");
 var isBinaryFileSync = require("isbinaryfile").isBinaryFileSync;
 
-module.exports = (function() {
+module.exports = (function () {
   "use strict";
 
-  var path_without_ext = function(path) {
+  var path_without_ext = function (path) {
     var ext = Path.extname(path);
     return path.substr(0, path.length - ext.length);
   };
 
-  var dirname_with_sep = function(path) {
+  var dirname_with_sep = function (path) {
     return Path.dirname(path).replace(/\\/g, "/") + "/";
   };
 
-  var join_path_url = function(prefix, path) {
+  var join_path_url = function (prefix, path) {
     prefix = prefix.replace(/\/$/, "");
     path = path.replace(/^\//, "");
     return [prefix, path].join("/");
@@ -23,7 +23,7 @@ module.exports = (function() {
   /**
    * Joins a directory and a filename, replaces Windows forward-slash with a backslash.
    */
-  var join_path = function(directory, filename) {
+  var join_path = function (directory, filename) {
     return Path.join(directory, filename)
       .replace(/^[a-z]:\\/i, "/")
       .replace(/\\/g, "/");
@@ -33,7 +33,7 @@ module.exports = (function() {
    * Given a base path and resource path, will return resource path relative to the base.
    * Also replaces Windows forward-slash with a backslash.
    */
-  var get_relative_path = function(base, path, noStartingSlash) {
+  var get_relative_path = function (base, path, noStartingSlash) {
     if (base === path) {
       return "";
     }
@@ -63,14 +63,11 @@ module.exports = (function() {
     return path;
   };
 
-  var md5 = function(buf) {
-    return crypto
-      .createHash("md5")
-      .update(buf)
-      .digest("hex");
+  var md5 = function (buf) {
+    return crypto.createHash("md5").update(buf).digest("hex");
   };
 
-  var is_binary_file = function(file) {
+  var is_binary_file = function (file) {
     return isBinaryFileSync(file.contents, file.contents.length);
   };
 
@@ -79,7 +76,7 @@ module.exports = (function() {
    * the context to the reference file.
    *
    */
-  var get_reference_representations_relative = function(
+  var get_reference_representations_relative = function (
     fileCurrentReference,
     file
   ) {
@@ -157,7 +154,7 @@ module.exports = (function() {
    * the context to the reference file.
    *
    */
-  var get_reference_representations_absolute = function(fileCurrentReference) {
+  var get_reference_representations_absolute = function (fileCurrentReference) {
     var representations = [];
     var representation;
 
@@ -193,6 +190,6 @@ module.exports = (function() {
     join_path: join_path,
     join_path_url: join_path_url,
     get_reference_representations_relative: get_reference_representations_relative,
-    get_reference_representations_absolute: get_reference_representations_absolute
+    get_reference_representations_absolute: get_reference_representations_absolute,
   };
 })();
