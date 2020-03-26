@@ -21,7 +21,7 @@
     "should": "^13.2.3"
   },
   "scripts": {
-    "test": "mocha test.js && eslint . && prettier . -c"
+    "test": "mocha test.js && eslint ."
   },
   "repository": {
     "type": "git",
