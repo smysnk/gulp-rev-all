@@ -55,6 +55,6 @@
     "url": "https://github.com/smysnk/gulp-rev-all/issues"
   },
   "engines": {
-    "node": ">=8"
+    "node": ">=10"
   }
 }
