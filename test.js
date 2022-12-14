@@ -1,13 +1,13 @@
-var RevAll = require("./index");
-var Tool = require("./tool");
-var Path = require("path");
-var gulp = require("gulp");
-var Vinyl = require("vinyl");
-var es = require("event-stream");
-var crypto = require("crypto");
+import RevAll from "./index.js";
+import Tool from "./tool.js";
+import Path from "path";
+import gulp from "gulp";
+import Vinyl from "vinyl";
+import es from "event-stream";
+import crypto from "crypto";
 
-require("should");
-require("mocha");
+import "should";
+import "mocha";
 
 describe("gulp-rev-all", function () {
   var streamRevision, revisioner, files;

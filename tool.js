@@ -1,8 +1,8 @@
-var Path = require("path");
-var crypto = require("crypto");
-var isBinaryFileSync = require("isbinaryfile").isBinaryFileSync;
+import Path from "path";
+import crypto from "crypto";
+import { isBinaryFileSync } from "isbinaryfile";
 
-module.exports = (function () {
+export default (function () {
   "use strict";
 
   var path_without_ext = function (path) {

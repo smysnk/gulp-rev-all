@@ -37,8 +37,8 @@ yarn add --dev gulp-rev-all
 ## Usage
 
 ```js
-var gulp = require("gulp");
-var RevAll = require("gulp-rev-all");
+import gulp from "gulp";
+import RevAll from "gulp-rev-all";
 
 gulp.task("default", function () {
   gulp.src("dist/**").pipe(RevAll.revision()).pipe(gulp.dest("cdn"));
@@ -46,10 +46,10 @@ gulp.task("default", function () {
 ```
 
 ```js
-var gulp = require("gulp");
-var RevAll = require("gulp-rev-all");
-var awspublish = require("gulp-awspublish");
-var cloudfront = require("gulp-cloudfront");
+import gulp from "gulp";
+import RevAll from "gulp-rev-all";
+import awspublish from "gulp-awspublish";
+import cloudfront from "gulp-cloudfront";
 
 var aws = {
   params: {
@@ -89,8 +89,8 @@ Returns a transform function that can be used to pipe files through so that they
 Returns a transform function that will filter out any existing files going through the pipe and will emit a new manifest file. Must be called after `.revision()`.
 
 ```js
-var gulp = require("gulp");
-var RevAll = require("gulp-rev-all");
+import gulp from "gulp";
+import RevAll from "gulp-rev-all";
 
 gulp.task("default", function () {
   return gulp
@@ -117,8 +117,8 @@ An asset manifest, mapping the original paths to the revisioned paths, will be w
 Returns a transform function that will filter out any existing files going through the pipe and will emit a new version file. Must be called after `.revision()`.
 
 ```js
-var gulp = require("gulp");
-var RevAll = require("gulp-rev-all");
+import gulp from "gulp";
+import RevAll from "gulp-rev-all";
 
 gulp.task("default", function () {
   return gulp

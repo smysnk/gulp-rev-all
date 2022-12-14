@@ -1,9 +1,9 @@
-var Vinyl = require("vinyl");
-var fancyLog = require("fancy-log");
-var chalk = require("chalk");
-var Merge = require("merge");
-var Path = require("path");
-var Tool = require("./tool");
+import Vinyl from "vinyl";
+import fancyLog from "fancy-log";
+import chalk from "chalk";
+import Merge from "merge";
+import Path from "path";
+import Tool from "./tool.js";
 
 var Revisioner = (function () {
   "use strict";
@@ -566,4 +566,4 @@ var Revisioner = (function () {
   return Revisioner;
 })();
 
-module.exports = Revisioner;
+export default Revisioner;

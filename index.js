@@ -1,10 +1,10 @@
-var Through = require("through2");
-var Revisioner = require("./revisioner");
-var PluginError = require("plugin-error");
+import Through from "through2";
+import Revisioner from "./revisioner.js";
+import PluginError from "plugin-error";
 
 var PLUGIN_NAME = "gulp-rev-all";
 
-module.exports = {
+export default {
   revision: function (options) {
     var revisioner = new Revisioner(options);
 
