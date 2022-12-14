@@ -1,7 +1,6 @@
 import Vinyl from "vinyl";
 import fancyLog from "fancy-log";
 import chalk from "chalk";
-import Merge from "merge";
 import Path from "path";
 import Tool from "./tool.js";
 
@@ -24,7 +23,7 @@ var Revisioner = (function () {
       includeFilesInManifest: [".css", ".js"],
     };
 
-    this.options = Merge(defaults, options);
+    this.options = { ...defaults, ... options };
 
     // File pool, any file passed into the Revisioner is stored in this object
     this.files = {};
