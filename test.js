@@ -1,5 +1,11 @@
 import RevAll from "./index.js";
-import Tool from "./tool.js";
+import {
+  get_reference_representations_absolute,
+  get_reference_representations_relative,
+  get_relative_path,
+  join_path,
+  join_path_url,
+} from "./tool.js";
 import Path from "path";
 import gulp from "gulp";
 import Vinyl from "vinyl";
@@ -555,7 +561,7 @@ describe("gulp-rev-all", function () {
     it("should replaced references using transform if it is supplied", function (done) {
       setup({
         transformPath: function (reved) {
-          return this.Tool.join_path_url(
+          return join_path_url(
             "//images.example.com/",
             reved.replace("img/", "")
           );
@@ -960,13 +966,13 @@ describe("gulp-rev-all", function () {
     describe("joinPath", function () {
       describe("windows", function () {
         it("should correct slashes", function () {
-          Tool.join_path("d:\\first\\second", "images.png").should.equal(
+          join_path("d:\\first\\second", "images.png").should.equal(
             "/first/second/images.png"
           );
         });
 
         it("should not add starting slash", function () {
-          Tool.join_path("first\\second", "images.png").should.equal(
+          join_path("first\\second", "images.png").should.equal(
             "first/second/images.png"
           );
         });
@@ -974,13 +980,13 @@ describe("gulp-rev-all", function () {
 
       describe("posix", function () {
         it("should correct slashes", function () {
-          Tool.join_path("/first/second", "images.png").should.equal(
+          join_path("/first/second", "images.png").should.equal(
             "/first/second/images.png"
           );
         });
 
         it("should not add starting slash", function () {
-          Tool.join_path("first/second", "images.png").should.equal(
+          join_path("first/second", "images.png").should.equal(
             "first/second/images.png"
           );
         });
@@ -989,36 +995,36 @@ describe("gulp-rev-all", function () {
 
     describe("get_relative_path", function () {
       it("should only truncate paths that overap with the base", function () {
-        Tool.get_relative_path("/base/", "sub/index.html").should.equal(
+        get_relative_path("/base/", "sub/index.html").should.equal(
           "sub/index.html"
         );
-        Tool.get_relative_path("/base/", "/sub/index.html").should.equal(
+        get_relative_path("/base/", "/sub/index.html").should.equal(
           "/sub/index.html"
         );
-        Tool.get_relative_path("/base/", "/base/sub/index.html").should.equal(
+        get_relative_path("/base/", "/base/sub/index.html").should.equal(
           "/sub/index.html"
         );
       });
 
       describe("windows", function () {
         it("should correct slashes", function () {
-          Tool.get_relative_path(
+          get_relative_path(
             "c:\\base",
             "c:\\base\\sub\\index.html"
           ).should.equal("/sub/index.html");
-          Tool.get_relative_path(
+          get_relative_path(
             "c:\\base\\",
             "c:\\base\\sub\\index.html"
           ).should.equal("/sub/index.html");
         });
 
         it("should remove starting slash", function () {
-          Tool.get_relative_path(
+          get_relative_path(
             "d:\\base",
             "d:\\base\\sub\\index.html",
             true
           ).should.equal("sub/index.html");
-          Tool.get_relative_path(
+          get_relative_path(
             "d:\\base\\",
             "d:\\base\\sub\\index.html",
             true
@@ -1026,12 +1032,12 @@ describe("gulp-rev-all", function () {
         });
 
         it("should work on base", function () {
-          Tool.get_relative_path(
+          get_relative_path(
             "e:\\base\\sub",
             "e:\\base\\sub\\index.html",
             true
           ).should.equal("index.html");
-          Tool.get_relative_path(
+          get_relative_path(
             "e:\\base\\sub\\",
             "e:\\base\\sub\\index.html",
             true
@@ -1041,21 +1047,21 @@ describe("gulp-rev-all", function () {
 
       describe("posix", function () {
         it("should correct slashes", function () {
-          Tool.get_relative_path("/base/", "/base/sub/index.html").should.equal(
+          get_relative_path("/base/", "/base/sub/index.html").should.equal(
             "/sub/index.html"
           );
-          Tool.get_relative_path("/base", "/base/sub/index.html").should.equal(
+          get_relative_path("/base", "/base/sub/index.html").should.equal(
             "/sub/index.html"
           );
         });
 
         it("should remove starting slash", function () {
-          Tool.get_relative_path(
+          get_relative_path(
             "/base/",
             "/base/sub/index.html",
             true
           ).should.equal("sub/index.html");
-          Tool.get_relative_path(
+          get_relative_path(
             "/base",
             "/base/sub/index.html",
             true
@@ -1063,12 +1069,12 @@ describe("gulp-rev-all", function () {
         });
 
         it("should work on base", function () {
-          Tool.get_relative_path(
+          get_relative_path(
             "/base/sub/",
             "/base/sub/index.html",
             true
           ).should.equal("index.html");
-          Tool.get_relative_path(
+          get_relative_path(
             "/base/sub",
             "/base/sub/index.html",
             true
@@ -1096,7 +1102,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1122,7 +1128,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1150,7 +1156,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1176,7 +1182,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1203,7 +1209,7 @@ describe("gulp-rev-all", function () {
               file.revPathOriginal = file.path;
               fileReference.revPathOriginal = fileReference.path;
 
-              var references = Tool.get_reference_representations_relative(
+              var references = get_reference_representations_relative(
                 fileReference,
                 file
               );
@@ -1232,7 +1238,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1257,7 +1263,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1282,7 +1288,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1307,7 +1313,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1334,7 +1340,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1359,7 +1365,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1384,7 +1390,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_relative(
+            var references = get_reference_representations_relative(
               fileReference,
               file
             );
@@ -1413,7 +1419,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1439,7 +1445,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1467,7 +1473,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1493,7 +1499,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1521,7 +1527,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1547,7 +1553,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1573,7 +1579,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1599,7 +1605,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1627,7 +1633,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1653,7 +1659,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
@@ -1679,7 +1685,7 @@ describe("gulp-rev-all", function () {
             file.revPathOriginal = file.path;
             fileReference.revPathOriginal = fileReference.path;
 
-            var references = Tool.get_reference_representations_absolute(
+            var references = get_reference_representations_absolute(
               fileReference,
               file
             );
