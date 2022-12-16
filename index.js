@@ -1,4 +1,4 @@
-import Through from "through2";
+import transformStream from "easy-transform-stream";
 import Revisioner from "./revisioner.js";
 import PluginError from "plugin-error";
 
@@ -9,14 +9,10 @@ export default {
     var revisioner = new Revisioner(options);
 
     // Feed the RevAll Revisioner with all the files in the stream, don't emit them until all of them have been processed
-    return Through.obj(
-      function (file, enc, callback) {
+    return transformStream({ objectMode: true },
+      function (file) {
         if (file.isStream()) {
-          this.emit(
-            "error",
-            new PluginError(PLUGIN_NAME, "Streams not supported!")
-          );
-          return callback();
+          throw new PluginError(PLUGIN_NAME, "Streams not supported!");
         }
 
         if (file.isBuffer()) {
@@ -24,17 +20,10 @@ export default {
         }
 
         file.revisioner = revisioner;
-
-        callback();
       },
-      function (callback) {
+      function () {
         revisioner.run();
-
-        var files = revisioner.files;
-        for (var filename in files) {
-          this.push(files[filename]);
-        }
-        callback();
+        return Object.values(revisioner.files);
       }
     );
   },
@@ -43,26 +32,20 @@ export default {
     var revisioner;
 
     // Drop any existing files off the stream, push the generated version file
-    return Through.obj(
-      function (file, enc, callback) {
+    return transformStream({ objectMode: true },
+      function (file) {
         if (!revisioner) {
           revisioner = file.revisioner;
         }
 
         // Drop any existing files off the stream
-        callback();
       },
-      function (callback) {
+      function () {
         if (!revisioner) {
-          this.emit(
-            "error",
-            new PluginError(PLUGIN_NAME, "revision() must be called first!")
-          );
-          return callback();
+          throw new PluginError(PLUGIN_NAME, "revision() must be called first!");
         }
 
-        this.push(revisioner.versionFile());
-        callback();
+        return [revisioner.versionFile()];
       }
     );
   },
@@ -71,24 +54,18 @@ export default {
     var revisioner;
 
     // Drop any existing files off the stream, push the generated manifest file
-    return Through.obj(
-      function (file, enc, callback) {
+    return transformStream({ objectMode: true },
+      function (file) {
         if (!revisioner) {
           revisioner = file.revisioner;
         }
-        callback();
       },
-      function (callback) {
+      function () {
         if (!revisioner) {
-          this.emit(
-            "error",
-            new PluginError(PLUGIN_NAME, "revision() must be called first!")
-          );
-          return callback();
+          throw new PluginError(PLUGIN_NAME, "revision() must be called first!");
         }
 
-        this.push(revisioner.manifestFile());
-        callback();
+        return [revisioner.manifestFile()];
       }
     );
   },

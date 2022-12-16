@@ -6,10 +6,10 @@
   "exports": "./index.js",
   "dependencies": {
     "chalk": "^5.2.0",
+    "easy-transform-stream": "^1.0.0",
     "fancy-log": "^2.0.0",
     "isbinaryfile": "^5.0.0",
     "plugin-error": "^2.0.1",
-    "through2": "^4.0.2",
     "vinyl": "^3.0.0"
   },
   "devDependencies": {
