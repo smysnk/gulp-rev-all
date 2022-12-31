@@ -1,4 +1,4 @@
-# gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Run tests](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml/badge.svg)](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml) [![Dependency Status](https://img.shields.io/david/smysnk/gulp-rev-all.svg)](https://david-dm.org/smysnk/gulp-rev-all)
+# gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Run tests](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml/badge.svg)](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml) ![Dependency Status](https://img.shields.io/librariesio/release/npm/gulp-rev-all)
 
 > Static asset revisioning with dependency considerations, appends content hash to each filename (eg. unicorn.css => unicorn.098f6bcd.css), re-writes references.
 
