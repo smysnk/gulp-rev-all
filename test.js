@@ -960,6 +960,34 @@ describe("gulp-rev-all", function () {
       gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
     });
 
+    it("should resolve references to short style typescript include", function (done) {
+      setup();
+
+      streamRevision.on("data", function () {});
+      streamRevision.on("end", function () {
+        var contents = String(files["/script/app-typescript.ts"].contents);
+
+        var reference =
+          "./" +
+          files["/script/short-ts-only.ts"].revFilename.substr(
+            0,
+            files["/script/short-ts-only.ts"].revFilename.length - 3
+          );
+        contents.should.containEql(reference);
+
+        reference =
+          "./" +
+          files["/script/short-ts-duplicate-only.ts"].revFilename.substr(
+            0,
+            files["/script/short-ts-duplicate-only.ts"].revFilename.length - 3
+          );
+        contents.should.containEql(reference);
+        done();
+      });
+
+      gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
+    });
+
     it("should resolve references to angularjs views", function (done) {
       setup();
 
