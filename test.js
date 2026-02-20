@@ -425,6 +425,28 @@ describe("gulp-rev-all", function () {
 
         gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
       });
+
+      it("should keep references to non-renamed html files unhashed", function (done) {
+        setup({
+          dontRenameFile: [".html"],
+        });
+
+        streamRevision.on("data", function () {});
+        streamRevision.on("end", function () {
+          var indexContents = String(files["/index.html"].contents);
+          var appContents = String(files["/script/app.js"].contents);
+
+          indexContents.should.containEql("view/main.html");
+          indexContents.should.not.match(/view\/main\.[a-z0-9]{8}\.html/);
+
+          appContents.should.containEql("view/gps.html");
+          appContents.should.not.match(/view\/gps\.[a-z0-9]{8}\.html/);
+
+          done();
+        });
+
+        gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
+      });
     });
 
     describe("dontUpdateReference", function () {
