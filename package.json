@@ -17,7 +17,6 @@
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
     "mocha": "^11.7.5",
-    "prettier": "^3.8.1",
     "should": "^13.2.3"
   },
   "scripts": {
@@ -37,7 +36,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/smysnk/gulp-rev-all.git"
+    "url": "https://github.com/smysnk/gulp-rev-all.git"
   },
   "keywords": [
     "gulp-rev",
@@ -61,12 +60,12 @@
     "cdn"
   ],
   "homepage": "https://github.com/smysnk/gulp-rev-all",
-  "author": "Joshua Bellamy-Henn <josh@psidox.com>",
+  "author": "Joshua Bellamy <josh@psidox.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smysnk/gulp-rev-all/issues"
   },
   "engines": {
-    "node": ">=16"
+    "node": ">=18.18"
   }
 }
