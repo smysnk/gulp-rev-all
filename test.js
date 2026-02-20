@@ -138,6 +138,42 @@ describe("gulp-rev-all", function () {
       gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
     });
 
+    it("should not change if child reference key order changes", function (done) {
+      setup();
+
+      streamRevision.on("data", function () {});
+      streamRevision.on("end", function () {
+        var file = files["/index.html"];
+        var entries = Object.entries(file.revReferenceFiles);
+
+        entries.length.should.not.equal(0);
+
+        var forward = {};
+        var reverse = {};
+
+        entries.forEach(function (entry) {
+          forward[entry[0]] = entry[1];
+        });
+        entries
+          .slice()
+          .reverse()
+          .forEach(function (entry) {
+            reverse[entry[0]] = entry[1];
+          });
+
+        file.revReferenceFiles = forward;
+        var hashForward = revisioner.calculateHash(file);
+
+        file.revReferenceFiles = reverse;
+        var hashReverse = revisioner.calculateHash(file);
+
+        hashForward.should.equal(hashReverse);
+        done();
+      });
+
+      gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
+    });
+
     /**
      * Should resolve hash change, both ways
      * Context: https://github.com/smysnk/gulp-rev-all/pull/44

@@ -339,15 +339,18 @@ Revisioner.prototype.resolveReferences = function (fileResolveReferencesIn) {
 Revisioner.prototype.calculateHash = function (file, stack) {
   stack = stack || [];
   var hash = file.revHashOriginal;
+  var hashArray = [];
 
   stack.push(file);
 
   // Resolve hash for child references
   if (Object.keys(file.revReferenceFiles).length > 0) {
+    hashArray.push(hash);
+
     for (var key in file.revReferenceFiles) {
       // Prevent infinite loops caused by circular references, don't recurse if we've already encountered this file
       if (stack.indexOf(file.revReferenceFiles[key]) === -1) {
-        hash += this.calculateHash(file.revReferenceFiles[key], stack);
+        hashArray.push(this.calculateHash(file.revReferenceFiles[key], stack));
       }
     }
 
@@ -356,13 +359,16 @@ Revisioner.prototype.calculateHash = function (file, stack) {
       this.options.prefix &&
       Object.keys(file.referenceGroupsContainer.absolute).length
     ) {
-      hash += this.options.prefix;
+      hashArray.push(this.options.prefix);
     }
 
+    hashArray.sort();
+
     // Consolidate many hashes into one
-    hash = md5(hash);
+    hash = md5(hashArray.join(""));
   }
 
+  stack.pop();
   return hash;
 };
 
