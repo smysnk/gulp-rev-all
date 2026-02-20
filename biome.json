@@ -1,0 +1,28 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.3/schema.json",
+  "files": {
+    "includes": ["index.js", "revisioner.js", "tool.js", "test.js"]
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": false,
+      "correctness": {
+        "recommended": true,
+        "noInnerDeclarations": "off"
+      },
+      "suspicious": {
+        "recommended": true
+      },
+      "complexity": {
+        "recommended": false
+      },
+      "style": {
+        "recommended": false
+      }
+    }
+  },
+  "javascript": {
+    "globals": ["describe", "it", "before", "after", "beforeEach", "afterEach"]
+  }
+}

@@ -1,27 +1,39 @@
 {
   "name": "gulp-rev-all",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
   "type": "module",
   "exports": "./index.js",
   "dependencies": {
-    "chalk": "^5.2.0",
-    "easy-transform-stream": "^1.0.0",
+    "chalk": "^5.6.2",
+    "easy-transform-stream": "^1.0.1",
     "fancy-log": "^2.0.0",
-    "isbinaryfile": "^5.0.0",
+    "isbinaryfile": "^5.0.7",
     "plugin-error": "^2.0.1",
-    "vinyl": "^3.0.0"
+    "vinyl": "^3.0.1"
   },
   "devDependencies": {
-    "eslint": "^8.29.0",
+    "@biomejs/biome": "^2.4.3",
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
-    "mocha": "^10.2.0",
-    "prettier": "^2.2.1",
+    "mocha": "^11.7.5",
+    "prettier": "^3.8.1",
     "should": "^13.2.3"
   },
   "scripts": {
-    "test": "mocha test.js && eslint ."
+    "test": "npm run test:unit && npm run lint",
+    "lint": "biome lint .",
+    "test:unit": "mocha test.js"
+  },
+  "overrides": {
+    "gulp-cli": "^3.1.0",
+    "glob-watcher": "^6.0.0",
+    "glob-stream": "^8.0.3",
+    "mocha": {
+      "diff": "^8.0.3",
+      "glob": "^11.0.3",
+      "minimatch": "^10.2.2"
+    }
   },
   "repository": {
     "type": "git",

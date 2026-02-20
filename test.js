@@ -59,6 +59,7 @@ describe("gulp-rev-all", function () {
         .pipe(
           es.map(function () {
             done("shouldnt get here");
+            return null;
           })
         );
     });
@@ -74,6 +75,7 @@ describe("gulp-rev-all", function () {
         .pipe(
           es.map(function () {
             done("shouldnt get here");
+            return null;
           })
         );
     });
