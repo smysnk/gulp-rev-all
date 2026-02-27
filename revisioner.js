@@ -23,6 +23,7 @@ var Revisioner = function (options) {
     fileNameVersion: "rev-version.json",
     fileNameManifest: "rev-manifest.json",
     prefix: "",
+    baseHref: "",
     referenceToRegexs: referenceToRegexs,
     annotator: annotator,
     replacer: replacer,
@@ -261,8 +262,8 @@ Revisioner.prototype.resolveReferences = function (fileResolveReferencesIn) {
     for (i = 0, length = references.length; i < length; i++) {
       referenceGroupAbsolute.push({
         file: this.files[path],
-        path: references[i],
-      });
+        path: join_path(this.options.baseHref, references[i]),
+      })
     }
   }
 
