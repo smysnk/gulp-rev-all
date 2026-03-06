@@ -417,4 +417,4 @@ Make sure to set the files to [never expire](http://developer.yahoo.com/performa
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT) © [Joshua Bellamy-Henn](http://www.joshuabellamyhenn.com)
+[MIT](http://opensource.org/licenses/MIT) © [Joshua Bellamy](https://smysnk.com)
