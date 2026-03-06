@@ -743,6 +743,21 @@ describe("gulp-rev-all", function () {
 
       gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
     });
+
+    it("should replace with baseHref", function (done) {
+      setup({
+        baseHref: '/www',
+      })
+      streamRevision.on("data", function () { });
+      streamRevision.on("end", function () {
+        var count = String(files['/index.html'].contents).match(
+          /\/www\/script\/lodash\.[a-z0-9]{8}\.js/g,
+        )
+        should(count).not.be.null()
+        done();
+      });
+      gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
+    })
   });
 
   describe("nested html", function () {

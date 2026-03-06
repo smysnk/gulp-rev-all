@@ -242,6 +242,23 @@ gulp.task("default", function () {
 });
 ```
 
+#### baseHref
+
+Matches absolute references that are already served under a base path. Useful when your app is mounted under a subdirectory such as `/www` and files contain references like `/www/script/app.js`.<br/>
+Type: `string`<br/>
+Default: `""`<br/>
+
+```js
+gulp.task("default", function () {
+  gulp
+    .src("dist/**")
+    .pipe(RevAll.revision({ baseHref: "/www" }))
+    .pipe(gulp.dest("cdn"));
+});
+```
+
+For example, with `baseHref: "/www"`, a reference like `/www/script/app.js` will be rewritten to `/www/script/app.<hash>.js`.
+
 #### transformPath
 
 Specify a function to transform the reference path. Useful in instances where the local file structure does not reflect what the remote file structure will be.<br/>
