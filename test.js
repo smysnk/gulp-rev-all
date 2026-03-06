@@ -1,11 +1,11 @@
-import RevAll from "./index.js";
+import RevAll from "./dist/index.js";
 import {
   get_reference_representations_absolute,
   get_reference_representations_relative,
   get_relative_path,
   join_path,
   join_path_url,
-} from "./tool.js";
+} from "./dist/tool.js";
 import Path from "path";
 import gulp from "gulp";
 import Vinyl from "vinyl";

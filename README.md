@@ -1,24 +1,46 @@
 # gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Run tests](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml/badge.svg)](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml) ![Dependency Status](https://img.shields.io/librariesio/release/npm/gulp-rev-all)
 
-> Static asset revisioning with dependency considerations, appends content hash to each filename (eg. unicorn.css => unicorn.098f6bcd.css), re-writes references.
+> Gulp plugin that revisions static assets, rewrites references, and makes parent file hashes change when referenced assets change.
 
-## Purpose
+## What Problem Does This Solve?
 
-By using the HTTP server response header `expires` combined with filename revisioning, static assets can be made cacheable for extended periods of time. Returning visitors will have the assets cached for super fast load times.
+`gulp-rev` is useful for adding content hashes to filenames, but it treats files independently.
 
-Additionally, content distribution networks like [CloudFront](http://aws.amazon.com/cloudfront/) let you cache static assets in [Edge Locations](http://aws.amazon.com/about-aws/globalinfrastructure/) for extended periods of time.
+That becomes a problem when one file references another. For example, if `style.css` references `image.jpg` and the image changes, the image gets a new hashed filename, but the CSS file may still keep the same hash if its own source text has not changed. Clients can then keep using cached CSS that points at the old asset path.
 
-## Why fork?
+`gulp-rev-all` solves that by scanning references, rewriting them, and including referenced files when calculating hashes. If a child asset changes, parent assets that depend on it change too.
 
-This project was forked from [gulp-rev](https://github.com/sindresorhus/gulp-rev) to add reference processing and rewriting functionality.
-It is the philosophy of `gulp-rev` that concerns should be seperated between revisioning the files and re-writing references to those files. `gulp-rev-all` does not agree with this, we believe you need to analyze each revisioned files' references, to calculate a final hash for caching purposes.
+This makes it easier to use long cache lifetimes with static assets behind regular web servers, CDNs, or other immutable-asset deployment strategies.
 
-### Consider the following example:
+## Why Not Just `gulp-rev`?
 
-A css file makes reference to an image. If the image changes, the hash of the css file remains the same since its contents have not changed. Web clients that have previously cached this css file will not correctly resolve the new image.
-If we take in to consideration the dependency graph while calculating the css file hash, we can have it change if any of its child references have changed.
+Use [gulp-rev](https://github.com/sindresorhus/gulp-rev) when you only need per-file fingerprinting.
 
-So to recap, `gulp-rev-all` not only handles reference re-writing but it also takes child references into consideration when calculating a hashes.
+Use `gulp-rev-all` when your build output contains references between files and you want cache invalidation to follow those dependencies. This plugin:
+
+- renames files with content hashes
+- rewrites references to the new hashed filenames
+- recalculates parent file hashes when referenced files change
+
+## Example
+
+Suppose `style.css` contains:
+
+```css
+background-image: url("../img/logo.png");
+```
+
+If `logo.png` changes:
+
+- `gulp-rev` can rename `logo.png`
+- but `style.css` may still keep the same hash
+- cached CSS can still point at the old filename
+
+`gulp-rev-all` updates both:
+
+- `logo.png` gets a new hashed filename
+- the reference inside `style.css` is rewritten
+- `style.css` also gets a new hash because one of its dependencies changed
 
 ## Install
 
@@ -413,8 +435,8 @@ The hash of the asset as calculated by `gulp-rev-all`, you can use this for cust
 
 ## Tips
 
-Make sure to set the files to [never expire](http://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
+Make sure to set the files to [never expire](https://developer.yahoo.com/performance/rules.html#expires) for this to have an effect.
 
 ## License
 
-[MIT](http://opensource.org/licenses/MIT) © [Joshua Bellamy](https://smysnk.com)
+[MIT](https://opensource.org/licenses/MIT) © [Joshua Bellamy](https://smysnk.com)

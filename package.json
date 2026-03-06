@@ -1,9 +1,21 @@
 {
   "name": "gulp-rev-all",
-  "version": "4.1.2",
+  "version": "5.0.0",
   "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
   "type": "module",
-  "exports": "./index.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "dependencies": {
     "chalk": "^5.6.2",
     "easy-transform-stream": "^1.0.1",
@@ -14,14 +26,23 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.3",
+    "@types/event-stream": "^4.0.6",
+    "@types/fancy-log": "^2.0.2",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^25.3.5",
+    "@types/vinyl": "^2.0.12",
     "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
     "mocha": "^11.7.5",
-    "should": "^13.2.3"
+    "should": "^13.2.3",
+    "typescript": "^5.9.3"
   },
   "scripts": {
     "test": "npm run test:unit && npm run lint",
     "lint": "biome lint .",
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build",
+    "pretest:unit": "npm run build",
     "test:unit": "mocha test.js"
   },
   "overrides": {
@@ -62,7 +83,7 @@
     "cdn"
   ],
   "homepage": "https://github.com/smysnk/gulp-rev-all",
-  "author": "Joshua Bellamy <josh@psidox.com>",
+  "author": "Joshua Bellamy <josh@smysnk.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smysnk/gulp-rev-all/issues"
