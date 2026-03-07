@@ -640,6 +640,27 @@ describe("gulp-rev-all", function () {
 
         gulp.src(["test/fixtures/config1/**"]).pipe(streamRevision);
       });
+
+      it("should not rewrite references to html files excluded by dontRenameFile (issue #142)", function (done) {
+        setup({
+          dontRenameFile: [".html"],
+        });
+
+        streamRevision.on("data", function () {});
+        streamRevision.on("end", function () {
+          files["/index.html"].path.should.match(/\/index\.html$/);
+          files["/page.html"].path.should.match(/\/page\.html$/);
+
+          var indexContents = String(files["/index.html"].contents);
+
+          indexContents.should.containEql('href="page.html"');
+          indexContents.should.not.match(/page\.[a-z0-9]{8}\.html/);
+
+          done();
+        });
+
+        gulp.src(["test/fixtures/issue-142/**"]).pipe(streamRevision);
+      });
     });
 
     describe("dontUpdateReference", function () {
