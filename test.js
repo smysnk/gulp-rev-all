@@ -6,6 +6,7 @@ import {
   join_path,
   join_path_url,
 } from "./dist/tool.js";
+import { createRequire } from "node:module";
 import Path from "path";
 import { PassThrough } from "node:stream";
 import gulp from "gulp";
@@ -15,6 +16,8 @@ import crypto from "crypto";
 
 import "should";
 import "mocha";
+
+const require = createRequire(import.meta.url);
 
 describe("gulp-rev-all", function () {
   var streamRevision, revisioner, files;
@@ -43,6 +46,53 @@ describe("gulp-rev-all", function () {
         .pipe(
           es.map(function (file, callback) {
             Path.basename(file.path).should.equal("rev-manifest.json");
+            done();
+            return callback(null, file);
+          })
+        );
+    });
+
+    it("should support CommonJS require()", function (done) {
+      var RevAllCjs = require("gulp-rev-all");
+
+      RevAllCjs.revision.should.be.a.Function();
+      RevAllCjs.manifestFile.should.be.a.Function();
+      RevAllCjs.versionFile.should.be.a.Function();
+
+      gulp
+        .src(["test/fixtures/config1/index.html"])
+        .pipe(RevAllCjs.revision())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.match(/index\.[a-z0-9]{8}\.html$/);
+            done();
+            return callback(null, file);
+          })
+        );
+    });
+
+    it("should support dynamic import() from the package entrypoint", async function () {
+      var imported = await import("gulp-rev-all");
+      var RevAllImported = imported.default ?? imported;
+
+      RevAllImported.revision.should.be.a.Function();
+      RevAllImported.manifestFile.should.be.a.Function();
+      RevAllImported.versionFile.should.be.a.Function();
+    });
+
+    it("should support direct require() of dist/index.cjs", function (done) {
+      var RevAllDistCjs = require("./dist/index.cjs");
+
+      RevAllDistCjs.revision.should.be.a.Function();
+      RevAllDistCjs.manifestFile.should.be.a.Function();
+      RevAllDistCjs.versionFile.should.be.a.Function();
+
+      gulp
+        .src(["test/fixtures/config1/index.html"])
+        .pipe(RevAllDistCjs.revision())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.match(/index\.[a-z0-9]{8}\.html$/);
             done();
             return callback(null, file);
           })

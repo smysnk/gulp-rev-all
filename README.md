@@ -63,7 +63,7 @@ import gulp from "gulp";
 import RevAll from "gulp-rev-all";
 
 gulp.task("default", function () {
-  gulp.src("dist/**").pipe(RevAll.revision()).pipe(gulp.dest("cdn"));
+  return gulp.src("dist/**").pipe(RevAll.revision()).pipe(gulp.dest("cdn"));
 });
 ```
 
@@ -87,7 +87,7 @@ var publisher = awspublish.create(aws);
 var headers = { "Cache-Control": "max-age=315360000, no-transform, public" };
 
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(RevAll.revision())
     .pipe(awspublish.gzip())
@@ -214,7 +214,7 @@ In some cases, you may not want to rev your `*.html` files:
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(RevAll.revision({ dontRenameFile: [/^\/favicon.ico$/g, ".html"] }))
     .pipe(gulp.dest("cdn"));
@@ -226,7 +226,7 @@ Every html file except the root `/index.html` file:
 ```js
 gulp.task('default', function () {
 
-  gulp
+  return gulp
     .src('dist/**')
     .pipe(RevAll.revision({ dontRenameFile: [/^\/favicon.ico$/g, /^\/index.html/g] })))
     .pipe(gulp.dest('cdn'))
@@ -242,7 +242,7 @@ Default: `8`<br/>
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(RevAll.revision({ hashLength: 4 }))
     .pipe(gulp.dest("cdn"));
@@ -257,7 +257,7 @@ Default: `none`<br/>
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(RevAll.revision({ prefix: "http://1234.cloudfront.net/" }))
     .pipe(gulp.dest("cdn"));
@@ -272,7 +272,7 @@ Default: `""`<br/>
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(RevAll.revision({ baseHref: "/www" }))
     .pipe(gulp.dest("cdn"));
@@ -295,7 +295,7 @@ The function takes three arguments:
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(
       RevAll.revision({
@@ -322,7 +322,7 @@ The function takes one argument:
 
 ```js
 gulp.task("default", function () {
-  gulp
+  return gulp
     .src("dist/**")
     .pipe(
       RevAll.revision({

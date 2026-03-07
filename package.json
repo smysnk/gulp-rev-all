@@ -1,18 +1,22 @@
 {
   "name": "gulp-rev-all",
-  "version": "5.0.0",
+  "version": "5.0.1",
   "description": "Static asset revisioning by appending content hash to filenames: unicorn.css => unicorn.098f6bcd.css, also re-writes references in each file to new reved name.",
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "default": "./dist/index.js"
     }
   },
   "types": "./dist/index.d.ts",
   "files": [
     "dist",
+    "dist-cjs",
     "README.md",
     "LICENSE"
   ],
@@ -40,7 +44,7 @@
   "scripts": {
     "test": "npm run test:unit && npm run lint",
     "lint": "biome lint .",
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/prepare-dual-build.mjs",
     "prepack": "npm run build",
     "pretest:unit": "npm run build",
     "test:unit": "mocha test.js"
@@ -83,7 +87,7 @@
     "cdn"
   ],
   "homepage": "https://github.com/smysnk/gulp-rev-all",
-  "author": "Joshua Bellamy <josh@smysnk.com>",
+  "author": "Joshua Bellamy <github@smysnk.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/smysnk/gulp-rev-all/issues"
