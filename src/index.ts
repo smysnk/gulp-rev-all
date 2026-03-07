@@ -1,7 +1,7 @@
 import { type Transform } from "node:stream";
-import transformStream from "easy-transform-stream";
 import PluginError from "plugin-error";
 import type Vinyl from "vinyl";
+import createAsyncTransform from "./async-transform.js";
 import Revisioner, { type RevisionOptions, type RevisionedFile } from "./revisioner.js";
 
 const PLUGIN_NAME = "gulp-rev-all";
@@ -53,7 +53,7 @@ const RevAll: RevisionAllPlugin = {
   revision(options) {
     const revisioner = new Revisioner(options);
 
-    return transformStream(
+    return createAsyncTransform(
       { objectMode: true },
       async (chunk) => {
         const file = chunk as RevisionStreamFile;
@@ -79,7 +79,7 @@ const RevAll: RevisionAllPlugin = {
   versionFile() {
     let revisioner: Revisioner | undefined;
 
-    return transformStream(
+    return createAsyncTransform(
       { objectMode: true },
       async (chunk) => {
         const file = chunk as RevisionStreamFile;
@@ -103,7 +103,7 @@ const RevAll: RevisionAllPlugin = {
   manifestFile() {
     let revisioner: Revisioner | undefined;
 
-    return transformStream(
+    return createAsyncTransform(
       { objectMode: true },
       async (chunk) => {
         const file = chunk as RevisionStreamFile;

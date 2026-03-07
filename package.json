@@ -21,8 +21,6 @@
     "LICENSE"
   ],
   "dependencies": {
-    "chalk": "^5.6.2",
-    "easy-transform-stream": "^1.0.1",
     "fancy-log": "^2.0.0",
     "isbinaryfile": "^5.0.7",
     "plugin-error": "^2.0.1",

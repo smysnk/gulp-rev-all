@@ -1,7 +1,7 @@
-import chalk from "chalk";
 import fancyLog from "fancy-log";
 import Path from "node:path";
 import Vinyl from "vinyl";
+import color from "./color.js";
 import {
   get_reference_representations_absolute,
   get_reference_representations_relative,
@@ -598,13 +598,13 @@ export default class Revisioner {
                 "Found",
                 referenceType,
                 "reference [",
-                chalk.magenta(reference.path),
-                "] -> [",
-                chalk.green(reference.file.path),
-                "] in [",
-                chalk.blue(fileResolveReferencesIn.revPathOriginal),
-                "]",
-              );
+                  color.magenta(reference.path),
+                  "] -> [",
+                  color.green(reference.file.path),
+                  "] in [",
+                  color.blue(fileResolveReferencesIn.revPathOriginal),
+                  "]",
+                );
             } else if (
               fileResolveReferencesIn.revReferencePaths[reference.path].file
                 .revPathOriginal === reference.file.revPathOriginal
@@ -616,16 +616,16 @@ export default class Revisioner {
               this.log(
                 "gulp-rev-all:",
                 "Possible ambiguous reference detected [",
-                chalk.red(
+                color.red(
                   fileResolveReferencesIn.revReferencePaths[reference.path].path,
                 ),
                 " (",
                 fileResolveReferencesIn.revReferencePaths[reference.path].file
                   .revPathOriginal,
                 ")] <-> [",
-                chalk.red(reference.path),
+                color.red(reference.path),
                 "(",
-                chalk.red(reference.file.revPathOriginal),
+                color.red(reference.file.revPathOriginal),
                 ")]",
               );
             }
