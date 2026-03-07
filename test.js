@@ -7,6 +7,7 @@ import {
   join_path_url,
 } from "./dist/tool.js";
 import Path from "path";
+import { PassThrough } from "node:stream";
 import gulp from "gulp";
 import Vinyl from "vinyl";
 import es from "event-stream";
@@ -48,6 +49,25 @@ describe("gulp-rev-all", function () {
         );
     });
 
+    it("should throw an error when revision() receives a stream file", function (done) {
+      var revisionStream = RevAll.revision();
+
+      revisionStream.on("error", function (err) {
+        err.message.should.equal("Streams not supported!");
+        done();
+      });
+
+      revisionStream.write(
+        new Vinyl({
+          cwd: process.cwd(),
+          base: process.cwd(),
+          path: Path.join(process.cwd(), "streamed.js"),
+          contents: new PassThrough(),
+        })
+      );
+      revisionStream.end();
+    });
+
     it("should throw an error when versionFile() is called before revision()", function (done) {
       gulp
         .src(["test/fixtures/config1/**"])
@@ -76,6 +96,93 @@ describe("gulp-rev-all", function () {
           es.map(function () {
             done("shouldnt get here");
             return null;
+          })
+        );
+    });
+  });
+
+  describe("generated files", function () {
+    it("should emit version file JSON contents with the default filename", function (done) {
+      gulp
+        .src(["test/fixtures/config1/**"])
+        .pipe(RevAll.revision())
+        .pipe(RevAll.versionFile())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.equal("rev-version.json");
+
+            var contents = JSON.parse(String(file.contents));
+            contents.hash.should.match(/^[a-z0-9]{32}$/);
+            new Date(contents.timestamp).toString().should.not.equal("Invalid Date");
+
+            done();
+            return callback(null, file);
+          })
+        );
+    });
+
+    it("should emit manifest JSON contents for the default included file types", function (done) {
+      gulp
+        .src(["test/fixtures/config1/**"])
+        .pipe(RevAll.revision())
+        .pipe(RevAll.manifestFile())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.equal("rev-manifest.json");
+
+            var manifest = JSON.parse(String(file.contents));
+            manifest.should.have.property("css/style.css");
+            manifest["css/style.css"].should.match(/^css\/style\.[a-z0-9]{8}\.css$/);
+            manifest.should.have.property("script/app.js");
+            manifest["script/app.js"].should.match(/^script\/app\.[a-z0-9]{8}\.js$/);
+            should(manifest["index.html"]).be.undefined();
+
+            done();
+            return callback(null, file);
+          })
+        );
+    });
+
+    it("should honor a custom version filename", function (done) {
+      gulp
+        .src(["test/fixtures/config1/**"])
+        .pipe(
+          RevAll.revision({
+            fileNameVersion: "build-version.json",
+          })
+        )
+        .pipe(RevAll.versionFile())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.equal("build-version.json");
+            done();
+            return callback(null, file);
+          })
+        );
+    });
+
+    it("should honor a custom manifest filename and includeFilesInManifest rules", function (done) {
+      gulp
+        .src(["test/fixtures/config1/**"])
+        .pipe(
+          RevAll.revision({
+            fileNameManifest: "assets-manifest.json",
+            includeFilesInManifest: [".html"],
+          })
+        )
+        .pipe(RevAll.manifestFile())
+        .pipe(
+          es.map(function (file, callback) {
+            Path.basename(file.path).should.equal("assets-manifest.json");
+
+            var manifest = JSON.parse(String(file.contents));
+            manifest.should.have.property("index.html");
+            manifest["index.html"].should.match(/^index\.[a-z0-9]{8}\.html$/);
+            should(manifest["css/style.css"]).be.undefined();
+            should(manifest["script/app.js"]).be.undefined();
+
+            done();
+            return callback(null, file);
           })
         );
     });
@@ -1798,6 +1905,71 @@ describe("gulp-rev-all", function () {
             references[1].should.equal("other/index.html");
           });
         });
+      });
+    });
+
+    describe("annotator and replacer", function () {
+      it("should allow custom fragments to avoid false-positive replacements", function (done) {
+        var revisionStream = RevAll.revision({
+          annotator: function (contents) {
+            var protectedFragment = 'var deps = ["xyz"];';
+            var splitPoint = contents.indexOf(protectedFragment);
+
+            return [
+              {
+                contents: contents.slice(0, splitPoint),
+                replaceable: true,
+              },
+              {
+                contents: contents.slice(splitPoint),
+                replaceable: false,
+              },
+            ];
+          },
+          replacer: function (fragment, replaceRegExp, newReference) {
+            if (!fragment.replaceable) {
+              return;
+            }
+
+            fragment.contents = fragment.contents.replace(
+              replaceRegExp,
+              "$1" + newReference + "$3$4"
+            );
+          },
+        });
+
+        revisionStream.on("data", function (file) {
+          revisioner = file.revisioner;
+          files = revisioner.files;
+        });
+
+        revisionStream.on("end", function () {
+          var contents = String(files["/app.js"].contents);
+
+          contents.should.match(/require\("xyz\.[a-z0-9]{8}"\);/);
+          contents.should.containEql('var deps = ["xyz"];');
+          contents.should.not.match(/var deps = \["xyz\.[a-z0-9]{8}"\];/);
+
+          done();
+        });
+
+        revisionStream.write(
+          new Vinyl({
+            cwd: "/project",
+            base: "/project",
+            path: "/project/xyz.js",
+            contents: Buffer.from("module.exports = true;"),
+          })
+        );
+        revisionStream.write(
+          new Vinyl({
+            cwd: "/project",
+            base: "/project",
+            path: "/project/app.js",
+            contents: Buffer.from('require("xyz");\nvar deps = ["xyz"];\n'),
+          })
+        );
+        revisionStream.end();
       });
     });
   });

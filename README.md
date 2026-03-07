@@ -1,4 +1,4 @@
-# gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Run tests](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml/badge.svg)](https://github.com/nfroidure/svg-pathdata/actions/workflows/test.yml) ![Dependency Status](https://img.shields.io/librariesio/release/npm/gulp-rev-all)
+# gulp-rev-all [![NPM version](https://img.shields.io/npm/v/gulp-rev-all.svg)](https://www.npmjs.com/package/gulp-rev-all) [![Run tests](https://github.com/smysnk/gulp-rev-all/actions/workflows/test.yml/badge.svg)](https://github.com/smysnk/gulp-rev-all/actions/workflows/test.yml) ![Dependency Status](https://img.shields.io/librariesio/release/npm/gulp-rev-all)
 
 > Gulp plugin that revisions static assets, rewrites references, and makes parent file hashes change when referenced assets change.
 
