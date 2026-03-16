@@ -1,6 +1,7 @@
 /node_modules
 /dist
 /dist-cjs
+/artifacts
 /*.log
 .idea/
 *.iml

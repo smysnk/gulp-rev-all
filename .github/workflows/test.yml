@@ -20,6 +20,73 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
       - run: npm ci
-      - run: npm test
+
+      - name: Capture build start time
+        run: echo "TEST_STATION_BUILD_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
+
+      - name: Run test-station report
+        id: test_station
+        shell: bash
+        run: |
+          log_path="${RUNNER_TEMP}/test-station.log"
+          set +e
+          npm run test:station 2>&1 | tee "$log_path"
+          status=${PIPESTATUS[0]}
+          echo "exit_code=$status" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Upload test-station artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-station-report-node-${{ matrix.node }}
+          path: ./artifacts/workspace-tests
+          if-no-files-found: warn
+
+      - name: Derive test-station publishing status
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.test_station.outputs.exit_code }}" = "0" ]; then
+            echo "TEST_STATION_CI_STATUS=passed" >> "$GITHUB_ENV"
+          else
+            echo "TEST_STATION_CI_STATUS=failed" >> "$GITHUB_ENV"
+          fi
+
+      - name: Publish test-station report
+        if: always()
+        shell: bash
+        env:
+          TEST_STATION_INGEST_ENDPOINT: https://test-station.smysnk.com/api/ingest
+          TEST_STATION_INGEST_SHARED_KEY: ${{ secrets.TEST_STATION_INGEST_SHARED_KEY }}
+        run: |
+          if [ -z "$TEST_STATION_INGEST_SHARED_KEY" ]; then
+            echo "Skipping ingest publish because TEST_STATION_INGEST_SHARED_KEY is not set."
+            exit 0
+          fi
+          if [ ! -f ./artifacts/workspace-tests/report.json ]; then
+            echo "Skipping ingest publish because artifacts/workspace-tests/report.json is missing."
+            exit 0
+          fi
+          export TEST_STATION_BUILD_COMPLETED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npm run test:publish
+
+      - name: Assert test-station run passed
+        if: always()
+        shell: bash
+        run: |
+          if [ "${{ steps.test_station.outputs.exit_code }}" = "0" ]; then
+            exit 0
+          fi
+
+          log_path="${RUNNER_TEMP}/test-station.log"
+          echo "test-station run failed. Captured log:"
+          if [ -f "$log_path" ]; then
+            cat "$log_path"
+          else
+            echo "No test-station log file found at $log_path"
+          fi
+          exit 1

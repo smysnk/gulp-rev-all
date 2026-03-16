@@ -27,6 +27,7 @@
     "vinyl": "^3.0.1"
   },
   "devDependencies": {
+    "@test-station/cli": "^0.2.33",
     "@biomejs/biome": "^2.4.3",
     "@types/event-stream": "^4.0.6",
     "@types/fancy-log": "^2.0.2",
@@ -45,7 +46,10 @@
     "build": "tsc -p tsconfig.json && tsc -p tsconfig.cjs.json && node scripts/prepare-dual-build.mjs",
     "prepack": "npm run build",
     "pretest:unit": "npm run build",
-    "test:unit": "mocha test.js"
+    "test:unit": "mocha test.js",
+    "test:station": "test-station run --config ./test-station.config.mjs",
+    "test:station:inspect": "test-station inspect --config ./test-station.config.mjs",
+    "test:publish": "node ./scripts/publish-test-station-report.mjs --input ./artifacts/workspace-tests/report.json --project-key gulp-rev-all"
   },
   "overrides": {
     "gulp-cli": "^3.1.0",
