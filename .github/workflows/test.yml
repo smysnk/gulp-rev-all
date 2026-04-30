@@ -24,10 +24,16 @@ jobs:
 
       - run: npm ci
 
+      - name: Run npm test
+        if: matrix.node != '22'
+        run: npm test
+
       - name: Capture build start time
+        if: matrix.node == '22'
         run: echo "TEST_STATION_BUILD_STARTED_AT=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
       - name: Run test-station report
+        if: matrix.node == '22'
         id: test_station
         shell: bash
         run: |
@@ -39,7 +45,7 @@ jobs:
           exit 0
 
       - name: Upload test-station artifact
-        if: always()
+        if: always() && matrix.node == '22'
         uses: actions/upload-artifact@v4
         with:
           name: test-station-report-node-${{ matrix.node }}
@@ -47,7 +53,7 @@ jobs:
           if-no-files-found: warn
 
       - name: Derive test-station publishing status
-        if: always()
+        if: always() && matrix.node == '22'
         shell: bash
         run: |
           if [ "${{ steps.test_station.outputs.exit_code }}" = "0" ]; then
@@ -57,7 +63,7 @@ jobs:
           fi
 
       - name: Publish test-station report
-        if: always()
+        if: always() && matrix.node == '22'
         shell: bash
         env:
           TEST_STATION_INGEST_ENDPOINT: https://test-station.smysnk.com/api/ingest
@@ -75,7 +81,7 @@ jobs:
           npm run test:publish
 
       - name: Assert test-station run passed
-        if: always()
+        if: always() && matrix.node == '22'
         shell: bash
         run: |
           if [ "${{ steps.test_station.outputs.exit_code }}" = "0" ]; then
