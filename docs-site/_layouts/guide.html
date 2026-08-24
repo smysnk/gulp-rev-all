@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title }} | {{ site.title }}</title>
+    <meta name="description" content="{{ page.description | default: site.description | strip_html | escape }}">
+    <link rel="canonical" href="{{ page.url | absolute_url }}">
+    <link rel="stylesheet" href="{{ '/assets/guide.css' | relative_url }}">
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="site-brand" href="{{ '/' | relative_url }}">gulp-rev-all</a>
+      <nav aria-label="Project links">
+        <a href="/projects">Projects</a>
+        <a href="https://github.com/smysnk/gulp-rev-all">GitHub</a>
+        <a href="https://www.npmjs.com/package/gulp-rev-all">npm</a>
+      </nav>
+    </header>
+    <main class="guide-shell">
+      <p class="eyebrow">Project documentation</p>
+      <article class="guide-content">
+        {{ content }}
+      </article>
+    </main>
+  </body>
+</html>

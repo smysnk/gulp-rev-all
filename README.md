@@ -2,6 +2,8 @@
 
 > Gulp plugin that revisions static assets, rewrites references, and makes parent file hashes change when referenced assets change.
 
+Documentation: [smysnk.com/projects/gulp-rev-all/docs](https://smysnk.com/projects/gulp-rev-all/docs/)
+
 ## What Problem Does This Solve?
 
 `gulp-rev` is useful for adding content hashes to filenames, but it treats files independently.

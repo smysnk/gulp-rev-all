@@ -2,6 +2,7 @@
 /dist
 /dist-cjs
 /artifacts
+/.test-results
 /*.log
 .idea/
 *.iml

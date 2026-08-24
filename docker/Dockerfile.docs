@@ -1,0 +1,19 @@
+FROM ruby:3.3 AS builder
+
+RUN gem install jekyll -v 4.3.4 --no-document
+COPY .test-results/docs-public-source/ /docs-source/
+RUN /usr/local/bundle/bin/jekyll build \
+  --source /docs-source \
+  --destination /docs-site \
+  --baseurl /projects/gulp-rev-all/docs
+
+FROM nginx:1.27-alpine
+
+ARG SOURCE_REVISION=unknown
+LABEL org.opencontainers.image.source="https://github.com/smysnk/gulp-rev-all"
+LABEL org.opencontainers.image.revision="${SOURCE_REVISION}"
+
+COPY docker/docs-nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /docs-site/ /usr/share/nginx/html/projects/gulp-rev-all/docs/
+
+EXPOSE 8080

@@ -1,0 +1,11 @@
+.git
+.github
+.test-results/*
+!.test-results/docs-public-source/
+!.test-results/docs-public-source/**
+artifacts
+dist
+dist-cjs
+node_modules
+references
+test

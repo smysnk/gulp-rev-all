@@ -1,0 +1,10 @@
+title: gulp-rev-all Documentation
+description: Content-aware static asset revisioning for Gulp.
+url: https://smysnk.com
+baseurl: /projects/gulp-rev-all/docs
+markdown: kramdown
+permalink: pretty
+theme: null
+exclude:
+  - Gemfile
+  - Gemfile.lock

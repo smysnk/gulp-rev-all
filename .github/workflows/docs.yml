@@ -1,0 +1,103 @@
+name: Publish Project Documentation
+
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: project-docs-gulp-rev-all
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Validate package
+        run: npm test
+
+      - name: Verify npm package contents
+        run: |
+          npm pack --dry-run --json > /tmp/npm-pack.json
+          jq --exit-status '.[0].files | any(.path == "README.md")' /tmp/npm-pack.json
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+
+      - name: Install pinned Jekyll
+        run: gem install jekyll -v 4.3.4 --no-document
+
+      - name: Build mounted documentation
+        env:
+          DOCS_SOURCE_REVISION: ${{ github.sha }}
+        run: npm run docs:build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build immutable documentation image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_DOCS }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build \
+            --build-arg SOURCE_REVISION="$IMAGE_TAG" \
+            -f docker/Dockerfile.docs \
+            -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" \
+            .
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+
+      - name: Smoke test documentation image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY_DOCS }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          container_id="$(docker run --detach --publish 8080:8080 "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG")"
+          trap 'docker rm --force "$container_id" >/dev/null 2>&1 || true' EXIT
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent --show-error http://127.0.0.1:8080/projects/gulp-rev-all/docs/build-metadata.json > /tmp/docs-metadata.json; then
+              break
+            fi
+            sleep 1
+          done
+          jq --exit-status --arg revision "$IMAGE_TAG" '.project == "gulp-rev-all" and .revision == $revision' /tmp/docs-metadata.json
+          curl --fail --silent --show-error http://127.0.0.1:8080/projects/gulp-rev-all/docs/ >/dev/null
+          test "$(curl --silent --output /dev/null --write-out '%{http_code}' http://127.0.0.1:8080/projects/gulp-rev-all/docs/not-a-page/)" = "404"
+
+      - name: Request personal-website promotion
+        env:
+          GH_TOKEN: ${{ secrets.PERSONAL_WEBSITE_DISPATCH_TOKEN }}
+          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_REPOSITORY: ${{ vars.ECR_REPOSITORY_DOCS }}
+        run: |
+          payload="$(jq --null-input --arg tag "$IMAGE_TAG" --arg repository "$IMAGE_REPOSITORY" '{event_type:"project-docs-published",client_payload:{slug:"gulp-rev-all",image_tag:$tag,image_repository:$repository}}')"
+          gh api --method POST repos/smysnk/personal-website/dispatches --input - <<<"$payload"

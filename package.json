@@ -49,7 +49,10 @@
     "test:unit": "mocha test.js",
     "test:station": "test-station run --config ./test-station.config.mjs",
     "test:station:inspect": "test-station inspect --config ./test-station.config.mjs",
-    "test:publish": "node ./scripts/publish-test-station-report.mjs --input ./artifacts/workspace-tests/report.json --project-key gulp-rev-all"
+    "test:publish": "node ./scripts/publish-test-station-report.mjs --input ./artifacts/workspace-tests/report.json --project-key gulp-rev-all",
+    "docs:stage": "node ./scripts/docs/stage-readme-docs.mjs",
+    "docs:check": "node ./scripts/docs/check-docs.mjs",
+    "docs:build": "bash ./scripts/docs/build-public.sh"
   },
   "overrides": {
     "gulp-cli": "^3.1.0",
@@ -90,7 +93,7 @@
     "cloudfront",
     "cdn"
   ],
-  "homepage": "https://github.com/smysnk/gulp-rev-all",
+  "homepage": "https://smysnk.com/projects/gulp-rev-all/docs/",
   "author": "Joshua Bellamy <github@smysnk.com>",
   "license": "MIT",
   "bugs": {
